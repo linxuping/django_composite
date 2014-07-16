@@ -12,3 +12,11 @@ def visit_bootstrap(request):
   html = t.render(Context({"id":1}))  
   return HttpResponse(html) 
   
+@csrf_exempt  
+def visit_blog(request):
+  fp = open('django_composite/blog.html')  
+  t = Template(fp.read())  
+  fp.close()  
+  html = t.render(Context({"id":1}))  
+  return HttpResponse(html) 
+  
