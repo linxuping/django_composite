@@ -49,3 +49,12 @@ def visit_blog(request):
   html = t.render(Context({"id":1}))  
   return HttpResponse(html) 
   
+@csrf_exempt  
+def visit_offcanvas(request):
+  print request.session.items()
+  fp = open('django_composite/offcanvas.html')  
+  t = Template(fp.read())  
+  fp.close()  
+  html = t.render(Context({"id":1}))  
+  return HttpResponse(html) 
+  
