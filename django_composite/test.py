@@ -11,7 +11,8 @@ def get_nodes(_url, _xpath):
 #print len(get_nodes("http://tech.163.com/latest", '//*[@id="instantPanel"]/div[1]/ul/li[1]/a[2]'))
 #nodes = get_nodes("http://tech.163.com/", '//h2[@class="color-link"]/a')
 #nodes = get_nodes("http://tech.qq.com/", '//div[@class="Q-tpList"]/div/h3/a')
-nodes = get_nodes("http://tech.sina.com.cn/", '//div')
+nodes = get_nodes("http://tech.sina.com.cn/", '//a[@target="_blank"]')
+nodes = get_nodes("http://tech.sina.com.cn/internet/", '//li/a[@target="_blank"]')
 print len(nodes)
 for node in nodes:
-  print node.text,node.get("class")
+  print node.text,node.get("href"),node.getparent().tag
