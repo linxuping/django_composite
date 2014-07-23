@@ -56,20 +56,29 @@ def visit_blog(request):
 @csrf_exempt  
 def visit_offcanvas(request):
   print request.session.items()
+  print request.POST
+  searchcontent = request.POST.get("searchcontent", "")
+  print "+++ ", searchcontent
   
   #get 126 news
   news_163 = []
-  nodes = get_nodes("http://tech.163.com/", '//h2[@class="color-link"]/a')
+  nodes = get_nodes("http://tech.163.com/internet/", '//a')
   for node in nodes:
-    news_163.append(news_item(node.text,node.get("href")))
+    global url_infos
+    if node.get("href").find(url_infos["163.com"][3])!=-1 and None!=node.text and len(node.text)>10 and node.text.find(searchcontent)!=-1:
+      news_163.append(news_item(node.text,node.get("href")))
   news_qq = []
   nodes2 = get_nodes("http://tech.qq.com/", '//div[@class="Q-tpList"]/div/h3/a')
   for node in nodes2:
-    news_qq.append(news_item(node.text,node.get("href")))
+    global url_infos
+    if node.get("href").find(url_infos["qq.com"][3])!=-1 and None!=node.text and len(node.text)>10 and node.text.find(searchcontent)!=-1:
+      news_qq.append(news_item(node.text,node.get("href")))
   news_sina = []
-  nodes3 = get_nodes("http://tech.sina.com.cn/", '//div[@class="feed-card-item"]/h2/a')
+  nodes3 = get_nodes("http://tech.sina.com.cn/internet/", '//h3/a[@target="_blank"]')
   for node in nodes3:
-    news_sina.append(news_item(node.text,node.get("href")))
+    global url_infos
+    if node.get("href").find(url_infos["sina.com"][3])!=-1 and None!=node.text and len(node.text)>10 and node.text.find(searchcontent)!=-1:
+      news_sina.append(news_item(node.text,node.get("href")))
     
   _news = [news("163.com", news_163),news("qq.com", news_qq),news("sina.com", news_sina)]
   
