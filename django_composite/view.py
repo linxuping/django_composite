@@ -4,6 +4,10 @@ from django.template import Template,Context,RequestContext
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from books.models import Publisher
+from base import *
+
+#mock memcache
+mock_mc = {"mock_key", "mock_value"}
 
 from django import forms
 class UserForm(forms.Form):
@@ -52,9 +56,26 @@ def visit_blog(request):
 @csrf_exempt  
 def visit_offcanvas(request):
   print request.session.items()
+  
+  #get 126 news
+  news_163 = []
+  nodes = get_nodes("http://tech.163.com/", '//h2[@class="color-link"]/a')
+  for node in nodes:
+    news_163.append(news_item(node.text,node.get("href")))
+  news_qq = []
+  nodes2 = get_nodes("http://tech.qq.com/", '//div[@class="Q-tpList"]/div/h3/a')
+  for node in nodes2:
+    news_qq.append(news_item(node.text,node.get("href")))
+  news_sina = []
+  nodes3 = get_nodes("http://tech.sina.com.cn/", '//div[@class="feed-card-item"]/h2/a')
+  for node in nodes3:
+    news_sina.append(news_item(node.text,node.get("href")))
+    
+  _news = [news("163.com", news_163),news("qq.com", news_qq),news("sina.com", news_sina)]
+  
   fp = open('django_composite/offcanvas.html')  
   t = Template(fp.read())  
   fp.close()  
-  html = t.render(Context({"id":1}))  
+  html = t.render(Context({"news":_news}))  
   return HttpResponse(html) 
   
