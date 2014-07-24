@@ -11,9 +11,9 @@ def get_nodes(_url, _xpath):
   
 url_infos = {
   #topic: [tech link, xpath, offical link]
-  "163.com": ["http://tech.163.com/", '//h2[@class="color-link"]/a', "http://www.163.com/", "14/0723"],
-  "qq.com": ["http://tech.qq.com/", '//div[@class="Q-tpList"]/div/h3/a', "http://www.qq.com/", "20140723"],
-  "sina.com": ["http://tech.qq.com/", '//div[@class="Q-tpList"]/div/h3/a', "http://www.sina.com.cn/", "2014-07-23"],
+  "163.com": ["http://tech.163.com/", '//h2[@class="color-link"]/a', "http://www.163.com/", "14/0724"],
+  "qq.com": ["http://tech.qq.com/", '//div[@class="Q-tpList"]/div/h3/a', "http://www.qq.com/", "20140724"],
+  "sina.com": ["http://tech.qq.com/", '//div[@class="Q-tpList"]/div/h3/a', "http://www.sina.com.cn/", "2014-07-24"],
 } #go to config.py
   
 class news_item:
