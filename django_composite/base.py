@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import urllib2
+import time
 from lxml import etree
 
 def get_nodes(_url, _xpath):
@@ -11,9 +12,9 @@ def get_nodes(_url, _xpath):
   
 url_infos = {
   #topic: [tech link, xpath, offical link]
-  "163.com": ["http://tech.163.com/", '//h2[@class="color-link"]/a', "http://www.163.com/", "14/0724"],
-  "qq.com": ["http://tech.qq.com/", '//div[@class="Q-tpList"]/div/h3/a', "http://www.qq.com/", "20140724"],
-  "sina.com": ["http://tech.qq.com/", '//div[@class="Q-tpList"]/div/h3/a', "http://www.sina.com.cn/", "2014-07-24"],
+  "163.com": ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+  "qq.com": ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
+  "sina.com": ["http://tech.qq.com/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
 } #go to config.py
   
 class news_item:
