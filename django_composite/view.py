@@ -65,19 +65,19 @@ def visit_offcanvas(request):
   nodes = get_nodes("http://tech.163.com/", '//a')
   for node in nodes:
     global url_infos
-    if None!=node.get("href") and node.get("href").find(url_infos["163.com"][3])!=-1 and None!=node.text and len(node.text)>10 and node.text.find(searchcontent)!=-1:
+    if None!=node.get("href") and node.get("href").find(url_infos["163.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
       news_163.append(news_item(node.text,node.get("href")))
   news_qq = []
   nodes2 = get_nodes("http://tech.qq.com/", '//a')
   for node in nodes2:
     global url_infos
-    if None!=node.get("href") and node.get("href").find(url_infos["qq.com"][3])!=-1 and None!=node.text and len(node.text)>10 and node.text.find(searchcontent)!=-1:
+    if None!=node.get("href") and node.get("href").find(url_infos["qq.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
       news_qq.append(news_item(node.text,node.get("href")))
   news_sina = []
-  nodes3 = get_nodes("http://tech.sina.com.cn/", '//a')
+  nodes3 = get_nodes("http://tech.sina.com.cn/internet/", '//a')
   for node in nodes3:
     global url_infos
-    if None!=node.get("href") and node.get("href").find(url_infos["sina.com"][3])!=-1 and None!=node.text and len(node.text)>10 and node.text.find(searchcontent)!=-1:
+    if None!=node.get("href") and node.get("href").find(url_infos["sina.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
       news_sina.append(news_item(node.text,node.get("href")))
     
   _news = [news("163.com", news_163),news("qq.com", news_qq),news("sina.com", news_sina)]
