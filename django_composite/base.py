@@ -15,7 +15,10 @@ url_infos = {
   "163.com": ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
   "qq.com": ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
   "sina.com": ["http://tech.qq.com/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
-} #go to config.py
+  "ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y_%m/%d',time.localtime(time.time())) ],#2014_07/24
+} #go to config.py 
+hot_keys = ["车", "小米", "手机", "平板", "4G"] 
+all_news = []
   
 class news_item:
   def __init__(self, text, href):
@@ -28,4 +31,13 @@ class news:
     global url_infos
     self.offical_link = url_infos[topic][2]
 
-    
+def get_news(topic, searchcontent):
+  global url_infos
+  news_list = []
+  nodes3 = get_nodes(url_infos[topic][0], url_infos[topic][1])
+  for node in nodes3:
+    if None!=node.get("href") and node.get("href").find(url_infos[topic][3])!=-1 \
+	   and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
+      news_list.append(news_item(node.text,node.get("href")))
+  return news_list
+  
