@@ -24,6 +24,7 @@ url_infos = {
 } #go to config.py 
 hot_keys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
 all_news = []
+is_first_load = False
   
 class news_item:
   def __init__(self, text, href):
@@ -45,4 +46,3 @@ def get_news(topic, searchcontent):
 	   and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
       news_list.append(news_item(node.text,node.get("href")))
   return news_list
-  

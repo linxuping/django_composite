@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from books.models import Publisher
 from base import *
+import thread
 
 #mock memcache
 mock_mc = {"mock_key", "mock_value"}
@@ -52,43 +53,54 @@ def visit_blog(request):
   fp.close()  
   html = t.render(Context({"id":1}))  
   return HttpResponse(html) 
-  
-def update_news(searchcontent=""):
+
+def init_news(searchcontent=""):
+  global url_infos
   #get 126 news
   news_163 = []
   nodes = get_nodes("http://tech.163.com/", '//a')
   for node in nodes:
-    global url_infos
     if None!=node.get("href") and node.get("href").find(url_infos["163.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
       news_163.append(news_item(node.text,node.get("href")))
   news_qq = []
   nodes2 = get_nodes("http://tech.qq.com/", '//a')
   for node in nodes2:
-    global url_infos
     if None!=node.get("href") and node.get("href").find(url_infos["qq.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
       news_qq.append(news_item(node.text,node.get("href")))
   news_sina = []
   nodes3 = get_nodes("http://tech.sina.com.cn/internet/", '//a')
   for node in nodes3:
-    global url_infos
     if None!=node.get("href") and node.get("href").find(url_infos["sina.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
       news_sina.append(news_item(node.text,node.get("href")))
   news_ifeng = get_news("ifeng.com", searchcontent)
   news_baidu = get_news("baidu.com", searchcontent)
   news_cnbeta = get_news("cnbeta.com", searchcontent)
   global all_news
+  all_news = [news("163.com", news_163)]
   all_news = [news("cnbeta.com", news_cnbeta),news("163.com", news_163),news("qq.com", news_qq),news("ifeng.com", news_ifeng),news("baidu.com", news_baidu)  ] #news("sina.com", news_sina)
-update_news()
-print "---------------------"
+ 
+import time
+def thread_update_news(searchcontent):
+  while True:
+    time.sleep(100)
+    print "[LOG] update news. "
+    init_news(searchcontent)
+print "+++ global run +++"
   
-@csrf_exempt  
+@csrf_exempt
 def visit_offcanvas(request):
+  global is_first_load
   print request.session.items()
   print request.POST
   searchcontent = request.POST.get("searchcontent", "")
   searchcontent = request.POST.get("quickkey", searchcontent)
-  print "+++ ", searchcontent
-  update_news(searchcontent)
+
+  if not is_first_load:
+    print "[LOG] init news."
+    init_news(searchcontent)
+    thread.start_new_thread(thread_update_news, (searchcontent,))
+    is_first_load = True
+
   '''
   #get 126 news
   news_163 = []
@@ -118,4 +130,3 @@ def visit_offcanvas(request):
   fp.close()  
   html = t.render(Context({"news":all_news, "hot_keys":hot_keys}))  
   return HttpResponse(html) 
-  
