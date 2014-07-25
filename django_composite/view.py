@@ -75,8 +75,9 @@ def update_news(searchcontent=""):
       news_sina.append(news_item(node.text,node.get("href")))
   news_ifeng = get_news("ifeng.com", searchcontent)
   news_baidu = get_news("baidu.com", searchcontent)
+  news_cnbeta = get_news("cnbeta.com", searchcontent)
   global all_news
-  all_news = [news("163.com", news_163),news("qq.com", news_qq),news("ifeng.com", news_ifeng),news("baidu.com", news_baidu)  ] #news("sina.com", news_sina)
+  all_news = [news("cnbeta.com", news_cnbeta),news("163.com", news_163),news("qq.com", news_qq),news("ifeng.com", news_ifeng),news("baidu.com", news_baidu)  ] #news("sina.com", news_sina)
 update_news()
 print "---------------------"
   
