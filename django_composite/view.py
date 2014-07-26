@@ -82,10 +82,13 @@ def init_news():
   #all_news = [news("163.com", news_163)]
   all_news = [news("cnbeta.com", news_cnbeta),news("163.com", news_163),news("qq.com", news_qq),news("ifeng.com", news_ifeng),news("baidu.com", news_baidu)  ] #news("sina.com", news_sina)
   ''' 
-  global new_words_stat,hot_keys
+  global new_words_stat,hot_keys,hot_key_white_list
   #print "[LOG (hot keys stat)] ",new_words_stat
   hot_keys = get_hot_keys(new_words_stat, 20)
- 
+  for _key in hot_key_white_list:
+    if not _key in hot_keys:
+      hot_keys.append(_key)
+  
 import time
 def thread_update_news(searchcontent):
   while True:

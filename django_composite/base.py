@@ -15,6 +15,7 @@ url_infos = {
   "cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
 } #go to config.py 
 hot_keys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
+hot_key_white_list = [u"车", u"谷歌", u"百度", u"阿里", u"腾讯", u"锤子"]
 hot_key_black_list = [u"中国", u"技术", u"行业", u"公司"]
 is_first_load = False
 
