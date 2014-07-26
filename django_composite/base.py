@@ -17,13 +17,12 @@ url_infos = {
   #topic: [tech link, xpath, offical link]
   "163.com": ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
   "qq.com": ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  "sina.com": ["http://tech.qq.com/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
+  "sina.com": ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
   "ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y_%m/%d',time.localtime(time.time())) ],#2014_07/24
   "baidu.com": ["http://internet.baidu.com/", '//div[@class="feeds-item"]/h3/a', "http://www.baidu.com/", "http"],#
   "cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
 } #go to config.py 
 hot_keys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
-all_news = []
 is_first_load = False
   
 class news_item:
@@ -31,18 +30,29 @@ class news_item:
     self.text = text
     self.href = href
 class news:
-  def __init__(self, topic, news_items):
+  def __init__(self, topic="", news_items=None):
     self.topic = topic
     self.news_items = news_items
     global url_infos
     self.offical_link = url_infos[topic][2]
+  def filter(self, searchcontent):
+    tmp_new_items = []
+    for tmp_item in self.news_items:
+      if tmp_item.text.find(searchcontent) != -1:
+        tmp_new_items.append(tmp_item)
+    return news(self.topic, tmp_new_items)
+all_news = [news("qq.com")]*len(url_infos) #initial
 
-def get_news(topic, searchcontent):
+def get_news(topic):
   global url_infos
   news_list = []
+  new_keys = []#ignore the multi keys
   nodes3 = get_nodes(url_infos[topic][0], url_infos[topic][1])
   for node in nodes3:
     if None!=node.get("href") and node.get("href").find(url_infos[topic][3])!=-1 \
-	   and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
+	   and None!=node.text and len(node.text)>10 and len(node.text)<28  \
+	   and not node.text in new_keys:
+	  #and node.text.find(searchcontent)!=-1
       news_list.append(news_item(node.text,node.get("href")))
+      new_keys.append(node.text)
   return news_list

@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from books.models import Publisher
 from base import *
 import thread
+import threading
+mutex_update_news = threading.Lock()
 
 #mock memcache
 mock_mc = {"mock_key", "mock_value"}
@@ -54,79 +56,69 @@ def visit_blog(request):
   html = t.render(Context({"id":1}))  
   return HttpResponse(html) 
 
-def init_news(searchcontent=""):
+def init_news():
   global url_infos
+  '''
   #get 126 news
   news_163 = []
   nodes = get_nodes("http://tech.163.com/", '//a')
   for node in nodes:
     if None!=node.get("href") and node.get("href").find(url_infos["163.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
       news_163.append(news_item(node.text,node.get("href")))
-  news_qq = []
-  nodes2 = get_nodes("http://tech.qq.com/", '//a')
-  for node in nodes2:
-    if None!=node.get("href") and node.get("href").find(url_infos["qq.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
-      news_qq.append(news_item(node.text,node.get("href")))
-  news_sina = []
-  nodes3 = get_nodes("http://tech.sina.com.cn/internet/", '//a')
-  for node in nodes3:
-    if None!=node.get("href") and node.get("href").find(url_infos["sina.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
-      news_sina.append(news_item(node.text,node.get("href")))
-  news_ifeng = get_news("ifeng.com", searchcontent)
-  news_baidu = get_news("baidu.com", searchcontent)
-  news_cnbeta = get_news("cnbeta.com", searchcontent)
-  global all_news
-  all_news = [news("163.com", news_163)]
+  '''
+  count = 0
+  for topic,infos in url_infos.items():
+    print "[LOG] fetch %s."%topic
+    global all_news
+    all_news[count] = news(topic, get_news(topic))
+    count += 1
+  '''
+  news_163 = get_news("163.com")
+  news_qq = get_news("qq.com")
+  news_sina = get_news("sina.com")
+  news_ifeng = get_news("ifeng.com")
+  news_baidu = get_news("baidu.com")
+  news_cnbeta = get_news("cnbeta.com")
+  #all_news = [news("163.com", news_163)]
   all_news = [news("cnbeta.com", news_cnbeta),news("163.com", news_163),news("qq.com", news_qq),news("ifeng.com", news_ifeng),news("baidu.com", news_baidu)  ] #news("sina.com", news_sina)
+  ''' 
  
 import time
 def thread_update_news(searchcontent):
   while True:
-    time.sleep(100)
+    time.sleep(720)
     print "[LOG] update news. "
-    init_news(searchcontent)
-print "+++ global run +++"
+    init_news()
+print "[LOG] Global Run."
+
+def filter_news(quickkey):
+  _news = []
+  for news_item in all_news:
+    _news.append( news_item.filter(quickkey) )
+  return _news
   
 @csrf_exempt
 def visit_offcanvas(request):
   global is_first_load
-  print request.session.items()
-  print request.POST
-  searchcontent = request.POST.get("searchcontent", "")
-  searchcontent = request.POST.get("quickkey", searchcontent)
+  #print request.session.items()
+  print "[LOG] request.POST: ", request.POST
+  searchcontent = request.POST.get("searchcontent", None)
+  quickkey = request.POST.get("quickkey", searchcontent)
 
+  mutex_update_news.acquire()
   if not is_first_load:
     print "[LOG] init news."
-    init_news(searchcontent)
-    thread.start_new_thread(thread_update_news, (searchcontent,))
+    init_news()
+    thread.start_new_thread(thread_update_news, ("",))
     is_first_load = True
+  mutex_update_news.release()
 
-  '''
-  #get 126 news
-  news_163 = []
-  nodes = get_nodes("http://tech.163.com/", '//a')
-  for node in nodes:
-    global url_infos
-    if None!=node.get("href") and node.get("href").find(url_infos["163.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
-      news_163.append(news_item(node.text,node.get("href")))
-  news_qq = []
-  nodes2 = get_nodes("http://tech.qq.com/", '//a')
-  for node in nodes2:
-    global url_infos
-    if None!=node.get("href") and node.get("href").find(url_infos["qq.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
-      news_qq.append(news_item(node.text,node.get("href")))
-  news_sina = []
-  nodes3 = get_nodes("http://tech.sina.com.cn/internet/", '//a')
-  for node in nodes3:
-    global url_infos
-    if None!=node.get("href") and node.get("href").find(url_infos["sina.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
-      news_sina.append(news_item(node.text,node.get("href")))
-  news_ifeng = get_news("ifeng.com", searchcontent)
-    
-  _news = [news("163.com", news_163),news("qq.com", news_qq)] #news("sina.com", news_sina),news("ifeng.com", news_ifeng)
-  '''
   fp = open('django_composite/offcanvas.html')  
   t = Template(fp.read())  
   fp.close()  
-  html = t.render(Context({"news":all_news, "hot_keys":hot_keys}))  
+  html = None
+  if None == quickkey:
+    html = t.render(Context({"news":all_news, "hot_keys":hot_keys}))  
+  else:
+    html = t.render(Context({"news":filter_news(quickkey), "hot_keys":hot_keys}))
   return HttpResponse(html) 
