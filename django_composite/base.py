@@ -11,16 +11,18 @@ def get_nodes(_url, _xpath):
     tree = etree.HTML(res)
     return tree.xpath(_xpath)
   except:
+    import sys  
+    print "[Error Msg] ",sys.exc_info()
     return []
   
 url_infos = {
   #topic: [tech link, xpath, offical link]
-  "163.com": ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+  #"163.com": ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
   "qq.com": ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  "sina.com": ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
-  "ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y_%m/%d',time.localtime(time.time())) ],#2014_07/24
-  "baidu.com": ["http://internet.baidu.com/", '//div[@class="feeds-item"]/h3/a', "http://www.baidu.com/", "http"],#
-  "cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
+  #"sina.com": ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
+  #"ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y_%m/%d',time.localtime(time.time())) ],#2014_07/24
+  #"baidu.com": ["http://internet.baidu.com/", '//div[@class="feeds-item"]/h3/a', "http://www.baidu.com/", "http"],#
+  #"cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
 } #go to config.py 
 hot_keys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
 is_first_load = False
@@ -43,6 +45,8 @@ class news:
     return news(self.topic, tmp_new_items)
 all_news = [news("qq.com")]*len(url_infos) #initial
 
+import jieba.posseg as pseg
+new_words = {} #{"word":count}
 def get_news(topic):
   global url_infos
   news_list = []
@@ -55,4 +59,62 @@ def get_news(topic):
 	  #and node.text.find(searchcontent)!=-1
       news_list.append(news_item(node.text,node.get("href")))
       new_keys.append(node.text)
+      try:
+        print "++++++ cut"
+        words =pseg.cut(node.text)
+        for w in words:
+          if w.flag == "n":
+            global new_words
+            if not new_words.has_key(w.text):
+              new_words[w.text] = 0
+            else:
+              new_words[w.text] = new_words[w.text]+1
+            print "++++++", w.text
+      except:
+        pass
   return news_list
+
+def get_hot_keys(dic, hot_topic_count=10):
+  #dic: {"aa":2, "bb":1999, "cc":88, "dd":45, "ee":10, "ff":13}
+  max_count = 1000
+  base_calc = 100000
+  #if len(dict) > 
+  if hot_topic_count > len(dic):
+    hot_topic_count = len(dic)
+  max_topic_list = []
+  tmp_dict = {} #{1:"aa", 2:"bb", 3:"cc", 4:"dd", 5:"ee", 6:"ff"}
+  tmp_list = [] #[2.11, 88.31, 45.41, 10.51, 13.61]
+  def _tofloat(_count, _key):
+    #the last one '1' is used for num like 1000
+    return float("%s.%s1"%(_count,_key))
+  count = 1
+  for _k,_v in dic.items():
+    if _v > max_count:
+      max_topic_list.append(_k)
+      continue
+    tmp_dict[count] = _k
+    tmp_list.append(_tofloat(_v,count))
+    count += 1
+  left_count = hot_topic_count - len(max_topic_list)
+  if left_count < 0:#need optimze,if ["aa"->1111,"bb"->2222,"cc"->9999], maybe return [aa,bb] 
+    return max_topic_list[:hot_topic_count]
+  tmp_list = sorted(tmp_list, reverse=True)
+  #print tmp_list
+  for ii in range(left_count):
+    tmp_dict_k = int(str(tmp_list[ii]).split(".")[1][:-1])#'88.31' -> '31' -> '3' -> 3
+    max_topic_list.append(tmp_dict[tmp_dict_k])
+  return max_topic_list
+
+unittest = False
+def ut_get_hot_keys():
+  tmp_dict = {"aa":2, "bb":1999, "cc":88, "dd":45, "ee":10, "ff":13}
+  print get_hot_keys(tmp_dict, 1)," answer: bb"
+  print get_hot_keys(tmp_dict, 2)," answer: bb,cc"
+  print get_hot_keys(tmp_dict, 3)," answer: bb,cc,dd"
+  print get_hot_keys(tmp_dict, 4)," answer: bb,cc,dd,ff"
+  print get_hot_keys(tmp_dict, 5)," answer: bb,cc,dd,ff,ee"
+  print get_hot_keys(tmp_dict, 6)," answer: bb,cc,dd,ff,ee,aa"
+  print get_hot_keys(tmp_dict, 7)," answer: bb,cc,dd,ff,ee,aa"
+  print get_hot_keys(tmp_dict, 8)," answer: bb,cc,dd,ff,ee,aa"
+if unittest:
+  ut_get_hot_keys()
