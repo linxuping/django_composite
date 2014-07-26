@@ -104,6 +104,8 @@ def get_hot_keys(dic, hot_topic_count=10):
   tmp_list = sorted(tmp_list, reverse=True)
   #print tmp_list
   for ii in range(left_count):
+    if "1" == str(tmp_list[ii]).split(".")[0]:
+      break
     tmp_dict_k = int(str(tmp_list[ii]).split(".")[1][:-1])#'88.31' -> '31' -> '3' -> 3
     max_topic_list.append(tmp_dict[tmp_dict_k])
   return max_topic_list
