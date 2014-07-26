@@ -15,6 +15,7 @@ url_infos = {
   "cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
 } #go to config.py 
 hot_keys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
+hot_key_black_list = [u"中国", u"技术", u"行业", u"公司"]
 is_first_load = False
 
 def get_nodes(_url, _xpath):
@@ -49,7 +50,7 @@ import jieba.posseg as pseg
 word_types = ["n", "ns", "nr", "eng"]
 new_words_stat = {} #{"word":count}
 def get_news(topic):
-  global url_infos, word_types
+  global url_infos, word_types, hot_key_black_list
   news_list = []
   new_keys = []#ignore the multi keys
   nodes3 = get_nodes(url_infos[topic][0], url_infos[topic][1])
@@ -64,7 +65,7 @@ def get_news(topic):
         #print "[LOG (jieba)] cutting."
         words =pseg.cut(node.text)
         for w in words:
-          if w.flag in word_types:
+          if w.flag in word_types and not w.word in hot_key_black_list:
             global new_words_stat
             if not new_words_stat.has_key(w.word):
               new_words_stat[w.word] = 1
