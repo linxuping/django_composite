@@ -87,7 +87,7 @@ import time
 def thread_update_news(searchcontent):
   while True:
     time.sleep(720)
-    print "[LOG] update news. "
+    print "[THREAD] update news. "
     init_news()
 print "[LOG] Global Run."
 
