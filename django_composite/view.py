@@ -82,12 +82,15 @@ def init_news():
   #all_news = [news("163.com", news_163)]
   all_news = [news("cnbeta.com", news_cnbeta),news("163.com", news_163),news("qq.com", news_qq),news("ifeng.com", news_ifeng),news("baidu.com", news_baidu)  ] #news("sina.com", news_sina)
   ''' 
+  global new_words_stat,hot_keys
+  #print "[LOG (hot keys stat)] ",new_words_stat
+  hot_keys = get_hot_keys(new_words_stat, 20)
  
 import time
 def thread_update_news(searchcontent):
   while True:
-    time.sleep(720)
-    print "[THREAD] update news. "
+    time.sleep(1440)
+    print "[THREAD] update news. ",time.strftime("%Y-%m-%d %X", time.localtime())
     init_news()
 print "[LOG] Global Run."
 
@@ -112,7 +115,7 @@ def visit_offcanvas(request):
     thread.start_new_thread(thread_update_news, ("",))
     is_first_load = True
   mutex_update_news.release()
-
+  
   fp = open('django_composite/offcanvas.html')  
   t = Template(fp.read())  
   fp.close()  
@@ -122,3 +125,11 @@ def visit_offcanvas(request):
   else:
     html = t.render(Context({"news":filter_news(quickkey), "hot_keys":hot_keys}))
   return HttpResponse(html) 
+  '''
+  respdict = {}
+  if None == quickkey:
+    respdict = {"news":all_news, "hot_keys":hot_keys}
+  else:
+    respdict = {"news":filter_news(quickkey), "hot_keys":hot_keys}
+  return render_to_response('django_composite/offcanvas.html', respdict, context_instance=RequestContext(request))
+  '''
