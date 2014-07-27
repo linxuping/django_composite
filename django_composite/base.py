@@ -38,7 +38,7 @@ url_infos_tech = {
 } 
 #go to config.py 
 hotkeys_tech = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
-hotkeys_tech_white_list = [u"车", u"谷歌", u"百度", u"阿里", u"腾讯", u"锤子"]
+hotkeys_tech_white_list = [u"车", u"移动", u"生活", u"路由器", u"腕带", u"手表", u"谷歌", u"微软", u"百度", u"阿里", u"腾讯", u"BAT", u"锤子", u"雷军"]
 hotkeys_tech_black_list = [u"中国", u"技术", u"行业", u"公司"]
 words_stat_tech = {} #{"word":count}
 all_news_tech = [news("36kr.com")]*len(url_infos_tech) #initial

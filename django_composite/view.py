@@ -87,9 +87,9 @@ def init_news():
   hotkeys_tech_white_list = navbar_infos["tech"]["white_list"]
   #print "[LOG (hot keys stat)] ",words_stat_tech
   _hotkeys_tech = get_hot_keys(words_stat_tech, 20)
-  for _key in hotkeys_tech_white_list:
-    if not _key in _hotkeys_tech:
-      _hotkeys_tech.append(_key)
+  #for _key in hotkeys_tech_white_list:
+  #  if not _key in _hotkeys_tech:
+  #    _hotkeys_tech.append(_key)
   navbar_infos["tech"]["hot_keys"] = _hotkeys_tech
   
 import time
@@ -127,9 +127,11 @@ def visit_offcanvas(request):
   fp.close()  
   html = None
   if None == quickkey:
-    html = t.render(Context({"news":navbar_infos["tech"]["all_news"], "hot_keys":navbar_infos["tech"]["hot_keys"] }))  
+    html = t.render(Context({"news":navbar_infos["tech"]["all_news"], "hot_keys":navbar_infos["tech"]["hot_keys"], \
+	                         "hot_keys_anual":navbar_infos["tech"]["white_list"] }))  
   else:
-    html = t.render(Context({"news":filter_news(quickkey,navbar_infos["tech"]["all_news"]), "hot_keys":navbar_infos["tech"]["hot_keys"] }))
+    html = t.render(Context({"news":filter_news(quickkey,navbar_infos["tech"]["all_news"]), "hot_keys":navbar_infos["tech"]["hot_keys"],\
+                            "hot_keys_anual":navbar_infos["tech"]["white_list"]	}))
   return HttpResponse(html) 
   '''
   respdict = {}
