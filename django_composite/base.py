@@ -5,18 +5,49 @@ import time
 import sys
 from lxml import etree
 
-url_infos = {
+class news_item:
+  def __init__(self, text, href):
+    self.text = text
+    self.href = href
+class news:
+  def __init__(self, topic="", news_items=None, navbar_key=None):
+    self.topic = topic
+    self.news_items = news_items
+    self.offical_link = ""
+    if navbar_key != None:
+      global navbar_infos
+      self.offical_link = navbar_infos[navbar_key]["url_infos"][topic][2]
+  def filter(self, searchcontent):
+    tmp_new_items = []
+    for tmp_item in self.news_items:
+      if tmp_item.text.find(searchcontent) != -1:
+        tmp_new_items.append(tmp_item)
+    return news(self.topic, tmp_new_items)
+	
+#-------------------- tech part ------------------#
+url_infos_tech = {
   #topic: [tech link, xpath, offical link]
   "163.com": ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
   "qq.com": ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  "sina.com": ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
+  #"sina.com": ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
   "ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y_%m/%d',time.localtime(time.time())) ],#2014_07/24
   "baidu.com": ["http://internet.baidu.com/", '//div[@class="feeds-item"]/h3/a', "http://www.baidu.com/", "http"],#
   "cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
-} #go to config.py 
-hot_keys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
-hot_key_white_list = [u"车", u"谷歌", u"百度", u"阿里", u"腾讯", u"锤子"]
-hot_key_black_list = [u"中国", u"技术", u"行业", u"公司"]
+  #"google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
+  "36kr.com": ["http://www.36kr.com/", '//a[@target="_blank"]', "http://www.36kr.com/", "/p/"],#
+} 
+#go to config.py 
+hotkeys_tech = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
+hotkeys_tech_white_list = [u"车", u"谷歌", u"百度", u"阿里", u"腾讯", u"锤子"]
+hotkeys_tech_black_list = [u"中国", u"技术", u"行业", u"公司"]
+words_stat_tech = {} #{"word":count}
+all_news_tech = [news("36kr.com")]*len(url_infos_tech) #initial
+#------------------------------------------------#
+
+navbar_infos = {
+  "tech": {"url_infos":url_infos_tech, "white_list":hotkeys_tech_white_list, "black_list":hotkeys_tech_black_list, \
+           "hot_keys":hotkeys_tech, "words_stat":words_stat_tech, "all_news":all_news_tech},
+}
 is_first_load = False
 
 def get_nodes(_url, _xpath):
@@ -28,50 +59,43 @@ def get_nodes(_url, _xpath):
   except: 
     print "[Error Msg] ",sys.exc_info()
     return []
-  
-class news_item:
-  def __init__(self, text, href):
-    self.text = text
-    self.href = href
-class news:
-  def __init__(self, topic="", news_items=None):
-    self.topic = topic
-    self.news_items = news_items
-    global url_infos
-    self.offical_link = url_infos[topic][2]
-  def filter(self, searchcontent):
-    tmp_new_items = []
-    for tmp_item in self.news_items:
-      if tmp_item.text.find(searchcontent) != -1:
-        tmp_new_items.append(tmp_item)
-    return news(self.topic, tmp_new_items)
-all_news = [news("qq.com")]*len(url_infos) #initial
 
 import jieba.posseg as pseg
 word_types = ["n", "ns", "nr", "eng"]
-new_words_stat = {} #{"word":count}
-def get_news(topic):
-  global url_infos, word_types, hot_key_black_list
+def get_news(topic, navbar_key):
+  global word_types, navbar_infos
+  url_infos = navbar_infos[navbar_key]["url_infos"]
+  hotkeys_tech_black_list = navbar_infos[navbar_key]["black_list"]
+  words_stat_tech = navbar_infos[navbar_key]["words_stat"]
   news_list = []
   new_keys = []#ignore the multi keys
   nodes3 = get_nodes(url_infos[topic][0], url_infos[topic][1])
   for node in nodes3:
+    #print "[LOG nodeinfo] ",node.text,node.get("href")
     if None!=node.get("href") and node.get("href").find(url_infos[topic][3])!=-1 \
-	   and None!=node.text and len(node.text)>10 and len(node.text)<28  \
+	   and None!=node.text and len(node.text)>10 and len(node.text)<48  \
 	   and not node.text in new_keys:
-	  #and node.text.find(searchcontent)!=-1
-      news_list.append(news_item(node.text,node.get("href")))
+      _href = node.get("href")
+      #special deal with    <a href=***><span>text</span></a>
+      if topic=="google.com" and None!=node.getparent().get("href"):
+        _href = node.getparent().get("href")
+      elif topic == "36kr.com":
+        if node.text.find(u"氪") != -1:
+          continue
+        _href = "http://www.36kr.com" + _href
+      #end special.
+      news_list.append(news_item(node.text, _href))
       new_keys.append(node.text)
       try:
         #print "[LOG (jieba)] cutting."
         words =pseg.cut(node.text)
         for w in words:
-          if w.flag in word_types and not w.word in hot_key_black_list:
-            global new_words_stat
-            if not new_words_stat.has_key(w.word):
-              new_words_stat[w.word] = 1
+          if w.flag in word_types and not w.word in hotkeys_tech_black_list:
+            #global words_stat_tech
+            if not words_stat_tech.has_key(w.word):
+              words_stat_tech[w.word] = 1
             else:
-              new_words_stat[w.word] = new_words_stat[w.word]+1
+              words_stat_tech[w.word] = words_stat_tech[w.word]+1
             #print "[LOG (jieba word)]", w.word
       except:
         print "[Error Msg(jieba)] ",sys.exc_info()
