@@ -42,11 +42,24 @@ hotkeys_tech_white_list = [u"车", u"移动", u"生活", u"路由器", u"腕带"
 hotkeys_tech_black_list = [u"中国", u"技术", u"行业", u"公司"]
 words_stat_tech = {} #{"word":count}
 all_news_tech = [news("36kr.com")]*len(url_infos_tech) #initial
-#------------------------------------------------#
+#-------------------------------------------------#
+#------------------- social part -----------------#
+url_infos_soci = {
+  #topic: [tech link, xpath, offical link]
+  "163.social": ["http://news.163.com/shehui/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+} 
+hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
+hotkeys_soci_white_list = [u"车", u"移动", u"生活", u"路由器", u"腕带", u"手表", u"谷歌", u"微软", u"百度", u"阿里", u"腾讯", u"BAT", u"锤子", u"雷军"]
+hotkeys_soci_black_list = [u"中国", u"技术", u"行业", u"公司"]
+words_stat_soci = {} #{"word":count}
+all_news_soci = [news("163.social")]*len(url_infos_soci) #initial
+#-------------------------------------------------#
 
 navbar_infos = {
   "tech": {"url_infos":url_infos_tech, "white_list":hotkeys_tech_white_list, "black_list":hotkeys_tech_black_list, \
            "hot_keys":hotkeys_tech, "words_stat":words_stat_tech, "all_news":all_news_tech},
+  "soci": {"url_infos":url_infos_soci, "white_list":hotkeys_soci_white_list, "black_list":hotkeys_soci_black_list, \
+           "hot_keys":hotkeys_soci, "words_stat":words_stat_soci, "all_news":all_news_soci},
 }
 is_first_load = False
 
@@ -72,7 +85,7 @@ def get_news(topic, navbar_key):
   nodes3 = get_nodes(url_infos[topic][0], url_infos[topic][1])
   for node in nodes3:
     #print "[LOG nodeinfo] ",node.text,node.get("href")
-    if None!=node.get("href") and node.get("href").find(url_infos[topic][3])!=-1 \
+    if ((None!=node.get("href") and node.get("href").find(url_infos[topic][3])!=-1) or topic=="google.com")\
 	   and None!=node.text and len(node.text)>10 and len(node.text)<48  \
 	   and not node.text in new_keys:
       _href = node.get("href")
@@ -84,6 +97,7 @@ def get_news(topic, navbar_key):
           continue
         _href = "http://www.36kr.com" + _href
       #end special.
+      #print "[LOG add text.] ",navbar_key,topic,node.text
       news_list.append(news_item(node.text, _href))
       new_keys.append(node.text)
       try:

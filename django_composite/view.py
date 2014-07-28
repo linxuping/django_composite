@@ -66,12 +66,13 @@ def init_news():
     if None!=node.get("href") and node.get("href").find(url_infos_tech["163.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
       news_163.append(news_item(node.text,node.get("href")))
   '''
-  count = 0
-  for topic,infos in navbar_infos["tech"]["url_infos"].items():
-    print "[LOG] fetch %s."%topic
-    global all_news_tech
-    all_news_tech[count] = news(topic, get_news(topic, "tech"), "tech")
-    count += 1
+  for _k, _v in navbar_infos.items():
+    count = 0
+    for topic,infos in _v["url_infos"].items():
+      print "[LOG] fetch %s."%topic
+      #global all_news_tech
+      navbar_infos[_k]["all_news"][count] = news(topic, get_news(topic, _k), _k)
+      count += 1
   '''
   news_163 = get_news("163.com")
   news_qq = get_news("qq.com")
@@ -113,6 +114,13 @@ def visit_offcanvas(request):
   print "[LOG] request.POST: ", request.POST
   searchcontent = request.POST.get("searchcontent", None)
   quickkey = request.POST.get("quickkey", searchcontent)
+  status_tech = "active"
+  status_soci = ""
+  navbar_tab = "tech"
+  if "Social" == request.POST.get("helpkey", None):
+    status_tech = ""
+    status_soci = "active"
+    navbar_tab = "soci"
 
   mutex_update_news.acquire()
   if not is_first_load:
@@ -126,12 +134,13 @@ def visit_offcanvas(request):
   t = Template(fp.read())  
   fp.close()  
   html = None
-  if None == quickkey:
-    html = t.render(Context({"news":navbar_infos["tech"]["all_news"], "hot_keys":navbar_infos["tech"]["hot_keys"], \
-	                         "hot_keys_anual":navbar_infos["tech"]["white_list"] }))  
+  if None==quickkey or ""==quickkey:
+    print "===>", navbar_infos["soci"]["all_news"],navbar_tab
+    html = t.render(Context({"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], \
+	                         "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci }))  
   else:
-    html = t.render(Context({"news":filter_news(quickkey,navbar_infos["tech"]["all_news"]), "hot_keys":navbar_infos["tech"]["hot_keys"],\
-                            "hot_keys_anual":navbar_infos["tech"]["white_list"]	}))
+    html = t.render(Context({"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
+                            "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci	}))
   return HttpResponse(html) 
   '''
   respdict = {}
