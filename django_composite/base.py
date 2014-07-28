@@ -47,6 +47,8 @@ all_news_tech = [news("36kr.com")]*len(url_infos_tech) #initial
 url_infos_soci = {
   #topic: [tech link, xpath, offical link]
   "163.social": ["http://news.163.com/shehui/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+  "qq.social": ["http://news.qq.com/society_index.shtml", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
+  "baidu.social": ["http://shehui.news.baidu.com/", '//li/a', "http://www.baidu.com/", time.strftime('%d',time.localtime(time.time()))],#
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
 hotkeys_soci_white_list = [u"车", u"移动", u"生活", u"路由器", u"腕带", u"手表", u"谷歌", u"微软", u"百度", u"阿里", u"腾讯", u"BAT", u"锤子", u"雷军"]
@@ -95,7 +97,9 @@ def get_news(topic, navbar_key):
       elif topic == "36kr.com":
         if node.text.find(u"氪") != -1:
           continue
-        _href = "http://www.36kr.com" + _href
+        #_href = "http://www.36kr.com" + _href
+      if _href.find("http://") == -1:
+         _href = url_infos[topic][2] + _href
       #end special.
       #print "[LOG add text.] ",navbar_key,topic,node.text
       news_list.append(news_item(node.text, _href))

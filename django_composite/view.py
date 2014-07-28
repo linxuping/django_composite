@@ -58,14 +58,6 @@ def visit_blog(request):
 
 def init_news():
   global url_infos_tech, navbar_infos
-  '''
-  #get 126 news
-  news_163 = []
-  nodes = get_nodes("http://tech.163.com/", '//a')
-  for node in nodes:
-    if None!=node.get("href") and node.get("href").find(url_infos_tech["163.com"][3])!=-1 and None!=node.text and len(node.text)>10 and len(node.text)<28 and node.text.find(searchcontent)!=-1:
-      news_163.append(news_item(node.text,node.get("href")))
-  '''
   for _k, _v in navbar_infos.items():
     count = 0
     for topic,infos in _v["url_infos"].items():
@@ -73,25 +65,15 @@ def init_news():
       #global all_news_tech
       navbar_infos[_k]["all_news"][count] = news(topic, get_news(topic, _k), _k)
       count += 1
-  '''
-  news_163 = get_news("163.com")
-  news_qq = get_news("qq.com")
-  news_sina = get_news("sina.com")
-  news_ifeng = get_news("ifeng.com")
-  news_baidu = get_news("baidu.com")
-  news_cnbeta = get_news("cnbeta.com")
-  #all_news_tech = [news("163.com", news_163)]
-  all_news_tech = [news("cnbeta.com", news_cnbeta),news("163.com", news_163),news("qq.com", news_qq),news("ifeng.com", news_ifeng),news("baidu.com", news_baidu)  ] #news("sina.com", news_sina)
-  ''' 
-  words_stat_tech = navbar_infos["tech"]["words_stat"]
-  #hotkeys_tech = navbar_infos["tech"]["hot_keys"]  #为什么直接用hotkeys_tech操作，不是一个引用？所以只能下面覆盖数据.
-  hotkeys_tech_white_list = navbar_infos["tech"]["white_list"]
-  #print "[LOG (hot keys stat)] ",words_stat_tech
-  _hotkeys_tech = get_hot_keys(words_stat_tech, 30)
-  #for _key in hotkeys_tech_white_list:
-  #  if not _key in _hotkeys_tech:
-  #    _hotkeys_tech.append(_key)
-  navbar_infos["tech"]["hot_keys"] = _hotkeys_tech
+    words_stat = navbar_infos[_k]["words_stat"]
+    #hotkeys_tech = navbar_infos["tech"]["hot_keys"]  #为什么直接用hotkeys_tech操作，不是一个引用？所以只能下面覆盖数据.
+    #hotkeys_tech_white_list = navbar_infos["tech"]["white_list"]
+    #print "[LOG (hot keys stat)] ",words_stat_tech
+    _hotkeys = get_hot_keys(words_stat, 35)
+    #for _key in hotkeys_tech_white_list:
+    #  if not _key in _hotkeys_tech:
+    #    _hotkeys_tech.append(_key)
+    navbar_infos[_k]["hot_keys"] = _hotkeys
   
 import time
 def thread_update_news(searchcontent):
@@ -117,7 +99,7 @@ def visit_offcanvas(request):
   status_tech = "active"
   status_soci = ""
   navbar_tab = "tech"
-  if "Social" == request.POST.get("helpkey", None):
+  if "social" == request.POST.get("helpkey", None):
     status_tech = ""
     status_soci = "active"
     navbar_tab = "soci"
@@ -135,7 +117,7 @@ def visit_offcanvas(request):
   fp.close()  
   html = None
   if None==quickkey or ""==quickkey:
-    print "===>", navbar_infos["soci"]["all_news"],navbar_tab
+    #print "===>", navbar_infos["soci"]["all_news"],navbar_tab
     html = t.render(Context({"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], \
 	                         "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci }))  
   else:
