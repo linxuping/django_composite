@@ -86,7 +86,7 @@ def init_news():
   #hotkeys_tech = navbar_infos["tech"]["hot_keys"]  #为什么直接用hotkeys_tech操作，不是一个引用？所以只能下面覆盖数据.
   hotkeys_tech_white_list = navbar_infos["tech"]["white_list"]
   #print "[LOG (hot keys stat)] ",words_stat_tech
-  _hotkeys_tech = get_hot_keys(words_stat_tech, 20)
+  _hotkeys_tech = get_hot_keys(words_stat_tech, 30)
   #for _key in hotkeys_tech_white_list:
   #  if not _key in _hotkeys_tech:
   #    _hotkeys_tech.append(_key)
