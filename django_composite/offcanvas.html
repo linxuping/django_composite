@@ -109,13 +109,14 @@
           <div class="row">
 		    {% for new in news %}
             <div class="col-6 col-sm-6 col-lg-4">
-              <h2>{{new.topic}}</h2>
+              <!--<h2>{{new.topic}}</h2>-->
+			  <hr>
               <p>
 							{% for item in new.news_items %}
 							<a href="{{item.href}}">{{item.text}}</a><br/>
 							{% endfor %}
 							</p>
-              <p><a class="btn btn-default" href="{{new.offical_link}}" role="button">View details &raquo;</a></p>
+              <p><a class="btn btn-default" href="{{new.offical_link}}" role="button">{{new.topic}} &raquo;</a></p>
             </div><!--/span-->
 			{% endfor %}
           </div><!--/row-->
