@@ -110,13 +110,13 @@
 		    {% for new in news %}
             <div class="col-6 col-sm-6 col-lg-4">
               <!--<h2>{{new.topic}}</h2>-->
-			  <hr>
               <p>
 							{% for item in new.news_items %}
 							<a href="{{item.href}}">{{item.text}}</a><br/>
 							{% endfor %}
 							</p>
-              <p><a class="btn btn-default" href="{{new.offical_link}}" role="button">{{new.topic}} &raquo;</a></p>
+              <p style="text-align:right"><a class="btn btn-default" href="{{new.offical_link}}" role="button">{{new.topic}} &raquo;</a></p>
+							<hr>
             </div><!--/span-->
 			{% endfor %}
           </div><!--/row-->
@@ -136,7 +136,6 @@
 		</form>
       </div><!--/row-->
 
-      <hr>
 					<div class="panel panel-default">
             <div class="panel-heading">
               <h3 class="panel-title">今日热词快搜</h3>
