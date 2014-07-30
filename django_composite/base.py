@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 import urllib2
 import time
+import datetime
 import sys
+import sqlite3
 from lxml import etree
 
 class news_item:
@@ -120,7 +122,7 @@ def get_news(topic, navbar_key):
         pass
   return news_list
 
-def get_hot_keys(dic, hot_topic_count=10):
+def get_hot_keys(dic, hot_topic_count=10, topic="None"):
   #dic: {"aa":2, "bb":1999, "cc":88, "dd":45, "ee":10, "ff":13}
   max_count = 1000 #如果统计表示已经超过1000次，这么高频，不用统计了，直接放到max_topic_list
  
@@ -146,16 +148,78 @@ def get_hot_keys(dic, hot_topic_count=10):
   tmp_list = sorted(tmp_list, reverse=True)
   #print tmp_list
   for ii in range(left_count):
-    if "1" == str(tmp_list[ii]).split(".")[0]:
+    countstr = str(tmp_list[ii]).split(".")[0]
+    if "1" == countstr:
       break
     tmp_dict_k = int(str(tmp_list[ii]).split(".")[1][:-1])#'88.31' -> '31' -> '3' -> 3
     max_topic_list.append(tmp_dict[tmp_dict_k])
+    save_hoykey_count(tmp_dict[tmp_dict_k], int(countstr), topic)
   return max_topic_list
+def sort_hot_keys(dic, topic, hot_keys):
+  #compare with yesterday. if lager, have higher priority
+  tmp_list1 = []
+  tmp_list2 = []
+  for _k in hot_keys:
+    count_yesterday = get_db_hotkey_count(_k, topic, yesterday())
+    if dic[_k] > count_yesterday:
+      tmp_list1.append(_k)
+    else:
+      tmp_list2.append(_k)
+  return tmp_list1 + tmp_list2
+ 
+#------------- for sqlite ---------------# 
+def create_table(create_str):
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  try:
+    c.execute(create_str)
+    cx.commit()
+  except:
+    print "[Error Msg(create_table)] ",sys.exc_info()
+  c.close()
+def create_tables():
+  create_table("create table hotkeys(name nvarchar(20), count int, topic nvarchar(100), day datetime)")
+def save_hoykey_count(key, count, topic, day=None):
+  #only keep two days - yesterday & today
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  if None == day:
+    day = today()
+  c.execute("delete from hotkeys where name='%s' and topic='%s' and day='%s'"%(key,topic,day))
+  c.execute("insert into hotkeys values('%s', %d, '%s', '%s')"%(key,count,topic,day))
+  cx.commit()
+  c.close()
+def get_db_hotkey_count(key, topic, day):
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  c.execute("select count from hotkeys where name='%s' and topic='%s' and day='%s'"%(key,topic,day))
+  cx.commit()
+  ret = c.fetchone()
+  if None == ret:
+    return 0
+  count = ret[0]
+  c.close()
+  return int(count)
+def del_hotkeys_expired(day=None, expired_days=1):
+  if None == day:
+    day = today()
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  #delete day < datetime-n
+  c.execute("select name from hotkeys where day < %s-%d"%(day, expired_days))
+  cx.commit()
+  c.close()
+#----------------------------------------#
+
+def today():
+  return datetime.date.today().strftime('%Y%m%d')
+def yesterday():
+  return (datetime.date.today()-datetime.timedelta(days=1)).strftime('%Y%m%d')
  
 #-------------------------- UNIT TEST ----------------------------#
 unittest = False
 def ut_get_hot_keys():
-  tmp_dict = {"aa":2, "bb":1999, "cc":88, "dd":45, "ee":10, "ff":13}
+  tmp_dict = {"aa":2, "bb":1999, "cc":88, "dd":45, "oo":1, "ee":10, "ff":13}
   print get_hot_keys(tmp_dict, 1)," answer: bb"
   print get_hot_keys(tmp_dict, 2)," answer: bb,cc"
   print get_hot_keys(tmp_dict, 3)," answer: bb,cc,dd"
@@ -164,5 +228,28 @@ def ut_get_hot_keys():
   print get_hot_keys(tmp_dict, 6)," answer: bb,cc,dd,ff,ee,aa"
   print get_hot_keys(tmp_dict, 7)," answer: bb,cc,dd,ff,ee,aa"
   print get_hot_keys(tmp_dict, 8)," answer: bb,cc,dd,ff,ee,aa"
+def ut_save_hoykey_count():
+  create_tables()
+  save_hoykey_count("aaa", 12, "tech", "20140730")
+  save_hoykey_count("bbb", 17, "soci", "20140729")
+  print get_db_hotkey_count("bbb", "soci", "20140729")
+  print get_db_hotkey_count("bbb", "soci", "20140720")
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  c.execute("select * from hotkeys") 
+  print c.fetchall()
+  c.close()
+def ut_show_hoykeys():
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  c.execute("select * from hotkeys") 
+  print c.fetchall()
+  c.close()
 if unittest:
   ut_get_hot_keys()
+  ut_save_hoykey_count()
+  ut_test_db_day()
+  print today()
+  print yesterday()
+  ut_show_hoykeys()
+
