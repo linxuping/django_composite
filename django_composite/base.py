@@ -31,7 +31,7 @@ url_infos_tech = {
   #topic: [tech link, xpath, offical link]
   "163.com": ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
   "qq.com": ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  #"sina.com": ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
+  "sina.com": ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
   "ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y_%m/%d',time.localtime(time.time())) ],#2014_07/24
   "baidu.com": ["http://internet.baidu.com/", '//div[@class="feeds-item"]/h3/a', "http://www.baidu.com/", "http"],#
   "cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
@@ -43,7 +43,7 @@ hotkeys_tech = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "
 hotkeys_tech_white_list = [u"车", u"移动", u"生活", u"路由器", u"腕带", u"手表", u"谷歌", u"微软", u"百度", u"阿里", u"腾讯", u"BAT", u"锤子", u"雷军"]
 hotkeys_tech_black_list = [u"中国", u"技术", u"行业", u"公司", u"传", u"美", u"用户", u"市场", u"版", u"产品", u"功能"]
 words_stat_tech = {} #{"word":count}
-all_news_tech = [news("36kr.com")]*len(url_infos_tech) #initial
+all_news_tech = [news("sina.com")]*len(url_infos_tech) #initial
 #-------------------------------------------------#
 #------------------- social part -----------------#
 url_infos_soci = {
@@ -67,15 +67,20 @@ navbar_infos = {
 }
 is_first_load = False
 
+def try_get_nodes(_url, _xpath):
+  resp = urllib2.urlopen(_url)
+  res = resp.read()
+  tree = etree.HTML(res)
+  return tree.xpath(_xpath)
 def get_nodes(_url, _xpath):
   try:
-    resp = urllib2.urlopen(_url)
-    res = resp.read()
-    tree = etree.HTML(res)
-    return tree.xpath(_xpath)
+    return try_get_nodes(_url, _xpath)
   except: 
-    print "[Error Msg] ",sys.exc_info()
-    return []
+    try:
+	  return try_get_nodes(_url, _xpath)
+    except:
+      print "[Error Msg] ",sys.exc_info()
+  return []
 
 import jieba.posseg as pseg
 word_types = ["n", "ns", "nr", "eng"]
@@ -115,6 +120,8 @@ def get_news(topic, navbar_key):
             if not words_stat_tech.has_key(w.word):
               words_stat_tech[w.word] = 1
             else:
+              #if w.word == u"社交" or w.word == "社交":
+                #print "---> ", node.text			  
               words_stat_tech[w.word] = words_stat_tech[w.word]+1
             #print "[LOG (jieba word)]", w.word
       except:

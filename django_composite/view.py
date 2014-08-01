@@ -106,7 +106,8 @@ def visit_offcanvas(request):
     status_tech = ""
     status_soci = "active"
     navbar_tab = "soci"
-
+ 
+  #bug: 同个客户端同时刷新好几次，可能同时返回导致内容混合
   mutex_update_news.acquire()
   if not is_first_load:
     print "[LOG] init news."
