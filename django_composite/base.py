@@ -79,7 +79,8 @@ def get_nodes(_url, _xpath):
     try:
 	  return try_get_nodes(_url, _xpath)
     except:
-      print "[Error Msg] ",sys.exc_info()
+      import traceback
+      print "[Error Msg] ",sys.exc_info()," ",traceback.format_exc()
   return []
 
 import jieba.posseg as pseg
@@ -192,6 +193,7 @@ def save_hoykey_count(key, count, topic, day=None):
   c = cx.cursor()
   if None == day:
     day = today()
+  print "save to db ",key,count,topic,day
   c.execute("delete from hotkeys where name='%s' and topic='%s' and day='%s'"%(key,topic,day))
   c.execute("insert into hotkeys values('%s', %d, '%s', '%s')"%(key,count,topic,day))
   cx.commit()
@@ -213,7 +215,7 @@ def del_hotkeys_expired(day=None, expired_days=1):
   cx = sqlite3.connect("test.db")
   c = cx.cursor()
   #delete day < datetime-n
-  c.execute("select name from hotkeys where day < %s-%d"%(day, expired_days))
+  c.execute("delete from hotkeys where day < %s-%d"%(day, expired_days))
   cx.commit()
   c.close()
 #----------------------------------------#
