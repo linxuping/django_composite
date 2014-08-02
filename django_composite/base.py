@@ -48,13 +48,15 @@ all_news_tech = [news("sina.com")]*len(url_infos_tech) #initial
 #------------------- social part -----------------#
 url_infos_soci = {
   #topic: [tech link, xpath, offical link]
-  "163.social": ["http://news.163.com/shehui/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:][:-2] ],#"14/0724" - 14/07
+  "sohu.com": ["http://m.sohu.com", "//div/div/a", "http://m.sohu.com/", "/?wscrid="],
+  "sina.social": ["http://sina.cn/", '//a', "http://www.sina.com.cn/", "?sa="],
+  "163.social": ["http://3g.163.com/touch/", '//a', "http://www.163.com/", "touch/article.html" ],
   "qq.social": ["http://news.qq.com/society_index.shtml", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time()))[:-2] ],#20140724 - 201407
   "baidu.social": ["http://shehui.news.baidu.com/", '//li/a', "http://www.baidu.com/", time.strftime('%d',time.localtime(time.time()))],#
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
 hotkeys_soci_white_list = [u"车", u"移动", u"生活", u"路由器", u"腕带", u"手表", u"谷歌", u"微软", u"百度", u"阿里", u"腾讯", u"BAT", u"锤子", u"雷军"]
-hotkeys_soci_black_list = [u"男人", u"女人", u"人", u"公司", u"全国", u"头条", u"我", u"我们"]
+hotkeys_soci_black_list = [u"男人", u"女人", u"人", u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", u"图", u"中国"]
 words_stat_soci = {} #{"word":count}
 all_news_soci = [news("163.social")]*len(url_infos_soci) #initial
 #-------------------------------------------------#
@@ -193,7 +195,7 @@ def save_hoykey_count(key, count, topic, day=None):
   c = cx.cursor()
   if None == day:
     day = today()
-  print "save to db ",key,count,topic,day
+  #print "save to db ",key,count,topic,day
   c.execute("delete from hotkeys where name='%s' and topic='%s' and day='%s'"%(key,topic,day))
   c.execute("insert into hotkeys values('%s', %d, '%s', '%s')"%(key,count,topic,day))
   cx.commit()
