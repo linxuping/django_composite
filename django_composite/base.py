@@ -48,14 +48,14 @@ all_news_tech = [news("sina.com")]*len(url_infos_tech) #initial
 #------------------- social part -----------------#
 url_infos_soci = {
   #topic: [tech link, xpath, offical link]
-  "sohu.com": ["http://m.sohu.com", "//div/div/a", "http://m.sohu.com/", "/?wscrid="],
+  "sohu.social": ["http://m.sohu.com", "//div/div/a", "http://m.sohu.com/", "/?wscrid="],
   "sina.social": ["http://sina.cn/", '//a', "http://www.sina.com.cn/", "?sa="],
   "163.social": ["http://3g.163.com/touch/", '//a', "http://www.163.com/", "touch/article.html" ],
   "qq.social": ["http://news.qq.com/society_index.shtml", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time()))[:-2] ],#20140724 - 201407
   "baidu.social": ["http://shehui.news.baidu.com/", '//li/a', "http://www.baidu.com/", time.strftime('%d',time.localtime(time.time()))],#
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
-hotkeys_soci_white_list = [u"车", u"移动", u"生活", u"路由器", u"腕带", u"手表", u"谷歌", u"微软", u"百度", u"阿里", u"腾讯", u"BAT", u"锤子", u"雷军"]
+hotkeys_soci_white_list = [u"车", u"房", u"涨", u"天气", u"足球", u"移动", u"大妈", u"黄金", u"世界杯"]
 hotkeys_soci_black_list = [u"男人", u"女人", u"人", u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", u"图", u"中国"]
 words_stat_soci = {} #{"word":count}
 all_news_soci = [news("163.social")]*len(url_infos_soci) #initial
@@ -67,7 +67,7 @@ navbar_infos = {
   "soci": {"url_infos":url_infos_soci, "white_list":hotkeys_soci_white_list, "black_list":hotkeys_soci_black_list, \
            "hot_keys":hotkeys_soci, "words_stat":words_stat_soci, "all_news":all_news_soci},
 }
-is_first_load = False
+is_first_load = True
 
 def try_get_nodes(_url, _xpath):
   resp = urllib2.urlopen(_url)
@@ -132,7 +132,7 @@ def get_news(topic, navbar_key):
         pass
   return news_list
 
-def get_hot_keys(dic, hot_topic_count=10, topic="None"):
+def get_hot_keys(dic, hot_topic_count=10, topic="None", uptime=""):
   #dic: {"aa":2, "bb":1999, "cc":88, "dd":45, "ee":10, "ff":13}
   max_count = 1000 #如果统计表示已经超过1000次，这么高频，不用统计了，直接放到max_topic_list
  
@@ -163,7 +163,8 @@ def get_hot_keys(dic, hot_topic_count=10, topic="None"):
       break
     tmp_dict_k = int(str(tmp_list[ii]).split(".")[1][:-1])#'88.31' -> '31' -> '3' -> 3
     max_topic_list.append(tmp_dict[tmp_dict_k])
-    save_hoykey_count(tmp_dict[tmp_dict_k], int(countstr), topic)
+    #save_hoykey_count(tmp_dict[tmp_dict_k], int(countstr), topic)
+    save_hoykey_count2(tmp_dict[tmp_dict_k], int(countstr), topic, uptime)
   return max_topic_list
 def sort_hot_keys(dic, topic, hot_keys):
   #compare with yesterday. if lager, have higher priority
@@ -221,11 +222,59 @@ def del_hotkeys_expired(day=None, expired_days=1):
   cx.commit()
   c.close()
 #----------------------------------------#
-
 def today():
   return datetime.date.today().strftime('%Y%m%d')
 def yesterday():
   return (datetime.date.today()-datetime.timedelta(days=1)).strftime('%Y%m%d')
+ 
+#------------------- init_news2 ------------------#
+#new algorithm of hot keys:   except column day
+def create_tables2():
+  create_table("create table hotkeys2(name nvarchar(20), count int, weight int, topic nvarchar(100), day nvarchar(20))")
+def save_hoykey_count2(key, count, topic, day):
+  #key = str(key)
+  #topic = str(topic)
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  #print "save to db ",key,count,topic,day
+  c.execute("select count from hotkeys2 where name='%s' and topic='%s'"%(key,topic))
+  oldcount = c.fetchone()
+  if None == oldcount:
+    c.execute("insert into hotkeys2 values('%s', %d, %d, '%s', '%s')"%(key,count,count,topic,day))
+  else:
+    oldcount = int(oldcount[0])
+    weight = count
+    if count > oldcount:
+      #if "视频" == key or u"视频" == key:
+      #  print "+++ ",key,count,oldcount
+      weight = count*(count-oldcount+1)
+    c.execute("update hotkeys2 set count=%d, weight=%d, day='%s' where name='%s' and topic='%s'"%(count,weight,day,key,topic))
+  cx.commit()
+  c.close()
+def del_hotkeys_expired2(day):
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  #delete day < datetime-n
+  c.execute("delete from hotkeys2 where day<>'%s'"%day)
+  cx.commit()
+  c.close()
+def sort_hot_keys2(topic, day):
+  #topic = str(topic)
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  #print "save to db ",key,count,topic,day
+  c.execute("select name from hotkeys2 where topic='%s' and day='%s' ORDER BY weight DESC"%(topic,day))
+  keyarrs = c.fetchall()
+  if None == keyarrs:
+    return []
+  #cx.commit()
+  c.close()
+  tmplist = []
+  #print tmplist
+  for i in range(len(keyarrs)):
+    tmplist.append(keyarrs[i][0])
+  return tmplist
+#-------------------------------------------------#
  
 #-------------------------- UNIT TEST ----------------------------#
 unittest = False

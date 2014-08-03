@@ -122,18 +122,18 @@
           </div><!--/row-->
         </div><!--/span-->
 
-		<form action="../news/" role="form" name="quickform" id="quickform" method="post">
+		<!--<form action="../news/" role="form" name="quickform" id="quickform" method="post">-->
         <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
           <div class="list-group">
 		    <a class="list-group-item active">Annual HotKeys ↓</a>
-		    <input type="hidden" id="quickkey" name="quickkey"></input>
+		    <!--<input type="hidden" id="quickkey" name="quickkey"></input>-->
 			{% for hotkey in hot_keys_anual %}
-            <a href="#" class="list-group-item" onclick="quickkey.value=this.text;quickform.submit();">{{hotkey}}</a>
+            <a href="#" class="list-group-item" onclick="quicksearch.value=this.text;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</a>
 			{% endfor %}         
             <a class="list-group-item active" onclick="document.location.reload();">&lt&lt&nbspHome</a>
           </div>
         </div><!--/span-->
-		</form>
+		<!--</form>-->
       </div><!--/row-->
 
 					<div class="panel panel-default">

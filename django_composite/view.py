@@ -57,8 +57,12 @@ def visit_blog(request):
   return HttpResponse(html) 
 
 def init_news():
-  global url_infos_tech, navbar_infos
-  create_tables()
+  global url_infos_tech, navbar_infos, is_first_load
+  if is_first_load:
+    create_tables()
+    #create_tables2()###
+  #import time
+  #uptime = time.strftime("%m%d%H%M", time.localtime())
   for _k, _v in navbar_infos.items():
     count = 0
     for topic,infos in _v["url_infos"].items():
@@ -70,20 +74,43 @@ def init_news():
     #hotkeys_tech = navbar_infos["tech"]["hot_keys"]  #为什么直接用hotkeys_tech操作，不是一个引用？所以只能下面覆盖数据.
     #hotkeys_tech_white_list = navbar_infos["tech"]["white_list"]
     #print "[LOG (hot keys stat)] ",words_stat_tech
-    _hotkeys = get_hot_keys(words_stat, 1000, _k)
+    _hotkeys = get_hot_keys(words_stat, 1000, _k)#, uptime
     #for _key in hotkeys_tech_white_list:
     #  if not _key in _hotkeys_tech:
     #    _hotkeys_tech.append(_key)
     _hotkeys = sort_hot_keys(words_stat, _k, _hotkeys)
-    navbar_infos[_k]["hot_keys"] = _hotkeys[:80]
+    navbar_infos[_k]["hot_keys"] = _hotkeys[:80] 
   del_hotkeys_expired()
+def init_news2():
+  global url_infos_tech, navbar_infos, is_first_load
+  if is_first_load:
+    create_tables2()
+  import time
+  uptime = time.strftime("%m%d%H%M", time.localtime())
+  for _k, _v in navbar_infos.items():
+    count = 0
+    for topic,infos in _v["url_infos"].items():
+      print "[LOG] fetch %s."%topic
+      #global all_news_tech
+      navbar_infos[_k]["all_news"][count] = news(topic, get_news(topic, _k), _k)
+      count += 1
+    words_stat = navbar_infos[_k]["words_stat"]
+
+    _hotkeys = get_hot_keys(words_stat, 1000, _k, uptime)
+    navbar_infos[_k]["words_stat"] = {} #old data
+    _hotkeys = sort_hot_keys2(_k, uptime)
+    navbar_infos[_k]["hot_keys"] = _hotkeys[:80] 
+  del_hotkeys_expired2(uptime)
   
 import time
 def thread_update_news(searchcontent):
   while True:
-    time.sleep(1440)
+    time.sleep(1800)
     print "[THREAD] update news. ",time.strftime("%Y-%m-%d %X", time.localtime())
-    init_news()
+    try:
+      init_news2()
+    except:
+      print "[Error Msg(thread_update_news)] ",sys.exc_info()
 print "[LOG] Global Run."
 
 def filter_news(quickkey, all_news):
@@ -109,11 +136,11 @@ def visit_offcanvas(request):
  
   #bug: 同个客户端同时刷新好几次，可能同时返回导致内容混合
   mutex_update_news.acquire()
-  if not is_first_load:
+  if is_first_load:
     print "[LOG] init news."
-    init_news()
+    init_news2()
     thread.start_new_thread(thread_update_news, ("",))
-    is_first_load = True
+    is_first_load = False
   mutex_update_news.release()
   
   fp = open('django_composite/offcanvas.html')  
