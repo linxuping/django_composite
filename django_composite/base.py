@@ -48,7 +48,7 @@ all_news_tech = [news("sina.com")]*len(url_infos_tech) #initial
 #------------------- social part -----------------#
 url_infos_soci = {
   #topic: [tech link, xpath, offical link]
-  "sohu.social": ["http://m.sohu.com", "//div/div/a", "http://m.sohu.com/", "/?wscrid="],
+  "sohu.social": ["http://m.sohu.com/", "//div/div/a", "http://m.sohu.com", "/?wscrid="],
   "sina.social": ["http://sina.cn/", '//a', "http://www.sina.com.cn/", "?sa="],
   "163.social": ["http://3g.163.com/touch/", '//a', "http://www.163.com/", "touch/article.html" ],
   "qq.social": ["http://news.qq.com/society_index.shtml", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time()))[:-2] ],#20140724 - 201407
@@ -244,10 +244,12 @@ def save_hoykey_count2(key, count, topic, day):
   else:
     oldcount = int(oldcount[0])
     weight = count
-    if count > oldcount:
+    if count >= oldcount:
       #if "视频" == key or u"视频" == key:
       #  print "+++ ",key,count,oldcount
       weight = count*(count-oldcount+1)
+    else:
+      weight = count*count/oldcount
     c.execute("update hotkeys2 set count=%d, weight=%d, day='%s' where name='%s' and topic='%s'"%(count,weight,day,key,topic))
   cx.commit()
   c.close()

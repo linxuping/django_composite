@@ -105,7 +105,7 @@ def init_news2():
 import time
 def thread_update_news(searchcontent):
   while True:
-    time.sleep(1800)
+    time.sleep(8)
     print "[THREAD] update news. ",time.strftime("%Y-%m-%d %X", time.localtime())
     try:
       init_news2()
