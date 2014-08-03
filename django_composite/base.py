@@ -105,7 +105,7 @@ def get_news(topic, navbar_key):
       if topic=="google.com" and None!=node.getparent().get("href"):
         _href = node.getparent().get("href")
       elif topic == "36kr.com":
-        if node.text.find(u"氪") != -1:
+        if node.text.find(u"氪")!=-1 and node.text.find("KrTV")!=-1:
           continue
         #_href = "http://www.36kr.com" + _href
       if _href.find("http://") == -1:
