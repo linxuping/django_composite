@@ -56,7 +56,7 @@ url_infos_soci = {
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
 hotkeys_soci_white_list = [u"车", u"房", u"涨", u"天气", u"足球", u"移动", u"大妈", u"黄金", u"世界杯"]
-hotkeys_soci_black_list = [u"男人", u"女人", u"人", u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", u"图", u"中国"]
+hotkeys_soci_black_list = [u"男人", u"女人", u"男子", u"女子", u"男孩", u"女孩", u"人", u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", u"图", u"中国"]
 words_stat_soci = {} #{"word":count}
 all_news_soci = [news("163.social")]*len(url_infos_soci) #initial
 #-------------------------------------------------#
@@ -244,10 +244,12 @@ def save_hoykey_count2(key, count, topic, day):
   else:
     oldcount = int(oldcount[0])
     weight = count
-    if count >= oldcount:
+    dist = count - oldcount
+    if dist >= 0:
       #if "视频" == key or u"视频" == key:
       #  print "+++ ",key,count,oldcount
-      weight = count*(count-oldcount+1)
+      #weight = count*(count-oldcount+1)
+      weight += dist*(dist+2) #more distance, more and more weight
     else:
       weight = count*count/oldcount
     c.execute("update hotkeys2 set count=%d, weight=%d, day='%s' where name='%s' and topic='%s'"%(count,weight,day,key,topic))
