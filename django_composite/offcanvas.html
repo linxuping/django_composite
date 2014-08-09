@@ -110,7 +110,7 @@
 		    {% for new in news %}
             <div class="col-6 col-sm-6 col-lg-4">
               <!--<h2>{{new.topic}}</h2>-->
-			  <div style="max-height:500px;OVERFLOW-Y: auto; OVERFLOW-X:hidden;">
+			  <div style="max-height:300px;OVERFLOW-Y:auto;OVERFLOW-X:hidden;border:1px solid #DDF;">
               <p>
 				{% for item in new.news_items %}
 				<a href="{{item.href}}">{{item.text}}</a><br/>
