@@ -118,7 +118,7 @@ def get_news(topic, navbar_key):
         #print "[LOG (jieba)] cutting."
         words =pseg.cut(node.text)
         for w in words:
-          if w.flag in word_types and not w.word in hotkeys_tech_black_list:
+          if w.flag in word_types and len(w.word)>1 and not w.word in hotkeys_tech_black_list:
             #global words_stat_tech
             if not words_stat_tech.has_key(w.word):
               words_stat_tech[w.word] = 1
