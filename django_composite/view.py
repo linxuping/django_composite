@@ -104,8 +104,10 @@ def init_news2():
   
 import time
 def thread_update_news(searchcontent):
+  sleeptime = 15*60 #debug
+  #sleeptime = 1*60*60 #release
   while True:
-    time.sleep(1800)
+    time.sleep(sleeptime)
     print "[THREAD] update news. ",time.strftime("%Y-%m-%d %X", time.localtime())
     try:
       init_news2()
@@ -126,13 +128,17 @@ def visit_offcanvas(request):
   print "[LOG] request.POST: ", request.POST
   searchcontent = request.POST.get("searchcontent", None)
   quickkey = request.POST.get("quickkey", searchcontent)
+  disp_content = "block"
+  disp_contactme = "none"
   status_tech = "active"
   status_soci = ""
+  stat_contactme = ""
   navbar_tab = "tech"
-  if "social" == request.POST.get("helpkey", None):
+  if u"社会" == request.POST.get("helpkey", None):
     status_tech = ""
     status_soci = "active"
     navbar_tab = "soci"
+  #elif u"联系我" == request.POST.get("helpkey", None):
  
   #bug: 同个客户端同时刷新好几次，可能同时返回导致内容混合
   mutex_update_news.acquire()
@@ -149,10 +155,10 @@ def visit_offcanvas(request):
   html = None
   if None==quickkey or ""==quickkey:
     #print "===>", navbar_infos["soci"]["all_news"],navbar_tab
-    html = t.render(Context({"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], \
+    html = t.render(Context({"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], "disp_content":disp_content,\
 	                         "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci }))  
   else:
-    html = t.render(Context({"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
+    html = t.render(Context({"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), "hot_keys":navbar_infos[navbar_tab]["hot_keys"],"disp_content":disp_content,\
                             "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci	}))
   return HttpResponse(html) 
   '''
