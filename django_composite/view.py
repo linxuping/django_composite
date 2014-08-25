@@ -129,16 +129,27 @@ def visit_offcanvas(request):
   searchcontent = request.POST.get("searchcontent", None)
   quickkey = request.POST.get("quickkey", searchcontent)
   disp_content = "block"
-  disp_contactme = "none"
+  disp_contact = "none"
   status_tech = "active"
   status_soci = ""
-  stat_contactme = ""
+  status_contact = ""
   navbar_tab = "tech"
-  if u"社会" == request.POST.get("helpkey", None):
+  helpkey = request.POST.get("helpkey", None)
+  if u"社会" == helpkey:
     status_tech = ""
     status_soci = "active"
+    status_contact = ""	
     navbar_tab = "soci"
-  #elif u"联系我" == request.POST.get("helpkey", None):
+  elif u"联系我" == helpkey:
+    status_tech = ""
+    status_soci = ""
+    status_contact = "active"
+    disp_content = "none"
+    disp_contact = "block"
+    navbar_tab = "soci"
+    contactdesc = request.POST.get("helpkey2", '')
+    if '' != contactdesc:
+      send_mail("417306303@qq.com", "from 360 views.", str(contactdesc))
  
   #bug: 同个客户端同时刷新好几次，可能同时返回导致内容混合
   mutex_update_news.acquire()
@@ -155,11 +166,13 @@ def visit_offcanvas(request):
   html = None
   if None==quickkey or ""==quickkey:
     #print "===>", navbar_infos["soci"]["all_news"],navbar_tab
-    html = t.render(Context({"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], "disp_content":disp_content,\
-	                         "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci }))  
+    html = t.render(Context({"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], \
+                             "disp_content":disp_content, "disp_contact":disp_contact,\
+	                         "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci ,"stat_cont":status_contact}))  
   else:
-    html = t.render(Context({"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), "hot_keys":navbar_infos[navbar_tab]["hot_keys"],"disp_content":disp_content,\
-                            "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci	}))
+    html = t.render(Context({"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
+                             "disp_content":disp_content, "disp_contact":disp_contact,\
+                            "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci, "stat_cont":status_contact}))
   return HttpResponse(html) 
   '''
   respdict = {}

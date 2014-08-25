@@ -6,6 +6,8 @@ import datetime
 import sys
 import sqlite3
 from lxml import etree
+import smtplib
+from email.mime.text import MIMEText
 
 class news_item:
   def __init__(self, text, href):
@@ -35,7 +37,7 @@ url_infos_tech = {
   "ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y_%m/%d',time.localtime(time.time())) ],#2014_07/24
   "baidu.com": ["http://internet.baidu.com/", '//div[@class="feeds-item"]/h3/a', "http://www.baidu.com/", "http"],#
   "cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
-  #"google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
+  "google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
   "36kr.com": ["http://www.36kr.com/", '//a[@target="_blank"]', "http://www.36kr.com/", "/p/"],#
 } 
 #go to config.py 
@@ -226,6 +228,33 @@ def today():
   return datetime.date.today().strftime('%Y%m%d')
 def yesterday():
   return (datetime.date.today()-datetime.timedelta(days=1)).strftime('%Y%m%d')
+  
+#-------------- send mail ---------------#
+import base64
+def send_mail(to_list,sub,content):
+    #设置服务器，用户名、口令以及邮箱的后缀
+    mail_host="smtp.126.com"
+    mail_user=base64.decodestring("bGlueHVwaW5n")
+    mail_pass=base64.decodestring("bGlueHVwaW5nMTIzNDU2")
+    mail_postfix="126.com"
+    me=mail_user+"<"+mail_user+"@"+mail_postfix+">"
+    msg = MIMEText(content)
+    msg['Subject'] = sub
+    msg['From'] = me
+    msg['To'] = to_list
+    try:
+        s = smtplib.SMTP()
+        s.connect(mail_host)
+        s.login(mail_user,mail_pass)
+        s.sendmail(me, to_list, msg.as_string())
+        s.close()
+        print '[LOG] send mail ok.'
+        return True
+    except Exception, e:
+        print '[LOG] send mail fail.'
+        print str(e)
+        return False
+#----------------------------------------#
  
 #------------------- init_news2 ------------------#
 #new algorithm of hot keys:   except column day
@@ -309,6 +338,11 @@ def ut_show_hoykeys():
   c.execute("select * from hotkeys") 
   print c.fetchall()
   c.close()
+def ut_send_mail():
+  if send_mail("417306303@qq.com","hello","this is python sent"):
+    print "send successful"
+  else:
+    print "send fail"
 if unittest:
   ut_get_hot_keys()
   ut_save_hoykey_count()
@@ -316,4 +350,4 @@ if unittest:
   print today()
   print yesterday()
   ut_show_hoykeys()
-
+  ut_send_mail()
