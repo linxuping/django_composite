@@ -57,7 +57,7 @@ url_infos_soci = {
   "baidu.social": ["http://shehui.news.baidu.com/", '//li/a', "http://www.baidu.com/", time.strftime('%d',time.localtime(time.time()))],#
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
-hotkeys_soci_white_list = [u"车", u"房", u"涨", u"天气", u"足球", u"移动", u"大妈", u"黄金", u"世界杯"]
+hotkeys_soci_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"黄金", u"淘宝", u"电影", u"世界杯"]
 hotkeys_soci_black_list = [u"男人", u"女人", u"男子", u"女子", u"男孩", u"女孩", u"人", u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", u"图", u"中国"]
 words_stat_soci = {} #{"word":count}
 all_news_soci = [news("163.social")]*len(url_infos_soci) #initial
