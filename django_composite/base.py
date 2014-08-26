@@ -37,7 +37,7 @@ url_infos_tech = {
   "ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y_%m/%d',time.localtime(time.time())) ],#2014_07/24
   "baidu.com": ["http://internet.baidu.com/", '//div[@class="feeds-item"]/h3/a', "http://www.baidu.com/", "http"],#
   "cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
-  #"google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
+  "google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
   "36kr.com": ["http://www.36kr.com/", '//a[@target="_blank"]', "http://www.36kr.com/", "/p/"],#
 } 
 #go to config.py 
@@ -278,7 +278,7 @@ def save_hoykey_count2(key, count, topic, day):
       #if "视频" == key or u"视频" == key:
       #  print "+++ ",key,count,oldcount
       #weight = count*(count-oldcount+1)
-      weight += dist*(dist+2) #more distance, more and more weight
+      weight += dist*(dist+5) #more distance, more and more weight
     else:
       weight = count*count/oldcount
     c.execute("update hotkeys2 set count=%d, weight=%d, day='%s' where name='%s' and topic='%s'"%(count,weight,day,key,topic))
