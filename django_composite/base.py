@@ -53,7 +53,7 @@ url_infos_soci = {
   "sohu.social": ["http://m.sohu.com/", "//div/div/a", "http://m.sohu.com", "/?wscrid="],
   "sina.social": ["http://sina.cn/", '//a', "http://www.sina.com.cn/", "?sa="],
   "163.social": ["http://3g.163.com/touch/", '//a', "http://www.163.com/", "touch/article.html" ],
-  "qq.social": ["http://news.qq.com/society_index.shtml", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time()))[:-2] ],#20140724 - 201407
+  "qq.social": ["http://news.qq.com/society_index.shtml", '//a', "http://news.qq.com", time.strftime('%Y%m%d',time.localtime(time.time()))[:-2] ],#20140724 - 201407
   "baidu.social": ["http://shehui.news.baidu.com/", '//li/a', "http://www.baidu.com/", time.strftime('%d',time.localtime(time.time()))],#
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
