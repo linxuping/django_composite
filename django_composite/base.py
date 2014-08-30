@@ -72,7 +72,7 @@ navbar_infos = {
 is_first_load = True
 
 def try_get_nodes(_url, _xpath):
-  resp = urllib2.urlopen(_url)
+  resp = urllib2.urlopen(_url, timeout=8)
   res = resp.read()
   tree = etree.HTML(res)
   return tree.xpath(_xpath)
