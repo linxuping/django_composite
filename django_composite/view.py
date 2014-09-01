@@ -68,7 +68,9 @@ def init_news():
     for topic,infos in _v["url_infos"].items():
       print "[LOG] fetch %s."%topic
       #global all_news_tech
-      navbar_infos[_k]["all_news"][count] = news(topic, get_news(topic, _k), _k)
+      _newitems = get_news(topic, _k)
+      if _newitems != []:
+        navbar_infos[_k]["all_news"][count] = news(topic, _newitems, _k)
       count += 1
     words_stat = navbar_infos[_k]["words_stat"]
     #hotkeys_tech = navbar_infos["tech"]["hot_keys"]  #为什么直接用hotkeys_tech操作，不是一个引用？所以只能下面覆盖数据.
