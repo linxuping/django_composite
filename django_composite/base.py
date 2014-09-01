@@ -34,8 +34,8 @@ url_infos_tech = {
   "163.com": ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
   "qq.com": ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
   "sina.com": ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
-  "ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y_%m/%d',time.localtime(time.time())) ],#2014_07/24
-  "baidu.com": ["http://internet.baidu.com/", '//div[@class="feeds-item"]/h3/a', "http://www.baidu.com/", "http"],#
+  "ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#2014_07/24
+  "baidu.com": ["http://internet.baidu.com/", '//a', "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
   "cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
   "google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
   "36kr.com": ["http://www.36kr.com/", '//a[@target="_blank"]', "http://www.36kr.com/", "/p/"],#
@@ -55,6 +55,8 @@ url_infos_soci = {
   "163.social": ["http://3g.163.com/touch/", '//a', "http://www.163.com/", "touch/article.html" ],
   "qq.social": ["http://news.qq.com/society_index.shtml", '//a', "http://news.qq.com", time.strftime('%Y%m%d',time.localtime(time.time()))[:-2] ],#20140724 - 201407
   "baidu.social": ["http://shehui.news.baidu.com/", '//li/a', "http://www.baidu.com/", time.strftime('%d',time.localtime(time.time()))],#
+  "xinhua.com": ["http://3g.news.cn/html/", '//li/a', "http://3g.news.cn/html", ""],#
+  "huanqiu.com": ["http://mt.huanqiu.com/", '//li/a', "http://mt.huanqiu.com/", ""],#
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
 hotkeys_soci_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"黄金", u"淘宝", u"电影", u"世界杯"]
