@@ -7,6 +7,7 @@ from books.models import Publisher
 from base import *
 import thread
 import threading
+import time
 mutex_update_news = threading.Lock()
 
 #mock memcache
@@ -66,7 +67,7 @@ def init_news():
   for _k, _v in navbar_infos.items():
     count = 0
     for topic,infos in _v["url_infos"].items():
-      print "[LOG] fetch %s."%topic
+      print "[LOG %s] fetch %s."%(time.strftime("%Y-%m-%d %X", time.localtime()), topic)
       #global all_news_tech
       _newitems = get_news(topic, _k)
       if _newitems != []:
@@ -92,7 +93,7 @@ def init_news2():
   for _k, _v in navbar_infos.items():
     count = 0
     for topic,infos in _v["url_infos"].items():
-      print "[LOG] fetch %s."%topic
+      print "[LOG %s] fetch %s."%(time.strftime("%Y-%m-%d %X", time.localtime()), topic)
       #global all_news_tech
       navbar_infos[_k]["all_news"][count] = news(topic, get_news(topic, _k), _k)
       count += 1
@@ -104,9 +105,8 @@ def init_news2():
     navbar_infos[_k]["hot_keys"] = _hotkeys[:80] 
   del_hotkeys_expired2(uptime)
   
-import time
 def thread_update_news(searchcontent):
-  sleeptime = 15*60 #debug
+  sleeptime = 30*60 #debug
   #sleeptime = 1*60*60 #release
   while True:
     time.sleep(sleeptime)
@@ -115,7 +115,7 @@ def thread_update_news(searchcontent):
       init_news2()
     except:
       print "[Error Msg(thread_update_news)] ",sys.exc_info()
-print "[LOG] Global Run."
+print "[LOG %s] Global Run."%(time.strftime("%Y-%m-%d %X", time.localtime()))
 
 def filter_news(quickkey, all_news):
   _news = []
@@ -127,7 +127,7 @@ def filter_news(quickkey, all_news):
 def visit_offcanvas(request):
   global is_first_load, navbar_infos
   #print request.session.items()
-  print "[LOG] request.POST: ", request.POST
+  print "[LOG %s] request.POST: "%(time.strftime("%Y-%m-%d %X", time.localtime())), request.POST
   searchcontent = request.POST.get("searchcontent", None)
   quickkey = request.POST.get("quickkey", searchcontent)
   disp_content = "block"
@@ -156,7 +156,7 @@ def visit_offcanvas(request):
   #bug: 同个客户端同时刷新好几次，可能同时返回导致内容混合
   mutex_update_news.acquire()
   if is_first_load:
-    print "[LOG] init news."
+    print "[LOG %s] init news."%(time.strftime("%Y-%m-%d %X", time.localtime()))
     init_news2()
     thread.start_new_thread(thread_update_news, ("",))
     is_first_load = False
