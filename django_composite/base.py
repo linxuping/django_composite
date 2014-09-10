@@ -73,9 +73,20 @@ navbar_infos = {
 }
 is_first_load = True
 
+def convert_unicode(s):
+  if isinstance(s, unicode):
+    return s
+  code_types = ["utf-8", "gbk", "ASCII", "Latin-1", "ISO8859—1", "UTF-16", "cp936", "gb2312", "MBCS", "DBCS"]
+  for _type in code_types:
+    try:
+      return unicode(s, _type)
+    except:
+      pass
+  return unicode(s, "utf-8")
 def try_get_nodes(_url, _xpath):
   resp = urllib2.urlopen(_url, timeout=8)
   res = resp.read()
+  res = convert_unicode(res)
   tree = etree.HTML(res)
   return tree.xpath(_xpath)
 def get_nodes(_url, _xpath):
