@@ -69,7 +69,7 @@
            <form class="navbar-form navbar-right" action="../news/" role="form" name="myform" method="post">
 		       {% csrf_token %} 
             <div class="form-group">
-              <input type="text" id="searchcontent" name="searchcontent" placeholder="用逗号隔开搜索词" class="form-control">
+              <input type="text" id="searchcontent" name="searchcontent" placeholder="关键词搜索" class="form-control">
             </div>
             <input type="submit" class="btn btn-success" value="搜索" onclick="helpkey.value=get_tabname();quicksearch.value=searchcontent.value"></button>
 			<input type="hidden" id="quicksearch" name="quickkey"></input>
@@ -105,7 +105,7 @@
 			  <input type="hidden" id="quickkey2" name="quickkey" ></input>
 			  {% for hotkey in hot_keys %}
 			  <!--<span class="label label-danger" onclick="quickkey2.value=this.text;quickform2.submit();">{{hotkey}}</span>-->
-			  <button type="button" class="btn btn-xs btn-info" style="margin-bottom:2px;padding:2px" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
+			  <button type="button" class="btn btn-xs btn-info" style="margin-bottom:1px;padding:1px" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
 			  {% endfor %}
 			  </form>
             </div>
