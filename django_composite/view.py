@@ -96,8 +96,8 @@ def init_news2():
   del_hotkeys_expired2(uptime)
   
 def thread_update_news(searchcontent):
-  sleeptime = 15*60 #debug
-  #sleeptime = 1*60*60 #release
+  #sleeptime = 15*60 #debug
+  sleeptime = 1*60*60 #release
   while True:
     time.sleep(sleeptime)
     print "[THREAD] update news. ",time.strftime("%Y-%m-%d %X", time.localtime())
