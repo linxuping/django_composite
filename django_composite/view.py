@@ -59,8 +59,25 @@ def visit_blog(request):
   return HttpResponse(html) 
 
 
+def build_list_config():
+  global hotkeys_tech_black_list,hotkeys_soci_black_list
+  f = open("django_composite/list.conf")
+  for line in f.readlines():
+    line = line.decode("utf-8")
+    #print line
+    if line.find("bls=") != -1:
+      hotkeys_tech_black_list += line.split("bls=")[1].split(",")
+      hotkeys_soci_black_list += line.split("bls=")[1].split(",")
+    elif line.find("blstech=") != -1:
+      hotkeys_tech_black_list += line.split("blstech=")[1].split(",")
+    elif line.find("blssoci=") != -1:
+      hotkeys_tech_black_list += line.split("blssoci=")[1].split(",")
+  f.close()
+
+
 def init_news2():
   global url_infos_tech, navbar_infos, is_first_load
+  build_list_config()
   if is_first_load:
     create_tables2()
   import time

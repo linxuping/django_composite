@@ -111,14 +111,14 @@ def get_nodes(_url, _xpath):
 import jieba.posseg as pseg
 word_types = ["n", "ns", "nr", "eng"]
 def get_news(topic, navbar_key):
-  global word_types, navbar_infos
+  global word_types, navbar_infos, topic_hit
   url_infos = navbar_infos[navbar_key]["url_infos"]
   hotkeys_tech_black_list = navbar_infos[navbar_key]["black_list"]
   #words_stat = navbar_infos[navbar_key]["words_stat"]
   news_list = []
   new_keys = []#ignore the multi keys
   nodes3 = get_nodes(url_infos[topic][0], url_infos[topic][1])
-  topic_hit = True
+  tmp_words_hit = [] 
   #print "topic_hit ",topic_hit
   
   for node in nodes3:
@@ -164,9 +164,12 @@ def get_news(topic, navbar_key):
               navbar_infos[navbar_key]["words_stat"][w.word] = 1
             else:
               navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+1
+            if w.word not in tmp_words_hit:
+              tmp_words_hit.append(w.word)
+              navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+100 #不同topic都提到，说明更热门，在一个topic内频率高不表示对外热门
             #print "[LOG (jieba word)]", w.word
-            #if w.word == u"马英九":
-            #  print "---------------->>>>",navbar_infos[navbar_key]["words_stat"][w.word],topic_hit
+            #if w.word == u"山东":
+            #  print "---------------->>>>",navbar_key,navbar_infos[navbar_key]["words_stat"][w.word],topic_hit
             #if topic_hit:
             #  navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+100 #不同topic都提到，说明更热门，在一个topic内频率高不表示对外热门
             #  if w.word == u"马英九":
