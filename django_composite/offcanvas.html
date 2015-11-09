@@ -98,9 +98,9 @@
 
           <div class="jumbotron" style="margin-bottom: 6px;padding-top:2%;padding-bottom:4%">
             <h2>新闻 360° </h2>
-            <h6>不能只看一家的态度→_→ </h6>
+            <h6>不只看一家媒体的态度，多维视角→_→ </h6>
           </div>
-		  
+		<!--
 		<div class="panel panel-default" style="margin-top:8px">
             <div class="panel-heading">
               <h3 class="panel-title">当前热词快搜</h3>
@@ -109,19 +109,19 @@
 			  <form action="../news/" role="form" name="quickform2" id="quickform2" method="post">
 			  <input type="hidden" id="quickkey2" name="quickkey" ></input>
 			  {% for hotkey in hot_keys %}
-			  <!--<span class="label label-danger" onclick="quickkey2.value=this.text;quickform2.submit();">{{hotkey}}</span>-->
 			  <button type="button" class="btn btn-xs btn-info" style="margin-bottom:1px;padding:1px" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
 			  {% endfor %}
 			  </form>
             </div>
         </div>	 		
-		  
-          <div class="row">
+		-->
+		<font>当前关键字: {{quickkey}}</font>
+        <div class="row" style="margin-top:8px">
 		    {% for new in news %}
 			{% if new.news_items %}
             <div class="col-6 col-sm-6 col-lg-4">
               <!--<h2>{{new.topic}}</h2>-->
-			  <div style="max-height:200px;OVERFLOW-Y:auto;width:90%;OVERFLOW-X:auto;;border:2px dashed #DDF;border-radius:4px;background:#E8E8E8">
+			  <div style="max-height:200px;OVERFLOW-Y:auto;border:2px dashed #DDF;border-radius:4px;background:#E8E8E8">
               <p>
 				{% for item in new.news_items %}
 				<a href="{{item.href}}" style="color:#127EBE"><b>▪{{item.text}}</b></a><br/>
@@ -130,7 +130,7 @@
 			  </div>
               <p style="text-align:right;margin-top:1px;margin-bottom:25px"><a class="btn btn-default" href="{{new.offical_link}}" role="button">{{new.topic}} &raquo;</a></p>
 
-            </div><!--/span-->
+              </div><!--/span-->
 			{% endif %}
 			{% endfor %}
           </div><!--/row-->
@@ -148,9 +148,9 @@
           </div>
         </div><!--/span-->
 		<!--</form>-->
-      </div><!--/row-->
-
-					<div class="panel panel-default">
+      </div><!--/row-->	  
+	  
+		<div class="panel panel-default">
             <div class="panel-heading">
               <h3 class="panel-title">当前热词快搜</h3>
             </div>
@@ -163,7 +163,21 @@
 			  {% endfor %}
 			  </form>
             </div>
-          </div>
+        </div>
+		
+		<div class="panel panel-default" style="margin-top:8px">
+            <div class="panel-heading">
+              <h3 class="panel-title">上升热词快搜</h3>
+            </div>
+            <div class="panel-body" style="padding:4px">
+			  <form action="../news/" role="form" name="quickform2" id="quickform2" method="post">
+			  <input type="hidden" id="quickkey2" name="quickkey" ></input>
+			  {% for hotkey in hot_keys_up %}
+			  <button type="button" class="btn btn-xs btn-info" style="margin-bottom:1px;padding:1px;background-color:#BB2222" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
+			  {% endfor %}
+			  </form>
+            </div>
+        </div>		
       <hr>  								
       <footer>
         <p>&copy; LXP 2014</p>

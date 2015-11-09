@@ -29,16 +29,17 @@ class news:
     return news(self.topic, tmp_new_items)
 	
 #-------------------- tech part ------------------#
+tech_tag=u"_科技"
 url_infos_tech = {
   #topic: [tech link, xpath, offical link]
-  "163.com": ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
-  "qq.com": ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  "sina.com": ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
-  "ifeng.com": ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#2014_07/24
-  "baidu.com": ["http://internet.baidu.com/", '//a', "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
-  "cnbeta.com": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", "http"],#
-  "google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
-  "36kr.com": ["http://www.36kr.com/", '//a[@target="_blank"]', "http://www.36kr.com/", "/p/"],#
+  u"网易"+tech_tag: ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+  "QQ"+tech_tag: ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
+  u"新浪"+tech_tag: ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
+  u"凤凰网"+tech_tag: ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#2014_07/24
+  u"百度"+tech_tag: ["http://internet.baidu.com/", '//a', "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
+  "cnbeta": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", ""],#
+  #"google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
+  "36kr": ["http://www.36kr.com/", '//a[@target="_blank"]', "http://www.36kr.com/", "/p/"],#
 } 
 #go to config.py 
 hotkeys_tech = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
@@ -50,28 +51,35 @@ all_news_tech = [news("sina.com")]*len(url_infos_tech) #initial
 #------------------- social part -----------------#
 url_infos_soci = {
   #topic: [tech link, xpath, offical link]
-  "sohu.social": ["http://m.sohu.com/", "//div/div/a", "http://m.sohu.com", "/?wscrid="],
-  "sina.social": ["http://sina.cn/", '//a', "http://www.sina.com.cn/", "?sa="],
-  "163.social": ["http://3g.163.com/touch/", '//a', "http://www.163.com/", "touch/article.html" ],
-  "qq.social": ["http://news.qq.com/society_index.shtml", '//a', "http://news.qq.com", time.strftime('%Y%m%d',time.localtime(time.time()))[:-2] ],#20140724 - 201407
-  "baidu.social": ["http://shehui.news.baidu.com/", '//li/a', "http://www.baidu.com/", time.strftime('%d',time.localtime(time.time()))],#
-  "xinhua.com": ["http://3g.news.cn/html/", '//li/a', "http://3g.news.cn/html", ""],#
-  "huanqiu.com": ["http://mt.huanqiu.com/", '//li/a', "http://mt.huanqiu.com/", ""],#
+  u"新华社": ["http://3g.news.cn/html/", '//li/a', "http://3g.news.cn/", ""],#
+  u"凤凰网": ["http://inews.ifeng.com/", '//p', "http://inews.ifeng.com/", "news"],#
+  u"搜狐": ["http://m.sohu.com/", "//div/div/a", "http://m.sohu.com", "/?wscrid="],
+  u"新浪": ["http://news.sina.cn/gn?vt=4&pos=3", '//a/dl/dd/h3', "http://www.sina.com.cn/", ""],
+  u"网易": ["http://3g.163.com/touch/", '//a', "http://www.163.com/", "touch/article.html" ],
+  "QQ": ["http://news.qq.com/society_index.shtml", '//a', "http://news.qq.com", time.strftime('%Y%m%d',time.localtime(time.time()))[:-2] ],#20140724 - 201407
+  u"百度": ["http://shehui.news.baidu.com/", '//li/a', "http://www.baidu.com/", time.strftime('%d',time.localtime(time.time()))],#
+
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
-hotkeys_soci_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"黄金", u"淘宝", u"电影", u"世界杯"]
-hotkeys_soci_black_list = [u"男人", u"女人", u"男子", u"女子", u"男孩", u"女孩", u"人", u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", u"图", u"中国"]
+hotkeys_soci_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"恒大", u"淘宝", u"电影", u"世界杯"]
+hotkeys_soci_black_list = [u"男人", u"女人", u"男子", u"女子", u"男孩", u"女孩", u"人", 
+							u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", 
+							u"图", u"中国", u"思客", u"网友", u"社会",u"官方",u"先生",u"企业",u"家庭",u"",u"",u"",u""]
 words_stat_soci = {} #{"word":count}
 all_news_soci = [news("163.social")]*len(url_infos_soci) #initial
 #-------------------------------------------------#
 
+tag_tech = u"互联网"
+tag_soci = u"今日头条"
+tag_cont = u"联系我"
 navbar_infos = {
-  "tech": {"url_infos":url_infos_tech, "white_list":hotkeys_tech_white_list, "black_list":hotkeys_tech_black_list, \
+  tag_tech: {"url_infos":url_infos_tech, "white_list":hotkeys_tech_white_list, "black_list":hotkeys_tech_black_list, \
            "hot_keys":hotkeys_tech, "words_stat":words_stat_tech, "all_news":all_news_tech},
-  "soci": {"url_infos":url_infos_soci, "white_list":hotkeys_soci_white_list, "black_list":hotkeys_soci_black_list, \
+  tag_soci: {"url_infos":url_infos_soci, "white_list":hotkeys_soci_white_list, "black_list":hotkeys_soci_black_list, \
            "hot_keys":hotkeys_soci, "words_stat":words_stat_soci, "all_news":all_news_soci},
 }
 is_first_load = True
+
 
 def convert_unicode(s):
   if isinstance(s, unicode):
@@ -90,15 +98,15 @@ def try_get_nodes(_url, _xpath):
   tree = etree.HTML(res)
   return tree.xpath(_xpath)
 def get_nodes(_url, _xpath):
-  try:
-    return try_get_nodes(_url, _xpath)
-  except: 
+  rets = []
+  for i in range(15):
     try:
-	  return try_get_nodes(_url, _xpath)
+      rets = try_get_nodes(_url, _xpath)
     except:
-      import traceback
-      print "[Error Msg] ",sys.exc_info()," ",traceback.format_exc()
-  return []
+      pass
+    if len(rets) != 0:
+      break
+  return rets
 
 import jieba.posseg as pseg
 word_types = ["n", "ns", "nr", "eng"]
@@ -106,27 +114,44 @@ def get_news(topic, navbar_key):
   global word_types, navbar_infos
   url_infos = navbar_infos[navbar_key]["url_infos"]
   hotkeys_tech_black_list = navbar_infos[navbar_key]["black_list"]
-  words_stat_tech = navbar_infos[navbar_key]["words_stat"]
+  #words_stat = navbar_infos[navbar_key]["words_stat"]
   news_list = []
   new_keys = []#ignore the multi keys
   nodes3 = get_nodes(url_infos[topic][0], url_infos[topic][1])
+  topic_hit = True
+  #print "topic_hit ",topic_hit
+  
   for node in nodes3:
+    if node.text != None:
+      node.text = node.text.strip("\r\n ")
     #print "[LOG nodeinfo] ",node.text,node.get("href")
-    if ((None!=node.get("href") and node.get("href").find(url_infos[topic][3])!=-1) or topic=="google.com")\
-	   and None!=node.text and len(node.text)>10 and len(node.text)<48  \
-	   and not node.text in new_keys:
+    if ((None!=node.get("href") and node.get("href").find(url_infos[topic][3])!=-1)\
+        or topic=="google" or topic==u"新浪" or topic==u"凤凰网")\
+        and None!=node.text and len(node.text)>10 and len(node.text)<48  \
+        and not node.text in new_keys:
       _href = node.get("href")
+      if None!=_href and _href.find("javascript:void")!=-1:
+        continue
       #special deal with    <a href=***><span>text</span></a>
-      if topic=="google.com" and None!=node.getparent().get("href"):
-        _href = node.getparent().get("href")
-      elif topic == "36kr.com":
+      #if topic=="google.com" and None!=node.getparent().get("href"):
+      #  _href = node.getparent().get("href")
+      if topic == u"新浪":
+        _href = node.getparent().getparent().getparent().get("href")
+      elif topic == "36kr":
         if node.text.find(u"氪")!=-1 and node.text.find("KrTV")!=-1:
           continue
+      elif topic == u"凤凰网": 
+        _href = node.getparent().getparent().get("href")
         #_href = "http://www.36kr.com" + _href
+
+      if _href == None:
+        continue
       if _href.find("http://") == -1:
          _href = url_infos[topic][2] + _href
       #end special.
       #print "[LOG add text.] ",navbar_key,topic,node.text
+      if (node.text.find("[")!=-1 and node.text.find("]")!=-1) or (node.text.find(u"【")!=-1 and node.text.find(u"】")):
+        continue
       news_list.append(news_item(node.text, _href))
       new_keys.append(node.text)
       try:
@@ -134,18 +159,25 @@ def get_news(topic, navbar_key):
         words =pseg.cut(node.text)
         for w in words:
           if w.flag in word_types and len(w.word)>1 and not w.word in hotkeys_tech_black_list:
-            #global words_stat_tech
-            if not words_stat_tech.has_key(w.word):
-              words_stat_tech[w.word] = 1
+            #global words_stat
+            if not navbar_infos[navbar_key]["words_stat"].has_key(w.word):
+              navbar_infos[navbar_key]["words_stat"][w.word] = 1
             else:
-              #if w.word == u"社交" or w.word == "社交":
-                #print "---> ", node.text			  
-              words_stat_tech[w.word] = words_stat_tech[w.word]+1
+              navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+1
             #print "[LOG (jieba word)]", w.word
+            #if w.word == u"马英九":
+            #  print "---------------->>>>",navbar_infos[navbar_key]["words_stat"][w.word],topic_hit
+            #if topic_hit:
+            #  navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+100 #不同topic都提到，说明更热门，在一个topic内频率高不表示对外热门
+            #  if w.word == u"马英九":
+            #    print "++++++++ add ",navbar_infos[navbar_key]["words_stat"][w.word]
+            #  topic_hit = False
+
       except:
         print "[Error Msg(jieba)] ",sys.exc_info()
         pass
-  return news_list
+  #print topic, "all:%d"%len(nodes3), "get:%d"%len(news_list)
+  return nodes3,news_list
 
 def get_hot_keys(dic, hot_topic_count=10, topic="None", uptime=""):
   #dic: {"aa":2, "bb":1999, "cc":88, "dd":45, "ee":10, "ff":13}
@@ -172,15 +204,19 @@ def get_hot_keys(dic, hot_topic_count=10, topic="None", uptime=""):
     return max_topic_list[:hot_topic_count]
   tmp_list = sorted(tmp_list, reverse=True)
   #print tmp_list
+  max_topic_counts = []
   for ii in range(left_count):
     countstr = str(tmp_list[ii]).split(".")[0]
     if "1" == countstr:
       break
+    max_topic_counts.append(countstr)
     tmp_dict_k = int(str(tmp_list[ii]).split(".")[1][:-1])#'88.31' -> '31' -> '3' -> 3
     max_topic_list.append(tmp_dict[tmp_dict_k])
+    if ii < 3:
+      print tmp_dict[tmp_dict_k],countstr
     #save_hoykey_count(tmp_dict[tmp_dict_k], int(countstr), topic)
     save_hoykey_count2(tmp_dict[tmp_dict_k], int(countstr), topic, uptime)
-  return max_topic_list
+  return max_topic_list,max_topic_counts
 def sort_hot_keys(dic, topic, hot_keys):
   #compare with yesterday. if lager, have higher priority
   tmp_list1 = []
@@ -246,10 +282,10 @@ def yesterday():
 import base64
 def send_mail(to_list,sub,content):
     #设置服务器，用户名、口令以及邮箱的后缀
-    mail_host="smtp.126.com"
-    mail_user=base64.decodestring("bGlueHVwaW5n")
-    mail_pass=base64.decodestring("bGlueHVwaW5nMTIzNDU2")
-    mail_postfix="126.com"
+    mail_host="smtp.sohu.com"
+    mail_user="ma201401"
+    mail_pass="abcd1234"
+    mail_postfix="sohu.com"
     me=mail_user+"<"+mail_user+"@"+mail_postfix+">"
     msg = MIMEText(content)
     msg['Subject'] = sub
@@ -274,6 +310,7 @@ def send_mail(to_list,sub,content):
 def create_tables2():
   create_table("create table hotkeys2(name nvarchar(20), count int, weight int, topic nvarchar(100), day nvarchar(20))")
 def save_hoykey_count2(key, count, topic, day):
+  #和上一次对比，如果更热门了，增加weight，如果冷门些了，降低weight
   #key = str(key)
   #topic = str(topic)
   cx = sqlite3.connect("test.db")
@@ -336,10 +373,10 @@ def ut_get_hot_keys():
   print get_hot_keys(tmp_dict, 8)," answer: bb,cc,dd,ff,ee,aa"
 def ut_save_hoykey_count():
   create_tables()
-  save_hoykey_count("aaa", 12, "tech", "20140730")
-  save_hoykey_count("bbb", 17, "soci", "20140729")
-  print get_db_hotkey_count("bbb", "soci", "20140729")
-  print get_db_hotkey_count("bbb", "soci", "20140720")
+  save_hoykey_count("aaa", 12, tag_tech, "20140730")
+  save_hoykey_count("bbb", 17, tag_soci, "20140729")
+  print get_db_hotkey_count("bbb", tag_soci, "20140729")
+  print get_db_hotkey_count("bbb", tag_soci, "20140720")
   cx = sqlite3.connect("test.db")
   c = cx.cursor()
   c.execute("select * from hotkeys") 
@@ -359,7 +396,7 @@ def ut_send_mail():
 if unittest:
   ut_get_hot_keys()
   ut_save_hoykey_count()
-  ut_test_db_day()
+  #ut_test_db_day()
   print today()
   print yesterday()
   ut_show_hoykeys()

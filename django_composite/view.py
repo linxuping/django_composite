@@ -68,13 +68,14 @@ def init_news2():
   for _k, _v in navbar_infos.items():
     count = 0
     for topic,infos in _v["url_infos"].items():
-      print "[LOG %s] fetch %s."%(time.strftime("%Y-%m-%d %X", time.localtime()), topic)
       #global all_news_tech
+      _all_news = []
       _get_news = []
       for i in range(15):    #retries
-        _get_news = get_news(topic, _k)
+        _all_news,_get_news = get_news(topic, _k)
         if len(_get_news) > 0:
           break
+      print "[LOG %s] fetch %s. all:%d, get:%d"%(time.strftime("%Y-%m-%d %X",time.localtime()),topic,len(_all_news),len(_get_news))
       navbar_infos[_k]["all_news"][count] = news(topic, _get_news, _k)
       count += 1
     words_stat = navbar_infos[_k]["words_stat"]
@@ -82,10 +83,15 @@ def init_news2():
     _hotkeys,max_topic_counts = get_hot_keys(words_stat, 1000, _k, uptime)
     #print "max_topic_counts::  ",max_topic_counts
     navbar_infos[_k]["words_stat"] = {} #old data
-    #_hotkeys = sort_hot_keys2(_k, uptime)
     navbar_infos[_k]["hot_keys"] = _hotkeys[:150] 
+    _hotkeys2 = sort_hot_keys2(_k, uptime)
+    navbar_infos[_k]["hot_keys_up"] = _hotkeys2[:80] 
 	#build cache.
-    for _hotkey in _hotkeys:
+    print "building cache."
+    get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":""}, False)
+    for _hotkey in set(_hotkeys+_hotkeys2):
+      get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
+    for _hotkey in navbar_infos[_k]["white_list"]:
       get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
   del_hotkeys_expired2(uptime)
   
@@ -150,17 +156,21 @@ def get_jsondata(args, from_request=True):
   
   jsondata = None
   if None==quickkey or ""==quickkey:
+    quickkey = ""
     jsondata = {"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], \
+                    "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
                     "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
 	                "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
-					"stat_soci":status_soci ,"stat_cont":status_contact}
+					"stat_soci":status_soci ,"stat_cont":status_contact, "quickkey":quickkey}
   else:
     jsondata = {"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
+                    "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
                     "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
                     "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
-					"stat_soci":status_soci, "stat_cont":status_contact}
+					"stat_soci":status_soci, "stat_cont":status_contact, "quickkey":quickkey}
   g_news_cache[cache_key] = deepcopy(jsondata)
-  print "build cache: ",cache_key
+  if from_request:
+    print "build cache: ",cache_key
   return jsondata 
   
 
