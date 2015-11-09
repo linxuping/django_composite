@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from books.models import Publisher
 from base import *
+from copy import deepcopy
 import thread
 import threading
 import time
@@ -57,33 +58,7 @@ def visit_blog(request):
   html = t.render(Context({"id":1}))  
   return HttpResponse(html) 
 
-def init_news():
-  global url_infos_tech, navbar_infos, is_first_load
-  if is_first_load:
-    create_tables()
-    #create_tables2()###
-  #import time
-  #uptime = time.strftime("%m%d%H%M", time.localtime())
-  for _k, _v in navbar_infos.items():
-    count = 0
-    for topic,infos in _v["url_infos"].items():
-      print "[LOG %s] fetch %s."%(time.strftime("%Y-%m-%d %X", time.localtime()), topic)
-      #global all_news_tech
-      _newitems = get_news(topic, _k)
-      if _newitems != []:
-        navbar_infos[_k]["all_news"][count] = news(topic, _newitems, _k)
-      count += 1
-    words_stat = navbar_infos[_k]["words_stat"]
-    #hotkeys_tech = navbar_infos["tech"]["hot_keys"]  #为什么直接用hotkeys_tech操作，不是一个引用？所以只能下面覆盖数据.
-    #hotkeys_tech_white_list = navbar_infos["tech"]["white_list"]
-    #print "[LOG (hot keys stat)] ",words_stat_tech
-    _hotkeys = get_hot_keys(words_stat, 1000, _k)#, uptime
-    #for _key in hotkeys_tech_white_list:
-    #  if not _key in _hotkeys_tech:
-    #    _hotkeys_tech.append(_key)
-    _hotkeys = sort_hot_keys(words_stat, _k, _hotkeys)
-    navbar_infos[_k]["hot_keys"] = _hotkeys[:80] 
-  del_hotkeys_expired()
+
 def init_news2():
   global url_infos_tech, navbar_infos, is_first_load
   if is_first_load:
@@ -95,18 +70,27 @@ def init_news2():
     for topic,infos in _v["url_infos"].items():
       print "[LOG %s] fetch %s."%(time.strftime("%Y-%m-%d %X", time.localtime()), topic)
       #global all_news_tech
-      navbar_infos[_k]["all_news"][count] = news(topic, get_news(topic, _k), _k)
+      _get_news = []
+      for i in range(15):    #retries
+        _get_news = get_news(topic, _k)
+        if len(_get_news) > 0:
+          break
+      navbar_infos[_k]["all_news"][count] = news(topic, _get_news, _k)
       count += 1
     words_stat = navbar_infos[_k]["words_stat"]
 
-    _hotkeys = get_hot_keys(words_stat, 1000, _k, uptime)
+    _hotkeys,max_topic_counts = get_hot_keys(words_stat, 1000, _k, uptime)
+    #print "max_topic_counts::  ",max_topic_counts
     navbar_infos[_k]["words_stat"] = {} #old data
-    _hotkeys = sort_hot_keys2(_k, uptime)
-    navbar_infos[_k]["hot_keys"] = _hotkeys[:80] 
+    #_hotkeys = sort_hot_keys2(_k, uptime)
+    navbar_infos[_k]["hot_keys"] = _hotkeys[:150] 
+	#build cache.
+    for _hotkey in _hotkeys:
+      get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
   del_hotkeys_expired2(uptime)
   
 def thread_update_news(searchcontent):
-  sleeptime = 30*60 #debug
+  sleeptime = 15*60 #debug
   #sleeptime = 1*60*60 #release
   while True:
     time.sleep(sleeptime)
@@ -123,37 +107,67 @@ def filter_news(quickkey, all_news):
     _news.append( news_item.filter(quickkey) )
   return _news
   
-@csrf_exempt
-def visit_offcanvas(request):
+  
+g_news_cache = {}    #helpkey_helpkey2_quickey: obj
+  
+
+def get_jsondata(args, from_request=True):
   global is_first_load, navbar_infos
   #print request.session.items()
-  print "[LOG %s] request.POST: "%(time.strftime("%Y-%m-%d %X", time.localtime())), request.POST
-  searchcontent = request.POST.get("searchcontent", None)
-  quickkey = request.POST.get("quickkey", searchcontent)
+  if from_request:
+    print "[LOG %s] request.POST: "%(time.strftime("%Y-%m-%d %X", time.localtime())), args
+  searchcontent = args.get("searchcontent", None)
+  quickkey = args.get("quickkey", searchcontent)
+  
+  cache_key = u"%s_%s_%s"%(args.get("helpkey", ''),args.get("helpkey2", ''),quickkey)
+  if from_request and cache_key in g_news_cache:
+    print "hit cache: ",cache_key
+    return g_news_cache[cache_key]
+  
   disp_content = "block"
   disp_contact = "none"
   status_tech = "active"
   status_soci = ""
   status_contact = ""
-  navbar_tab = "tech"
-  helpkey = request.POST.get("helpkey", None)
-  if u"社会" == helpkey:
+  navbar_tab = tag_tech
+  helpkey = args.get("helpkey", None)
+  if tag_soci==helpkey or None==helpkey:
+    helpkey = tag_soci
     status_tech = ""
     status_soci = "active"
     status_contact = ""	
-    navbar_tab = "soci"
-  elif u"联系我" == helpkey:
+    navbar_tab = tag_soci
+  elif tag_cont == helpkey:
     status_tech = ""
     status_soci = ""
     status_contact = "active"
     disp_content = "none"
     disp_contact = "block"
-    navbar_tab = "soci"
-    contactdesc = request.POST.get("helpkey2", '')
+    navbar_tab = tag_soci
+    contactdesc = args.get("helpkey2", '')
     if '' != contactdesc:
       send_mail("417306303@qq.com", "from 360 views.", str(contactdesc))
- 
+  
+  jsondata = None
+  if None==quickkey or ""==quickkey:
+    jsondata = {"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], \
+                    "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
+	                "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
+					"stat_soci":status_soci ,"stat_cont":status_contact}
+  else:
+    jsondata = {"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
+                    "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
+                    "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
+					"stat_soci":status_soci, "stat_cont":status_contact}
+  g_news_cache[cache_key] = deepcopy(jsondata)
+  print "build cache: ",cache_key
+  return jsondata 
+  
+
+@csrf_exempt
+def visit_offcanvas(request):
   #bug: 同个客户端同时刷新好几次，可能同时返回导致内容混合
+  global is_first_load
   mutex_update_news.acquire()
   if is_first_load:
     print "[LOG %s] init news."%(time.strftime("%Y-%m-%d %X", time.localtime()))
@@ -161,20 +175,12 @@ def visit_offcanvas(request):
     thread.start_new_thread(thread_update_news, ("",))
     is_first_load = False
   mutex_update_news.release()
-  
+
+  jsondata = get_jsondata(request.POST)
   fp = open('django_composite/offcanvas.html')  
   t = Template(fp.read())  
   fp.close()  
-  html = None
-  if None==quickkey or ""==quickkey:
-    #print "===>", navbar_infos["soci"]["all_news"],navbar_tab
-    html = t.render(Context({"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], \
-                             "disp_content":disp_content, "disp_contact":disp_contact,\
-	                         "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci ,"stat_cont":status_contact}))  
-  else:
-    html = t.render(Context({"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
-                             "disp_content":disp_content, "disp_contact":disp_contact,\
-                            "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, "stat_soci":status_soci, "stat_cont":status_contact}))
+  html = t.render(Context(jsondata))  
   return HttpResponse(html) 
   '''
   respdict = {}

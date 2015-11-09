@@ -15,10 +15,12 @@ def get_nodes(_url, _xpath):
 #nodes = get_nodes("http://tech.163.com/", '//h2[@class="color-link"]/a')
 #nodes = get_nodes("http://tech.qq.com/", '//div[@class="Q-tpList"]/div/h3/a')
 #nodes = get_nodes("http://tech.sina.com.cn/", '//a[@target="_blank"]')
-nodes = get_nodes("http://tech.sina.cn/?vt=4", '//h3')
+nodes = get_nodes("http://3g.news.cn/html/", '//li/a')
 print len(nodes)
 for node in nodes:
   try:
-    print node.getparent().getparent().getparent().text,node.get("href"),node.getparent().tag
+    #print node.getparent().getparent().getparent().text,node.get("href"),node.getparent().tag
+    print node.text,node.get("href")
   except:
     pass
+
