@@ -88,7 +88,7 @@ def init_news2():
     navbar_infos[_k]["hot_keys_up"] = _hotkeys2[:80] 
 	#build cache.
     print "building cache."
-    get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":""}, False)
+    get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":u"全部"}, False)
     for _hotkey in set(_hotkeys+_hotkeys2):
       get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
     for _hotkey in navbar_infos[_k]["white_list"]:
@@ -120,10 +120,17 @@ g_news_cache = {}    #helpkey_helpkey2_quickey: obj
 def get_jsondata(args, from_request=True):
   global is_first_load, navbar_infos
   #print request.session.items()
-  if from_request:
-    print "[LOG %s] request.POST: "%(time.strftime("%Y-%m-%d %X", time.localtime())), args
   searchcontent = args.get("searchcontent", None)
   quickkey = args.get("quickkey", searchcontent)
+  helpkey = args.get("helpkey", None)
+
+  if from_request:
+    print "[LOG %s] request.POST: "%(time.strftime("%Y-%m-%d %X", time.localtime())), args
+    if tag_soci==helpkey or None==helpkey:
+      helpkey = tag_soci
+    if quickkey=="" or None==quickkey:
+      if len(navbar_infos[helpkey]["hot_keys"])>0: #first key
+        quickkey = navbar_infos[helpkey]["hot_keys"][0]
   
   cache_key = u"%s_%s_%s"%(args.get("helpkey", ''),args.get("helpkey2", ''),quickkey)
   if from_request and cache_key in g_news_cache:
@@ -136,9 +143,8 @@ def get_jsondata(args, from_request=True):
   status_soci = ""
   status_contact = ""
   navbar_tab = tag_tech
-  helpkey = args.get("helpkey", None)
-  if tag_soci==helpkey or None==helpkey:
-    helpkey = tag_soci
+  if tag_soci == helpkey:
+    #helpkey = tag_soci
     status_tech = ""
     status_soci = "active"
     status_contact = ""	
@@ -153,10 +159,10 @@ def get_jsondata(args, from_request=True):
     contactdesc = args.get("helpkey2", '')
     if '' != contactdesc:
       send_mail("417306303@qq.com", "from 360 views.", str(contactdesc))
-  
+
+
   jsondata = None
-  if None==quickkey or ""==quickkey:
-    quickkey = ""
+  if quickkey == u"全部":
     jsondata = {"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], \
                     "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
                     "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
@@ -168,9 +174,10 @@ def get_jsondata(args, from_request=True):
                     "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
                     "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
 					"stat_soci":status_soci, "stat_cont":status_contact, "quickkey":quickkey}
-  g_news_cache[cache_key] = deepcopy(jsondata)
-  if from_request:
-    print "build cache: ",cache_key
+  if len(g_news_cache) < 1000:
+    g_news_cache[cache_key] = deepcopy(jsondata)
+    if from_request:
+      print "build cache: ",cache_key
   return jsondata 
   
 
