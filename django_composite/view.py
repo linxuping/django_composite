@@ -109,7 +109,8 @@ def init_news2():
     #print "max_topic_counts::  ",max_topic_counts
     navbar_infos[_k]["words_stat"] = {} #old data
     navbar_infos[_k]["hot_keys"] = _hotkeys[:150] 
-    _hotkeys2 = sort_hot_keys2(_k, uptime)
+    #print_db_me()
+    _hotkeys2 = sort_hot_keys2(_k)
     navbar_infos[_k]["hot_keys_up"] = _hotkeys2[:80] 
 	#build cache.
     print "building cache."
@@ -118,7 +119,6 @@ def init_news2():
       get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
     for _hotkey in navbar_infos[_k]["white_list"]:
       get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
-  del_hotkeys_expired2(uptime)
   
 def thread_update_news(searchcontent):
   #sleeptime = 15*60 #debug
@@ -127,7 +127,10 @@ def thread_update_news(searchcontent):
     time.sleep(sleeptime)
     print "[THREAD] update news. ",time.strftime("%Y-%m-%d %X", time.localtime())
     try:
+      if get_current_hour() < 1: #00: 00
+        update_base()
       init_news2()
+      del_hotkeys_expired2()
     except:
       print "[Error Msg(thread_update_news)] ",sys.exc_info()
 print "[LOG %s] Global Run."%(time.strftime("%Y-%m-%d %X", time.localtime()))
@@ -216,6 +219,7 @@ def visit_offcanvas(request):
   mutex_update_news.acquire()
   if is_first_load:
     print "[LOG %s] init news."%(time.strftime("%Y-%m-%d %X", time.localtime()))
+    update_base()
     init_news2()
     thread.start_new_thread(thread_update_news, ("",))
     is_first_load = False

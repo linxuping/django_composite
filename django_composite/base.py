@@ -9,6 +9,15 @@ from lxml import etree
 import smtplib
 from email.mime.text import MIMEText
 
+def get_days_ago(days):
+  import datetime
+  nowt = datetime.datetime.now()
+  days_ago = nowt + datetime.timedelta(days=-2)
+  return days_ago.strftime("%Y-%m-%d")
+def get_current_hour():
+  return int(time.localtime()[3])
+
+
 class news_item:
   def __init__(self, text, href):
     self.text = text
@@ -166,7 +175,7 @@ def get_news(topic, navbar_key):
               navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+1
             if w.word not in tmp_words_hit:
               tmp_words_hit.append(w.word)
-              navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+100 #不同topic都提到，说明更热门，在一个topic内频率高不表示对外热门
+              navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+10 #不同topic都提到，说明更热门，在一个topic内频率高不表示对外热门
             #print "[LOG (jieba word)]", w.word
             #if w.word == u"山东":
             #  print "---------------->>>>",navbar_key,navbar_infos[navbar_key]["words_stat"][w.word],topic_hit
@@ -218,7 +227,7 @@ def get_hot_keys(dic, hot_topic_count=10, topic="None", uptime=""):
     if ii < 3:
       print tmp_dict[tmp_dict_k],countstr
     #save_hoykey_count(tmp_dict[tmp_dict_k], int(countstr), topic)
-    save_hoykey_count2(tmp_dict[tmp_dict_k], int(countstr), topic, uptime)
+    save_hoykey_count2(tmp_dict[tmp_dict_k], int(countstr), topic)
   return max_topic_list,max_topic_counts
 def sort_hot_keys(dic, topic, hot_keys):
   #compare with yesterday. if lager, have higher priority
@@ -310,46 +319,83 @@ def send_mail(to_list,sub,content):
  
 #------------------- init_news2 ------------------#
 #new algorithm of hot keys:   except column day
+'''
+name topic count_old count_avg count_new weight     date
+                     co+cn/2             gen_weight  
+up_hour:
+  if init:
+    co=ca=cn  weight=0
+  else:
+    ca = ca+cn / 2
+    gen_weight
+	up_day: 
+	  clear 2 days ago
+	  co=ca weight=0 
+	  gen_weight
+'''
+     
+
+def gen_weight(c_old, c_new):
+  #1\count  *  2\rate up
+  if c_new >= c_old:
+    tmp = (c_new-c_old) * c_old/2 
+    if tmp < c_old:
+      tmp = c_old
+    return tmp
+  else:
+    return c_new
+
 def create_tables2():
-  create_table("create table hotkeys2(name nvarchar(20), count int, weight int, topic nvarchar(100), day nvarchar(20))")
-def save_hoykey_count2(key, count, topic, day):
+  create_table("create table hotkeys2(name nvarchar(20), count int, count_avg int, count_new int, weight int, topic nvarchar(100), createdate date not null)")
+def save_hoykey_count2(key, count_new, topic):
   #和上一次对比，如果更热门了，增加weight，如果冷门些了，降低weight
   #key = str(key)
   #topic = str(topic)
   cx = sqlite3.connect("test.db")
   c = cx.cursor()
-  #print "save to db ",key,count,topic,day
-  c.execute("select count from hotkeys2 where name='%s' and topic='%s'"%(key,topic))
+  #print "save to db ",key,count,topic
+  c.execute("select count,count_avg from hotkeys2 where name='%s' and topic='%s'"%(key,topic))
   oldcount = c.fetchone()
   if None == oldcount:
-    c.execute("insert into hotkeys2 values('%s', %d, %d, '%s', '%s')"%(key,count,count,topic,day))
+    c.execute("insert into hotkeys2 values('%s', %d, %d, %d, %d, '%s', datetime('now','localtime'))"%(key,count_new,count_new,count_new,count_new,topic))
   else:
-    oldcount = int(oldcount[0])
-    weight = count
-    dist = count - oldcount
-    if dist >= 0:
-      #if "视频" == key or u"视频" == key:
-      #  print "+++ ",key,count,oldcount
-      #weight = count*(count-oldcount+1)
-      weight += dist*(dist+5) #more distance, more and more weight
-    else:
-      weight = count*count/oldcount
-    c.execute("update hotkeys2 set count=%d, weight=%d, day='%s' where name='%s' and topic='%s'"%(count,weight,day,key,topic))
+    count_avg = (int(oldcount[1]) + count_new)/2
+    weight= gen_weight(int(oldcount[0]), count_new)
+    c.execute("update hotkeys2 set count_avg=%d,count_new=%d,weight=%d where name='%s' and topic='%s'"%(count_avg,count_new,weight,key,topic))
   cx.commit()
   c.close()
-def del_hotkeys_expired2(day):
+def update_base():
+  #build when 00:00 and then save hotkey
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  _sql = "select name,topic,count_avg from hotkeys2"
+  c.execute(_sql)
+  items = c.fetchall()
+  if None == items:
+    print "ERROR: %s"%_sql
+  else:
+    for i in range(len(items)):
+      key = items[i][0]
+      topic = items[i][1]
+      count_avg = int(items[i][2])
+      c.execute("update hotkeys2 set count=%d,weight=count_avg where name='%s' and topic='%s'"%(count_avg,key,topic))
+  cx.commit()
+  c.close()
+
+def del_hotkeys_expired2():
   cx = sqlite3.connect("test.db")
   c = cx.cursor()
   #delete day < datetime-n
-  c.execute("delete from hotkeys2 where day<>'%s'"%day)
+  #c.execute("delete from hotkeys2 where createdate < date_sub(now(),interval 2 day)")
+  c.execute("delete from hotkeys2 where createdate < '%s'"%get_days_ago(2))
   cx.commit()
   c.close()
-def sort_hot_keys2(topic, day):
+def sort_hot_keys2(topic):
   #topic = str(topic)
   cx = sqlite3.connect("test.db")
   c = cx.cursor()
-  #print "save to db ",key,count,topic,day
-  c.execute("select name from hotkeys2 where topic='%s' and day='%s' ORDER BY weight DESC"%(topic,day))
+  #print "save to db ",key,count,topic
+  c.execute("select name from hotkeys2 where topic='%s' ORDER BY weight DESC"%topic)
   keyarrs = c.fetchall()
   if None == keyarrs:
     return []
@@ -360,10 +406,21 @@ def sort_hot_keys2(topic, day):
   for i in range(len(keyarrs)):
     tmplist.append(keyarrs[i][0])
   return tmplist
+def print_db_me():
+  cx = sqlite3.connect("test.db")
+  c = cx.cursor()
+  c.execute("select * from hotkeys2")
+  keyarrs = c.fetchall()
+  if None == keyarrs:
+    print "ERROR: db empty."
+  c.close()
+  tmplist = []
+  for i in range(len(keyarrs)):
+    print "line: ",keyarrs[i]
 #-------------------------------------------------#
  
 #-------------------------- UNIT TEST ----------------------------#
-unittest = False
+unittest = True
 def ut_get_hot_keys():
   tmp_dict = {"aa":2, "bb":1999, "cc":88, "dd":45, "oo":1, "ee":10, "ff":13}
   print get_hot_keys(tmp_dict, 1)," answer: bb"
@@ -396,11 +453,35 @@ def ut_send_mail():
     print "send successful"
   else:
     print "send fail"
+def ut_gen_weight():
+  print "44 66",gen_weight(44,66)
+  print "5 17",gen_weight(5,17)
+  print "44 33",gen_weight(44,33)
+  print "5 7",gen_weight(5,7)
+  print "7 5",gen_weight(7,5)
+  print "101 101",gen_weight(101,101)
+def ut_test_new_db():
+  create_tables2()
+  save_hoykey_count2("testkey", 5, "topic")
+  save_hoykey_count2("testkey2", 5, "topic")
+  save_hoykey_count2("testkey", 7, "topic")
+  print_db_me()
+  print "run del_hotkeys_expired2."
+  del_hotkeys_expired2()
+  print_db_me()
+  print "run sort_hot_keys2.",sort_hot_keys2("topic")
+  update_base()
+  print_db_me()
+
 if unittest:
-  ut_get_hot_keys()
-  ut_save_hoykey_count()
+  #ut_get_hot_keys()
+  #ut_save_hoykey_count()
   #ut_test_db_day()
-  print today()
-  print yesterday()
-  ut_show_hoykeys()
-  ut_send_mail()
+  #print today()
+  #print yesterday()
+  #ut_show_hoykeys()
+  #ut_send_mail()
+  print get_days_ago(2)
+  print "hour: ",get_current_hour()
+  ut_gen_weight()
+  ut_test_new_db()
