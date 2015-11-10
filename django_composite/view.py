@@ -59,11 +59,14 @@ def visit_blog(request):
   return HttpResponse(html) 
 
 
+
+g_hotkeys = {}
 def build_list_config():
-  global hotkeys_tech_black_list,hotkeys_soci_black_list
+  global hotkeys_tech_black_list,hotkeys_soci_black_list,g_hotkeys
   f = open("django_composite/list.conf")
+  g_hotkeys = {}
   for line in f.readlines():
-    line = line.decode("utf-8")
+    line = line.decode("utf-8").strip(" \r\n")
     #print line
     if line.find("bls=") != -1:
       hotkeys_tech_black_list += line.split("bls=")[1].split(",")
@@ -72,7 +75,12 @@ def build_list_config():
       hotkeys_tech_black_list += line.split("blstech=")[1].split(",")
     elif line.find("blssoci=") != -1:
       hotkeys_tech_black_list += line.split("blssoci=")[1].split(",")
+    elif line.find("hktech=")!=-1 and line.split("hktech=")[1]!="":
+      g_hotkeys[tag_tech] = line.split("hktech=")[1]
+    elif line.find("hksoci=")!=-1 and line.split("hksoci=")[1]!="":
+      g_hotkeys[tag_soci] = line.split("hksoci=")[1]
   f.close()
+
 
 
 def init_news2():
@@ -146,7 +154,9 @@ def get_jsondata(args, from_request=True):
     if tag_soci==helpkey or None==helpkey:
       helpkey = tag_soci
     if quickkey=="" or None==quickkey:
-      if len(navbar_infos[helpkey]["hot_keys"])>0: #first key
+      if g_hotkeys.get(helpkey,"") != "":
+        quickkey = g_hotkeys[helpkey]
+      elif len(navbar_infos[helpkey]["hot_keys"])>0: #first key
         quickkey = navbar_infos[helpkey]["hot_keys"][0]
   
   cache_key = u"%s_%s_%s"%(args.get("helpkey", ''),args.get("helpkey2", ''),quickkey)
@@ -183,14 +193,15 @@ def get_jsondata(args, from_request=True):
     jsondata = {"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], \
                     "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
                     "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
-	                "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
-					"stat_soci":status_soci ,"stat_cont":status_contact, "quickkey":quickkey}
+                    "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
+                    "stat_soci":status_soci ,"stat_cont":status_contact, "quickkey":quickkey }
   else:
-    jsondata = {"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
+    jsondata = {"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), 
+                    "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
                     "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
                     "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
                     "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
-					"stat_soci":status_soci, "stat_cont":status_contact, "quickkey":quickkey}
+                    "stat_soci":status_soci, "stat_cont":status_contact, "quickkey":quickkey }
   if len(g_news_cache) < 1000:
     g_news_cache[cache_key] = deepcopy(jsondata)
     if from_request:
