@@ -36,9 +36,13 @@ class news:
       if tmp_item.text.find(searchcontent) != -1:
         tmp_new_items.append(tmp_item)
     return news(self.topic, tmp_new_items)
-	
+
+tag_tech = u"互联网"
+tag_soci = u"今日头条"
+tag_cont = u"联系我"
+
 #-------------------- tech part ------------------#
-tech_tag=u"_科技"
+tech_tag=u"_"+tag_tech
 url_infos_tech = {
   #topic: [tech link, xpath, offical link]
   u"凤凰网"+tech_tag: ["http://tech.ifeng.com/", '//a', "http://www.ifeng.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#2014_07/24
@@ -78,9 +82,7 @@ words_stat_soci = {} #{"word":count}
 all_news_soci = [news("163.social")]*len(url_infos_soci) #initial
 #-------------------------------------------------#
 
-tag_tech = u"互联网"
-tag_soci = u"今日头条"
-tag_cont = u"联系我"
+
 navbar_infos = {
   tag_tech: {"url_infos":url_infos_tech, "white_list":hotkeys_tech_white_list, "black_list":hotkeys_tech_black_list, \
            "hot_keys":hotkeys_tech, "words_stat":words_stat_tech, "all_news":all_news_tech},
@@ -420,7 +422,7 @@ def print_db_me():
 #-------------------------------------------------#
  
 #-------------------------- UNIT TEST ----------------------------#
-unittest = True
+unittest = False
 def ut_get_hot_keys():
   tmp_dict = {"aa":2, "bb":1999, "cc":88, "dd":45, "oo":1, "ee":10, "ff":13}
   print get_hot_keys(tmp_dict, 1)," answer: bb"

@@ -118,16 +118,46 @@
 			  {% endfor %}
 			  </form>
             </div>
-        </div>	 		
 		-->
-	<div style="margin-top:4px;margin-bottom:5px">
+
+	<div style="margin-top:4px;margin-bottom:6px;margin-right:10px;text-align:right">
 	<font color=#888888>&nbsp当前关键字: {{quickkey}}</font>
 	</div>
+
+	<div style="max-height:400%;overflow-y:auto">
+	<table class="table table-striped">
+	   <!--<caption>条纹表格布局</caption>
+	   <thead>
+	      <tr>
+		 <th>名称</th>
+		 <th>城市</th>
+		 <th>密码</th>
+	      </tr>
+	   </thead>-->
+	   <tbody>
+	    {% for new in news %}
+		{% if new.news_items %}
+			{% for item in new.news_items %}
+<tr>
+		 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px"><a href="{{item.href}}" style="color:#127EBE"><b><font style="font-size:normal">▪{{item.text}}</font></b></a>
+		</td>
+		 <td style="padding-right:2px;padding-top:8px;padding-bottom:8px"><font style="font-size:small;color:#BBBBBB">{{new.topic |cut:"_" |cut:helpkey }}</font>
+		</td>
+	      </tr>
+			{% endfor %}
+		{% endif %}
+		{% endfor %}
+
+	   </tbody>
+	</table>
+	</div>
+        </div>	 		
+
+<!--
         <div class="row" style="margin-top:4px">
 		    {% for new in news %}
 			{% if new.news_items %}
             <div class="col-6 col-sm-6 col-lg-4">
-              <!--<h2>{{new.topic}}</h2>-->
 			  <div style="max-height:200px;OVERFLOW-Y:auto;border:2px dashed #DDF;border-radius:4px;background:#E8E8E8">
               <p>
 				{% for item in new.news_items %}
@@ -137,11 +167,12 @@
 			  </div>
               <p style="text-align:right;margin-bottom:15px"><a class="btn" href="{{new.offical_link}}" role="button">{{new.topic}} &raquo;</a></p>
 
-              </div><!--/span-->
+              </div>
 			{% endif %}
 			{% endfor %}
-          </div><!--/row-->
-        </div><!--/span-->
+          </div>
+        </div>
+-->
 
 		<!--<form action="../news/" role="form" name="quickform" id="quickform" method="post">-->
         <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
@@ -157,7 +188,7 @@
 		<!--</form>-->
       </div><!--/row-->	  
 	  
-		<div class="panel panel-default">
+	<div class="panel panel-default" style="">
             <div class="panel-heading">
               <h3 class="panel-title">当前热词快搜</h3>
             </div>
@@ -185,7 +216,8 @@
 			  </form>
             </div>
         </div>		
-        <a class="list-group-item active" style="text-align:center" onclick="helpkey.value=get_tabname();quicksearch.value='全部';myform.submit();">&lt&lt&nbsp&nbsp我想浏览全部内容&nbsp&nbsp&gt&gt</a>
+        <a class="list-group-item active" style="text-align:center" href="#top">&lt&lt&nbsp&nbsp飞回顶部啦&nbsp&nbsp&gt&gt</a>
+        <a class="list-group-item active" style="text-align:center;display:none" onclick="helpkey.value=get_tabname();quicksearch.value='全部';myform.submit();">&lt&lt&nbsp&nbsp我想浏览全部(多着去了)&nbsp&nbsp&gt&gt</a>
       <hr>  								
       <footer>
         <p>&copy; LXP 2014</p>
@@ -197,7 +229,7 @@
       <textarea id="contactdesc" style="width:100%;min-height:200px;margin:5px;"></textarea>
 	  <a id="contactbtn" class="btn btn-lg btn-success" role="button" onclick="helpkey.value=get_tabname();helpkey2.value=contactdesc.value;myform.submit();">发给我</a>
       <hr>  								
-      <footer>
+      <footer style="padding-top:0px">
         <p>&copy; LXP 2014</p>
       </footer>
 	</div>
