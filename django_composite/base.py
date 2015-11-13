@@ -121,6 +121,7 @@ def get_nodes(_url, _xpath):
 
 import jieba.posseg as pseg
 word_types = ["n", "ns", "nr", "eng"]
+tmpset=set()
 def get_news(topic, navbar_key):
   global word_types, navbar_infos, topic_hit
   url_infos = navbar_infos[navbar_key]["url_infos"]
@@ -163,7 +164,11 @@ def get_news(topic, navbar_key):
       #print "[LOG add text.] ",navbar_key,topic,node.text
       if (node.text.find("[")!=-1 and node.text.find("]")!=-1) or (node.text.find(u"【")!=-1 and node.text.find(u"】")):
         continue
-      news_list.append(news_item(node.text, _href))
+      if node.text not in tmpset:
+        tmpset.add(node.text)
+        news_list.append(news_item(node.text, _href))
+      else:
+        continue
       new_keys.append(node.text)
       try:
         #print "[LOG (jieba)] cutting."

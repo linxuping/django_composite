@@ -129,6 +129,8 @@ def thread_update_news(searchcontent):
     try:
       if get_current_hour() < 1: #00: 00
         update_base()
+      global tmpset
+      tmpset=set() #avoid repeated
       init_news2()
       del_hotkeys_expired2()
     except:
