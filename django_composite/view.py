@@ -156,7 +156,7 @@ def get_jsondata(args, from_request=True):
     print "[LOG %s] request.POST: "%(time.strftime("%Y-%m-%d %X", time.localtime())), args
     if tag_soci==helpkey or None==helpkey:
       helpkey = tag_soci
-    if quickkey=="" or None==quickkey:
+    if (quickkey=="" or None==quickkey) and not helpkey==tag_cont:
       if g_hotkeys.get(helpkey,"") != "":
         quickkey = g_hotkeys[helpkey]
       elif len(navbar_infos[helpkey]["hot_keys"])>0: #first key

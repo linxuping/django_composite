@@ -139,9 +139,14 @@
 		{% if new.news_items %}
 			{% for item in new.news_items %}
 <tr>
-		 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px"><a href="{{item.href}}" style="color:#127EBE"><b><font style="font-size:normal">▪{{item.text}}</font></b></a>
+		 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
+		<font style="font-size:normal">▪</font>
 		</td>
-		 <td style="padding-right:2px;padding-top:8px;padding-bottom:8px"><font style="font-size:small;color:#BBBBBB">{{new.topic |cut:"_" |cut:helpkey }}</font>
+		 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;width:90%">
+		
+		<a href="{{item.href}}" style="color:#127EBE"><b><font style="font-size:normal">{{item.text}}</font></b></a>
+		</td>
+		 <td style="padding-right:4px;padding-top:8px;padding-bottom:8px"><font style="font-size:small;color:#BBBBBB">{{new.topic |cut:"_" |cut:helpkey }}</font>
 		</td>
 	      </tr>
 			{% endfor %}
@@ -192,7 +197,7 @@
             <div class="panel-heading">
               <h3 class="panel-title">当前热词快搜</h3>
             </div>
-            <div class="panel-body" style="padding:4px">
+            <div class="panel-body" style="padding:8px">
 			  <form role="form" name="quickform3" id="quickform3" method="post">
 			  <input type="hidden" id="quickkey3" name="quickkey" ></input>
 			  {% for hotkey in hot_keys %}
@@ -207,11 +212,11 @@
             <div class="panel-heading">
               <h3 class="panel-title">上升热词快搜</h3>
             </div>
-            <div class="panel-body" style="padding:4px">
+            <div class="panel-body" style="padding:8px">
 			  <form role="form" name="quickform2" id="quickform2" method="post">
 			  <input type="hidden" id="quickkey2" name="quickkey" ></input>
 			  {% for hotkey in hot_keys_up %}
-			  <button type="button" class="btn btn-xs btn-info" style="margin-bottom:1px;padding:1px;background-color:#BB2222" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
+			  <button type="button" class="btn btn-xs btn-info" style="margin-bottom:1px;padding:1px;background-color:#CC0000" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
 			  {% endfor %}
 			  </form>
             </div>

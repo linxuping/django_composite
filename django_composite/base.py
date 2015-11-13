@@ -74,7 +74,7 @@ url_infos_soci = {
 
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
-hotkeys_soci_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"恒大", u"淘宝", u"电影", u"世界杯"]
+hotkeys_soci_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"恒大", u"淘宝", u"电影", u"双十一"]
 hotkeys_soci_black_list = [u"男人", u"女人", u"男子", u"女子", u"男孩", u"女孩", u"人", 
 							u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", 
 							u"图", u"中国", u"思客", u"网友", u"社会",u"官方",u"先生",u"企业",u"家庭",u"全部",u"",u"",u"",u""]
@@ -380,7 +380,7 @@ def update_base():
       key = items[i][0]
       topic = items[i][1]
       count_avg = int(items[i][2])
-      c.execute("update hotkeys2 set count=%d,weight=count_avg where name='%s' and topic='%s'"%(count_avg,key,topic))
+      c.execute("update hotkeys2 set count=%d,weight=0 where name='%s' and topic='%s'"%(count_avg,key,topic))
   cx.commit()
   c.close()
 
@@ -397,7 +397,7 @@ def sort_hot_keys2(topic):
   cx = sqlite3.connect("test.db")
   c = cx.cursor()
   #print "save to db ",key,count,topic
-  c.execute("select name from hotkeys2 where topic='%s' ORDER BY weight DESC"%topic)
+  c.execute("select name from hotkeys2 where topic='%s' and weight>0 and (weight>count or count>10) ORDER BY weight DESC"%topic)
   keyarrs = c.fetchall()
   if None == keyarrs:
     return []
