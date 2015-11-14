@@ -9,6 +9,8 @@ from copy import deepcopy
 import thread
 import threading
 import time
+import sys
+import traceback
 mutex_update_news = threading.Lock()
 
 #mock memcache
@@ -100,8 +102,8 @@ def init_news2(_init=True):
       _get_news = []
       _tmpset2 = set()
       for i in range(15):    #retries
-        if navbar_infos[_k]["all_news"][count].news_items != None:
-          print _init,"old len: ",len(navbar_infos[_k]["all_news"][count].news_items)
+        #if navbar_infos[_k]["all_news"][count].news_items != None:
+        #  print _init,"old len: ",len(navbar_infos[_k]["all_news"][count].news_items)
         if _init:
           _all_news,_get_news,_tmpset2 = get_news(topic, _k, [])
         else:
@@ -160,9 +162,11 @@ def filter_news(quickkey, all_news):
   return _news
   
 
+import codecs
 config_headers = ["hktech=","hksoci=","bls=","blstech=","blssoci=",
                   "wlstech=","wlssoci="]
 def admin_update_configs(cont):
+  cont = cont.strip("\r\n ")
   ret = False
   header = None
   for _header in config_headers:
@@ -173,13 +177,15 @@ def admin_update_configs(cont):
   if not ret:
     return False
   
+  print "[admin_update_configs]type:  ",type(cont),cont
   f = open("django_composite/list.conf")
   lines = f.readlines()
+  print lines
   f.close()
 
 
   for i in range(len(lines)):
-    lines[i] = lines[i].decode("utf-8")
+    lines[i] = lines[i].strip("\r\n ").decode("utf-8")
     if lines[i].find(header) != -1:
       if header=="blstech=" or header=="blssoci=" or \
         header=="wlstech=" or header=="wlssoci=" or \
@@ -194,11 +200,15 @@ def admin_update_configs(cont):
         lines[i] = cont
       break
 
-  f = open("django_composite/list.conf","w")
+  #f = open("django_composite/list.conf","w")
+  f = codecs.open("django_composite/list.conf","w","utf-8")
   #lines = [ line.strip("\r\n ").encode("utf-8") for line in lines ]
   for line in lines:
-    line=line.strip("\r\n ").encode("utf-8")
-    f.write(line+"\n")
+    line=line.strip("\r\n ")
+    try:
+      f.write(line+"\n")
+    except:
+      print "Exception: ",sys.exc_info(),traceback.format_exc()
   f.close()
   return False
 
@@ -266,7 +276,7 @@ def get_jsondata(args, from_request=True):
                     "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
                     "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
                     "stat_soci":status_soci, "stat_cont":status_contact, "quickkey":quickkey }
-  if len(g_news_cache) < 1000:
+  if tag_cont!=helpkey and len(g_news_cache)<1000:
     g_news_cache[cache_key] = deepcopy(jsondata)
     if from_request:
       print "build cache: ",cache_key

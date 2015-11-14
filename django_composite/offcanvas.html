@@ -1,6 +1,6 @@
 <html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
@@ -46,9 +46,6 @@
 	  }
     </script>
 	<style>
-	body{
-		background:red;
-	}
 	</style>
   </head>
 
@@ -156,24 +153,8 @@
 		   </tbody>
 		</table>
 		</div>
-
-	<div class="panel panel-default" style="">
-            <div class="panel-heading">
-              <h3 class="panel-title">当前热词快搜</h3>
-            </div>
-            <div class="panel-body" style="padding:8px">
-			  <form role="form" name="quickform3" id="quickform3" method="post">
-			  <input type="hidden" id="quickkey3" name="quickkey" ></input>
-			  {% for hotkey in hot_keys %}
-			  <!--<span class="label label-danger" onclick="quickkey2.value=this.text;quickform2.submit();">{{hotkey}}</span>-->
-			  <button type="button" class="btn btn-xs btn-success" style="margin-bottom:2px;padding:2px" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
-			  {% endfor %}
-			  </form>
-            </div>
-
-        </div>
-		
-<div class="panel panel-default" style="margin-top:8px">
+	
+	<div class="panel panel-default" style="margin-top:8px;background-color:rgba(255,255,255,0.3)">
             <div class="panel-heading">
               <h3 class="panel-title">上升热词快搜</h3>
             </div>
@@ -181,12 +162,28 @@
 			  <form role="form" name="quickform2" id="quickform2" method="post">
 			  <input type="hidden" id="quickkey2" name="quickkey" ></input>
 			  {% for hotkey in hot_keys_up %}
-			  <button type="button" class="btn btn-xs btn-info" style="margin-bottom:1px;padding:1px;background-color:#CC0000" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
+			  <button type="button" class="btn btn-xs btn-info" style="margin:1px;padding:1px;background-color:#FF6A6A" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
 			  {% endfor %}
 			  </form>
             </div>
         </div>
 
+	<div class="panel panel-default" style="background-color:rgba(255,255,255,0.3)">
+            <div class="panel-heading">
+              <h3 class="panel-title">当前热词排位</h3>
+            </div>
+            <div class="panel-body" style="padding:8px">
+			  <form role="form" name="quickform3" id="quickform3" method="post">
+			  <input type="hidden" id="quickkey3" name="quickkey" ></input>
+			  {% for hotkey in hot_keys %}
+			  <!--<span class="label label-danger" onclick="quickkey2.value=this.text;quickform2.submit();">{{hotkey}}</span>-->
+			  <button type="button" class="btn btn-xs btn-success" style="margin:1px;padding:1px;" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
+			  {% endfor %}
+			  </form>
+            </div>
+
+        </div>
+	
 
         </div>	 		
 
@@ -216,7 +213,7 @@
           <div class="list-group">
 		    <a class="list-group-item active">最近流行热词 ↓</a>
 		    <!--<input type="hidden" id="quickkey" name="quickkey"></input>-->
-<div style="height:80%;overflow:auto">
+<div style="height:auto;overflow:auto">
 			{% for hotkey in hot_keys_anual %}
             <a href="#" class="list-group-item" onclick="quicksearch.value=this.text;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</a>
 			{% endfor %}         
@@ -231,7 +228,7 @@
       </div><!--/row-->	  
       <div class="container" style="margin-top:8px">
 			
-        <a class="list-group-item active" style="text-align:center" href="#top">&lt&lt&nbsp&nbsp飞回顶部啦&nbsp&nbsp&gt&gt</a>
+        <a class="list-group-item active" style="text-align:center;border-radius:4px" href="#top">&lt&lt&nbsp&nbsp飞回顶部啦&nbsp&nbsp&gt&gt</a>
         <a class="list-group-item active" style="text-align:center;display:none" onclick="helpkey.value=get_tabname();quicksearch.value='全部';myform.submit();">&lt&lt&nbsp&nbsp我想浏览全部(多着去了)&nbsp&nbsp&gt&gt</a>
       <hr>  								
       <footer>
@@ -242,10 +239,10 @@
 	
     <div name="contactme" style="display:{{disp_contact}};padding-left:2px" class="container">
       <textarea id="contactdesc" style="width:100%;min-height:200px;margin:5px"></textarea>
-	  <a id="contactbtn" class="btn btn-lg btn-success" style="text-align:right" role="button" onclick="helpkey.value=get_tabname();helpkey2.value=contactdesc.value;myform.submit();">发给我</a>
+	  &nbsp&nbsp&nbsp&nbsp<a id="contactbtn" class="btn btn-lg btn-success" style="text-align:right" role="button" onclick="helpkey.value=get_tabname();helpkey2.value=contactdesc.value;myform.submit();">发给我^~^</a>
       <hr>  								
       <footer style="padding-top:0px">
-        <p>&copy; LXP 2014</p>
+        <p>&nbsp&nbsp&copy; LXP 2014</p>
       </footer>
 	</div>
 

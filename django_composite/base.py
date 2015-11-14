@@ -166,19 +166,21 @@ def get_news(topic, navbar_key, old_new_items):
       #print "[LOG add text.] ",navbar_key,topic,node.text
       if (node.text.find("[")!=-1 and node.text.find("]")!=-1) or (node.text.find(u"【")!=-1 and node.text.find(u"】")):
         continue
-      if _href not in tmpset and _href not in tmpset2:
-        #tmpset.add(node.text)
+      if (_href not in tmpset and _href not in tmpset2) or (node.text[:10] not in tmpset and node.text[:10] not in tmpset2):
+        tmpset2.add(node.text[:10])
         tmpset2.add(_href)
         news_list.append(news_item(node.text, _href))
+        #print "10 words ahead check existed! ",node.text[:10]  for log
       else:
         continue
       new_keys.append(node.text)
 
   for node in old_new_items:
-    if node.href not in tmpset and node.href not in tmpset2:
-      #tmpset.add(node.text)
+    if (node.href not in tmpset and node.href not in tmpset2) or (node.text[:10] not in tmpset and node.text[:10] not in tmpset2):
+      tmpset2.add(node.text[:10])
       tmpset2.add(node.href)
       news_list.append(node)
+      #print "10 words ahead check existed! ",node.text[:10]  for log
 
   for node in news_list:
     try:
