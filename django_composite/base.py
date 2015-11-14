@@ -33,6 +33,7 @@ class news:
   def filter(self, searchcontent):
     tmp_new_items = []
     for tmp_item in self.news_items:
+      #print tmp_item,tmp_item.text,searchcontent
       if tmp_item.text.find(searchcontent) != -1:
         tmp_new_items.append(tmp_item)
     return news(self.topic, tmp_new_items)
@@ -59,7 +60,7 @@ hotkeys_tech = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "
 hotkeys_tech_white_list = [u"车", u"移动", u"生活", u"路由器", u"腕带", u"手表", u"谷歌", u"微软", u"百度", u"阿里", u"腾讯", u"BAT", u"锤子", u"雷军"]
 hotkeys_tech_black_list = [u"中国", u"技术", u"行业", u"公司", u"传", u"美", u"用户", u"市场", u"版", u"产品", u"功能",u"全部"]
 words_stat_tech = {} #{"word":count}
-all_news_tech = [news("sina.com")]*len(url_infos_tech) #initial
+all_news_tech = [news( url_infos_tech.keys()[0] )]*len(url_infos_tech) #initial
 #-------------------------------------------------#
 #------------------- social part -----------------#
 url_infos_soci = {
@@ -79,7 +80,7 @@ hotkeys_soci_black_list = [u"男人", u"女人", u"男子", u"女子", u"男孩"
 							u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", 
 							u"图", u"中国", u"思客", u"网友", u"社会",u"官方",u"先生",u"企业",u"家庭",u"全部",u"",u"",u"",u""]
 words_stat_soci = {} #{"word":count}
-all_news_soci = [news("163.social")]*len(url_infos_soci) #initial
+all_news_soci = [news( url_infos_soci.keys()[0] )]*len(url_infos_soci) #initial
 #-------------------------------------------------#
 
 
@@ -122,8 +123,8 @@ def get_nodes(_url, _xpath):
 import jieba.posseg as pseg
 word_types = ["n", "ns", "nr", "eng"]
 tmpset=set()
-def get_news(topic, navbar_key):
-  global word_types, navbar_infos, topic_hit
+def get_news(topic, navbar_key, old_new_items):
+  global word_types, navbar_infos, topic_hit, tmpset
   url_infos = navbar_infos[navbar_key]["url_infos"]
   hotkeys_tech_black_list = navbar_infos[navbar_key]["black_list"]
   #words_stat = navbar_infos[navbar_key]["words_stat"]
@@ -131,6 +132,7 @@ def get_news(topic, navbar_key):
   new_keys = []#ignore the multi keys
   nodes3 = get_nodes(url_infos[topic][0], url_infos[topic][1])
   tmp_words_hit = [] 
+  tmpset2=set()
   #print "topic_hit ",topic_hit
   
   for node in nodes3:
@@ -164,39 +166,44 @@ def get_news(topic, navbar_key):
       #print "[LOG add text.] ",navbar_key,topic,node.text
       if (node.text.find("[")!=-1 and node.text.find("]")!=-1) or (node.text.find(u"【")!=-1 and node.text.find(u"】")):
         continue
-      if node.text not in tmpset:
-        tmpset.add(node.text)
+      if _href not in tmpset and _href not in tmpset2:
+        #tmpset.add(node.text)
+        tmpset2.add(_href)
         news_list.append(news_item(node.text, _href))
       else:
         continue
       new_keys.append(node.text)
-      try:
-        #print "[LOG (jieba)] cutting."
-        words =pseg.cut(node.text)
-        for w in words:
-          if w.flag in word_types and len(w.word)>1 and not w.word in hotkeys_tech_black_list:
-            #global words_stat
-            if not navbar_infos[navbar_key]["words_stat"].has_key(w.word):
-              navbar_infos[navbar_key]["words_stat"][w.word] = 1
-            else:
-              navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+1
-            if w.word not in tmp_words_hit:
-              tmp_words_hit.append(w.word)
-              navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+10 #不同topic都提到，说明更热门，在一个topic内频率高不表示对外热门
-            #print "[LOG (jieba word)]", w.word
-            #if w.word == u"山东":
-            #  print "---------------->>>>",navbar_key,navbar_infos[navbar_key]["words_stat"][w.word],topic_hit
-            #if topic_hit:
-            #  navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+100 #不同topic都提到，说明更热门，在一个topic内频率高不表示对外热门
-            #  if w.word == u"马英九":
-            #    print "++++++++ add ",navbar_infos[navbar_key]["words_stat"][w.word]
-            #  topic_hit = False
 
-      except:
-        print "[Error Msg(jieba)] ",sys.exc_info()
-        pass
+  for node in old_new_items:
+    if node.href not in tmpset and node.href not in tmpset2:
+      #tmpset.add(node.text)
+      tmpset2.add(node.href)
+      news_list.append(node)
+
+  for node in news_list:
+    try:
+      #print "[LOG (jieba)] cutting."
+      words =pseg.cut(node.text)
+      tmp_words_hit2=[]
+      for w in words:
+        if w.flag in word_types and len(w.word)>1 and \
+            not w.word in hotkeys_tech_black_list:
+          #global words_stat
+          if w.word in tmp_words_hit2:
+            continue
+          tmp_words_hit2.append(w.word)
+          if not navbar_infos[navbar_key]["words_stat"].has_key(w.word):
+            navbar_infos[navbar_key]["words_stat"][w.word] = 1
+          else:
+            navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+1
+          if w.word not in tmp_words_hit:
+            tmp_words_hit.append(w.word)
+            navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+10 #不同topic都提到，说明更热门，在一个topic内频率高不表示对外热门
+    except:
+      print "[Error Msg(jieba)] ",sys.exc_info()
+      pass
   #print topic, "all:%d"%len(nodes3), "get:%d"%len(news_list)
-  return nodes3,news_list
+  return nodes3,news_list,tmpset2
 
 def get_hot_keys(dic, hot_topic_count=10, topic="None", uptime=""):
   #dic: {"aa":2, "bb":1999, "cc":88, "dd":45, "ee":10, "ff":13}
@@ -226,7 +233,7 @@ def get_hot_keys(dic, hot_topic_count=10, topic="None", uptime=""):
   max_topic_counts = []
   for ii in range(left_count):
     countstr = str(tmp_list[ii]).split(".")[0]
-    if "1" == countstr:
+    if "11" == countstr:  #1 + 10(title weight)
       break
     max_topic_counts.append(countstr)
     tmp_dict_k = int(str(tmp_list[ii]).split(".")[1][:-1])#'88.31' -> '31' -> '3' -> 3
@@ -235,6 +242,7 @@ def get_hot_keys(dic, hot_topic_count=10, topic="None", uptime=""):
       print tmp_dict[tmp_dict_k],countstr
     #save_hoykey_count(tmp_dict[tmp_dict_k], int(countstr), topic)
     save_hoykey_count2(tmp_dict[tmp_dict_k], int(countstr), topic)
+  #print "max_topic_counts: ",max_topic_counts
   return max_topic_list,max_topic_counts
 def sort_hot_keys(dic, topic, hot_keys):
   #compare with yesterday. if lager, have higher priority

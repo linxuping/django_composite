@@ -83,7 +83,7 @@ def build_list_config():
 
 
 
-def init_news2():
+def init_news2(_init=True):
   global url_infos_tech, navbar_infos, is_first_load
   build_list_config()
   if is_first_load:
@@ -92,15 +92,31 @@ def init_news2():
   uptime = time.strftime("%m%d%H%M", time.localtime())
   for _k, _v in navbar_infos.items():
     count = 0
+    global tmpset
+    tmpset=set() #avoid repeated
     for topic,infos in _v["url_infos"].items():
       #global all_news_tech
       _all_news = []
       _get_news = []
+      _tmpset2 = set()
       for i in range(15):    #retries
-        _all_news,_get_news = get_news(topic, _k)
+        if navbar_infos[_k]["all_news"][count].news_items != None:
+          print _init,"old len: ",len(navbar_infos[_k]["all_news"][count].news_items)
+        if _init:
+          _all_news,_get_news,_tmpset2 = get_news(topic, _k, [])
+        else:
+          _all_news,_get_news,_tmpset2 = get_news(topic, _k, navbar_infos[_k]["all_news"][count].news_items)
         if len(_get_news) > 0:
           break
+      for setitem in _tmpset2:
+        tmpset.add(setitem)
       print "[LOG %s] fetch %s. all:%d, get:%d"%(time.strftime("%Y-%m-%d %X",time.localtime()),topic,len(_all_news),len(_get_news))
+      #if not _init:
+      #  _tmplists = [ _new.href for _new in _get_news]
+      #  for _item in navbar_infos[_k]["all_news"][count].news_items:
+      #    if _item.href not in _tmplists:
+      #      _get_news.append(_item)
+      #  _get_news = list( set(_get_news + navbar_infos[_k]["all_news"][count].news_items) )
       navbar_infos[_k]["all_news"][count] = news(topic, _get_news, _k)
       count += 1
     words_stat = navbar_infos[_k]["words_stat"]
@@ -124,14 +140,14 @@ def thread_update_news(searchcontent):
   #sleeptime = 15*60 #debug
   sleeptime = 1*60*60 #release
   while True:
+    _init = False
     time.sleep(sleeptime)
     print "[THREAD] update news. ",time.strftime("%Y-%m-%d %X", time.localtime())
     try:
       if get_current_hour() < 1: #00: 00
         update_base()
-      global tmpset
-      tmpset=set() #avoid repeated
-      init_news2()
+        _init = True
+      init_news2(_init)
       del_hotkeys_expired2()
     except:
       print "[Error Msg(thread_update_news)] ",sys.exc_info()
@@ -143,9 +159,51 @@ def filter_news(quickkey, all_news):
     _news.append( news_item.filter(quickkey) )
   return _news
   
+
+config_headers = ["hktech=","hksoci=","bls=","blstech=","blssoci=",
+                  "wlstech=","wlssoci="]
+def admin_update_configs(cont):
+  ret = False
+  header = None
+  for _header in config_headers:
+    if cont.find(_header) != -1:
+      header = _header
+      ret = True
+      break
+  if not ret:
+    return False
+  
+  f = open("django_composite/list.conf")
+  lines = f.readlines()
+  f.close()
+
+
+  for i in range(len(lines)):
+    lines[i] = lines[i].decode("utf-8")
+    if lines[i].find(header) != -1:
+      if header=="blstech=" or header=="blssoci=" or \
+        header=="wlstech=" or header=="wlssoci=" or \
+        header=="bls=":
+        if lines[i] == header: #tag=
+          lines[i] = cont
+          break
+        cont = cont.split(header)[1]
+        if lines[i].find(cont) == -1:
+          lines[i] = lines[i] + u"," + cont
+      else:
+        lines[i] = cont
+      break
+
+  f = open("django_composite/list.conf","w")
+  #lines = [ line.strip("\r\n ").encode("utf-8") for line in lines ]
+  for line in lines:
+    line=line.strip("\r\n ").encode("utf-8")
+    f.write(line+"\n")
+  f.close()
+  return False
+
   
 g_news_cache = {}    #helpkey_helpkey2_quickey: obj
-  
 
 def get_jsondata(args, from_request=True):
   global is_first_load, navbar_infos
@@ -190,6 +248,7 @@ def get_jsondata(args, from_request=True):
     navbar_tab = tag_soci
     contactdesc = args.get("helpkey2", '')
     if '' != contactdesc:
+      admin_update_configs(contactdesc)
       send_mail("417306303@qq.com", "from 360 views.", str(contactdesc))
 
 

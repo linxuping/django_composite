@@ -121,7 +121,7 @@
 			-->
 
 		<div style="margin-top:4px;margin-bottom:6px;margin-right:10px;text-align:right">
-		<font color=#888888>&nbsp当前关键字: {{quickkey}}</font>
+		<b><font color=#888888>&nbsp当前关键字: {{quickkey}}&nbsp&nbsp</font></b>
 		</div>
 
 		<div style="max-height:400%;overflow-y:auto">
@@ -173,6 +173,19 @@
 
         </div>
 		
+<div class="panel panel-default" style="margin-top:8px">
+            <div class="panel-heading">
+              <h3 class="panel-title">上升热词快搜</h3>
+            </div>
+            <div class="panel-body" style="padding:8px">
+			  <form role="form" name="quickform2" id="quickform2" method="post">
+			  <input type="hidden" id="quickkey2" name="quickkey" ></input>
+			  {% for hotkey in hot_keys_up %}
+			  <button type="button" class="btn btn-xs btn-info" style="margin-bottom:1px;padding:1px;background-color:#CC0000" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
+			  {% endfor %}
+			  </form>
+            </div>
+        </div>
 
 
         </div>	 		
@@ -199,13 +212,15 @@
 -->
 
 		<!--<form action="../news/" role="form" name="quickform" id="quickform" method="post">-->
-        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation" style="height:100%">
           <div class="list-group">
 		    <a class="list-group-item active">最近流行热词 ↓</a>
 		    <!--<input type="hidden" id="quickkey" name="quickkey"></input>-->
+<div style="height:80%;overflow:auto">
 			{% for hotkey in hot_keys_anual %}
             <a href="#" class="list-group-item" onclick="quicksearch.value=this.text;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</a>
 			{% endfor %}         
+</div>
             <a class="list-group-item active" onclick="helpkey.value='今日头条';myform.submit();">&lt&lt&nbspHome</a>
           </div>
         </div><!--/span-->
@@ -213,19 +228,9 @@
       </div><!--/row-->	  
 	  
 	
-	<div class="panel panel-default" style="margin-top:8px">
-            <div class="panel-heading">
-              <h3 class="panel-title">上升热词快搜</h3>
-            </div>
-            <div class="panel-body" style="padding:8px">
-			  <form role="form" name="quickform2" id="quickform2" method="post">
-			  <input type="hidden" id="quickkey2" name="quickkey" ></input>
-			  {% for hotkey in hot_keys_up %}
-			  <button type="button" class="btn btn-xs btn-info" style="margin-bottom:1px;padding:1px;background-color:#CC0000" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
-			  {% endfor %}
-			  </form>
-            </div>
-        </div>		
+      </div><!--/row-->	  
+      <div class="container" style="margin-top:8px">
+			
         <a class="list-group-item active" style="text-align:center" href="#top">&lt&lt&nbsp&nbsp飞回顶部啦&nbsp&nbsp&gt&gt</a>
         <a class="list-group-item active" style="text-align:center;display:none" onclick="helpkey.value=get_tabname();quicksearch.value='全部';myform.submit();">&lt&lt&nbsp&nbsp我想浏览全部(多着去了)&nbsp&nbsp&gt&gt</a>
       <hr>  								
@@ -235,9 +240,9 @@
     </div><!--/.container-->
 	</div>
 	
-    <div name="contactme" style="display:{{disp_contact}}" class="container">
-      <textarea id="contactdesc" style="width:100%;min-height:200px;margin:5px;"></textarea>
-	  <a id="contactbtn" class="btn btn-lg btn-success" role="button" onclick="helpkey.value=get_tabname();helpkey2.value=contactdesc.value;myform.submit();">发给我</a>
+    <div name="contactme" style="display:{{disp_contact}};padding-left:2px" class="container">
+      <textarea id="contactdesc" style="width:100%;min-height:200px;margin:5px"></textarea>
+	  <a id="contactbtn" class="btn btn-lg btn-success" style="text-align:right" role="button" onclick="helpkey.value=get_tabname();helpkey2.value=contactdesc.value;myform.submit();">发给我</a>
       <hr>  								
       <footer style="padding-top:0px">
         <p>&copy; LXP 2014</p>
