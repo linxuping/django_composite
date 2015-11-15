@@ -86,7 +86,7 @@ def build_list_config():
 
 
 def init_news2(_init=True):
-  global url_infos_tech, navbar_infos, is_first_load
+  global url_infos_tech, navbar_infos, is_first_load, tmpset
   build_list_config()
   if is_first_load:
     create_tables2()
@@ -94,8 +94,7 @@ def init_news2(_init=True):
   uptime = time.strftime("%m%d%H%M", time.localtime())
   for _k, _v in navbar_infos.items():
     count = 0
-    global tmpset
-    tmpset=set() #avoid repeated
+    tmpset.clear() #avoid repeated
     for topic,infos in _v["url_infos"].items():
       #global all_news_tech
       _all_news = []
