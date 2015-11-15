@@ -44,6 +44,22 @@
 		}
 		return "今日头条"
 	  }
+      function show_all_news()
+	  {
+		var news = document.getElementsByName("news_more");
+		for (var i=0; i<news.length; ++i){
+			news[i].style.display = "";
+		}
+		document.getElementsByName("news_more_hint")[0].style.display="none";
+	  }
+      function init_page()
+	  {
+		var news = document.getElementsByName("news_more");
+		for (var i=0; i<news.length; ++i){
+			news[i].style.display = "none";
+		}
+		document.getElementsByName("news_more_hint")[0].style.display="";
+	  }
     </script>
 	<style>
 	</style>
@@ -93,12 +109,12 @@
 
       <div class="row row-offcanvas row-offcanvas-right">
 
-        <div class="col-xs-12 col-sm-9">
-		  <p class="pull-right visible-xs">
+        <div class="col-xs-12 col-sm-9" style="padding-left:8px;padding-right:8px">
+		  <p class="pull-right visible-xs" style="margin-right:5px">
 		    <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">←&nbsp年度热词&nbsp→</button>
 		  </p>
 
-		  <div class="jumbotron" style="margin-bottom: 6px;padding-top:2%;padding-bottom:4%;background-color:#BBBBBB">
+		  <div class="jumbotron" style="margin-bottom: 6px;padding-top:2%;padding-bottom:4%;margin-left:5px;margin-right:5px;background-color:#BBBBBB">
 		    <h2>新闻 360° </h2>
 		    <h6>不只看一家媒体的态度，多维视角→_→ </h6>
 		  </div>
@@ -132,24 +148,40 @@
 		      </tr>
 		   </thead>-->
 		   <tbody>
-		    {% for new in news %}
-			{% if new.news_items %}
-				{% for item in new.news_items %}
-	<tr>
-			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
-			<font style="font-size:normal">▪</font>
-			</td>
-			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;width:80%">
-			
-			<a href="{{item.href}}" style="color:#0044FF"><b><font style="font-size:normal">{{item.text}}</font></b></a>
-			</td>
-			 <td style="padding-right:4px;padding-top:8px;padding-bottom:8px"><font style="font-size:small;color:#AAAAAA">{{new.topic |cut:"_" |cut:helpkey }}</font>
-			</td>
-		      </tr>
-				{% endfor %}
-			{% endif %}
-			{% endfor %}
+			{% for item in news %}
 
+			{% if forloop.counter < 15 %}
+			<tr>
+			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
+			 	<font style="font-size:normal">▪</font></td>
+			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;width:80%">
+			 	<a href="{{item.href}}" style="color:#0044FF"><b><font style="font-size:normal">{{item.text}}</font></b></a></td>
+			 <td style="padding-right:4px;padding-top:8px;padding-bottom:8px">
+				<font style="font-size:small;color:#AAAAAA">{{item.topic |cut:"_" |cut:helpkey }}</font></td>
+		        </tr>
+			{% elif forloop.counter == 15 %}
+		        <tr name="news_more_hint">
+                         <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
+			 	</td>
+			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;width:80%">
+			 	<a href="javascript:void(0)" onclick="show_all_news()">点击加载更多.</a></td>
+			 <td style="padding-right:4px;padding-top:8px;padding-bottom:8px">
+				</td>
+		        </tr>
+			{% endif %}
+
+			{% if forloop.counter >= 15 %}
+		        <tr name="news_more" style="display:none">
+			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
+			 	<font style="font-size:normal">▪</font></td>
+			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;width:80%">
+			 	<a href="{{item.href}}" style="color:#0044FF"><b><font style="font-size:normal">{{item.text}}</font></b></a></td>
+			 <td style="padding-right:4px;padding-top:8px;padding-bottom:8px">
+				<font style="font-size:small;color:#AAAAAA">{{new.topic |cut:"_" |cut:helpkey }}</font></td>
+		        </tr>
+			{% endif %}
+
+			{% endfor %}
 		   </tbody>
 		</table>
 		</div>
@@ -211,11 +243,11 @@
 		<!--<form action="../news/" role="form" name="quickform" id="quickform" method="post">-->
         <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation" style="height:100%">
           <div class="list-group">
-		    <a class="list-group-item active">最近流行热词 ↓</a>
+		    <a class="list-group-item active" style="">最近流行热词 ↓</a>
 		    <!--<input type="hidden" id="quickkey" name="quickkey"></input>-->
 <div style="height:auto;overflow:auto">
 			{% for hotkey in hot_keys_anual %}
-            <a href="#" class="list-group-item" onclick="quicksearch.value=this.text;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</a>
+            <a href="#" style="background-color:rgba(255,255,255,0.4)" class="list-group-item" onclick="quicksearch.value=this.text;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</a>
 			{% endfor %}         
 </div>
             <a class="list-group-item active" onclick="helpkey.value='今日头条';myform.submit();">&lt&lt&nbspHome</a>
@@ -228,7 +260,7 @@
       </div><!--/row-->	  
       <div class="container" style="margin-top:8px">
 			
-        <a class="list-group-item active" style="text-align:center;border-radius:4px" href="#top">&lt&lt&nbsp&nbsp飞回顶部啦&nbsp&nbsp&gt&gt</a>
+        <a class="list-group-item active" style="text-align:center;border-radius:4px" onclick="init_page()" href="#top">&lt&lt&nbsp&nbsp飞回顶部啦&nbsp&nbsp&gt&gt</a>
         <a class="list-group-item active" style="text-align:center;display:none" onclick="helpkey.value=get_tabname();quicksearch.value='全部';myform.submit();">&lt&lt&nbsp&nbsp我想浏览全部(多着去了)&nbsp&nbsp&gt&gt</a>
       <hr>  								
       <footer>

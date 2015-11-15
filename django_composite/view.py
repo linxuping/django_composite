@@ -235,6 +235,7 @@ def get_jsondata(args, from_request=True):
   cache_key = u"%s_%s_%s"%(args.get("helpkey", ''),args.get("helpkey2", ''),quickkey)
   if from_request and cache_key in g_news_cache:
     print "hit cache: ",cache_key
+    #print g_news_cache[cache_key]
     return g_news_cache[cache_key]
   
   disp_content = "block"
@@ -261,21 +262,27 @@ def get_jsondata(args, from_request=True):
       admin_update_configs(contactdesc)
       send_mail("417306303@qq.com", "from 360 views.", str(contactdesc))
 
-
   jsondata = None
+  raw_news = []
+  all_news = []
   if quickkey == u"全部":
-    jsondata = {"news":navbar_infos[navbar_tab]["all_news"], "hot_keys":navbar_infos[navbar_tab]["hot_keys"], \
-                    "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
-                    "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
-                    "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
-                    "stat_soci":status_soci ,"stat_cont":status_contact, "quickkey":quickkey }
+    raw_news = navbar_infos[navbar_tab]["all_news"]
   else:
-    jsondata = {"news":filter_news(quickkey,navbar_infos[navbar_tab]["all_news"]), 
-                    "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
-                    "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
-                    "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
-                    "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
-                    "stat_soci":status_soci, "stat_cont":status_contact, "quickkey":quickkey }
+    raw_news = filter_news(quickkey,navbar_infos[navbar_tab]["all_news"])
+  #for k,v in raw_news.items(): 
+  #  all_news += [ item.topic=k for item in v ]
+  for _newsobj in raw_news: 
+    for _new in _newsobj.news_items:
+      _new.topic = _newsobj.topic
+      all_news.append(_new)
+  jsondata = {
+                 "news":all_news, 
+                 "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
+                 "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
+                 "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
+                 "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
+                 "stat_soci":status_soci, "stat_cont":status_contact, "quickkey":quickkey 
+             }
   if tag_cont!=helpkey and len(g_news_cache)<1000:
     g_news_cache[cache_key] = deepcopy(jsondata)
     if from_request:
