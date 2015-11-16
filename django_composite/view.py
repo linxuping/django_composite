@@ -11,6 +11,8 @@ import threading
 import time
 import sys
 import traceback
+import random
+
 mutex_update_news = threading.Lock()
 
 #mock memcache
@@ -111,7 +113,8 @@ def init_news2(_init=True):
           break
       for setitem in _tmpset2:
         tmpset.add(setitem)
-      print "[LOG %s] fetch %s. all:%d, get:%d"%(time.strftime("%Y-%m-%d %X",time.localtime()),topic,len(_all_news),len(_get_news))
+      #print "[LOG %s] fetch %s. all:%d, get:%d"%(time.strftime("%Y-%m-%d %X",time.localtime()),topic,len(_all_news),len(_get_news))
+      logger.info( "fetch %s. all:%d, get:%d"%(topic,len(_all_news),len(_get_news)) )
       #if not _init:
       #  _tmplists = [ _new.href for _new in _get_news]
       #  for _item in navbar_infos[_k]["all_news"][count].news_items:
@@ -130,7 +133,7 @@ def init_news2(_init=True):
     _hotkeys2 = sort_hot_keys2(_k)
     navbar_infos[_k]["hot_keys_up"] = _hotkeys2[:80] 
 	#build cache.
-    print "building cache."
+    logger.info("building cache.")
     get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":u"全部"}, False)
     for _hotkey in set(_hotkeys+_hotkeys2):
       get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
@@ -143,7 +146,7 @@ def thread_update_news(searchcontent):
   while True:
     _init = False
     time.sleep(sleeptime)
-    print "[THREAD] update news. ",time.strftime("%Y-%m-%d %X", time.localtime())
+    logger.info("update news.")
     try:
       if get_current_hour() < 1: #00: 00
         update_base()
@@ -151,8 +154,8 @@ def thread_update_news(searchcontent):
       init_news2(_init)
       del_hotkeys_expired2()
     except:
-      print "[Error Msg(thread_update_news)] ",sys.exc_info()
-print "[LOG %s] Global Run."%(time.strftime("%Y-%m-%d %X", time.localtime()))
+      logger.error(str(sys.exc_info()) )
+#print "[LOG %s] Global Run."%(time.strftime("%Y-%m-%d %X", time.localtime()))
 
 def filter_news(quickkey, all_news):
   _news = []
@@ -176,7 +179,7 @@ def admin_update_configs(cont):
   if not ret:
     return False
   
-  print "[admin_update_configs]type:  ",type(cont),cont
+  logger.info("[admin_update_configs]type:  %s"%cont)
   f = open("django_composite/list.conf")
   lines = f.readlines()
   print lines
@@ -207,7 +210,7 @@ def admin_update_configs(cont):
     try:
       f.write(line+"\n")
     except:
-      print "Exception: ",sys.exc_info(),traceback.format_exc()
+      logger.error( "Exception: %s, %s"%(str(sys.exc_info()),str(traceback.format_exc()) ))
   f.close()
   return False
 
@@ -222,7 +225,7 @@ def get_jsondata(args, from_request=True):
   helpkey = args.get("helpkey", None)
 
   if from_request:
-    print "[LOG %s] request.POST: "%(time.strftime("%Y-%m-%d %X", time.localtime())), args
+    #print "[LOG %s] request.POST: "%(time.strftime("%Y-%m-%d %X", time.localtime())), args
     if tag_soci==helpkey or None==helpkey:
       helpkey = tag_soci
     if (quickkey=="" or None==quickkey) and not helpkey==tag_cont:
@@ -233,7 +236,7 @@ def get_jsondata(args, from_request=True):
   
   cache_key = u"%s_%s_%s"%(args.get("helpkey", ''),args.get("helpkey2", ''),quickkey)
   if from_request and cache_key in g_news_cache:
-    print "hit cache: ",cache_key
+    logger.info("hit cache: %s."%cache_key)
     #print g_news_cache[cache_key]
     return g_news_cache[cache_key]
   
@@ -270,10 +273,13 @@ def get_jsondata(args, from_request=True):
     raw_news = filter_news(quickkey,navbar_infos[navbar_tab]["all_news"])
   #for k,v in raw_news.items(): 
   #  all_news += [ item.topic=k for item in v ]
+  #make magic list.
+  _count = 0
   for _newsobj in raw_news: 
     for _new in _newsobj.news_items:
       _new.topic = _newsobj.topic
-      all_news.append(_new)
+      _count = _count+1
+      all_news.insert(random.randint(0,_count),_new)
   jsondata = {
                  "news":all_news, 
                  "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
@@ -285,17 +291,25 @@ def get_jsondata(args, from_request=True):
   if tag_cont!=helpkey and len(g_news_cache)<1000:
     g_news_cache[cache_key] = deepcopy(jsondata)
     if from_request:
-      print "build cache: ",cache_key
+      logger.info("build cache: %s."%cache_key)
   return jsondata 
   
 
 @csrf_exempt
 def visit_offcanvas(request):
   #bug: 同个客户端同时刷新好几次，可能同时返回导致内容混合
+  ip = None
+  if request.META.has_key('HTTP_X_FORWARDED_FOR'):  
+    ip =  request.META['HTTP_X_FORWARDED_FOR']  
+  else:  
+    ip = request.META['REMOTE_ADDR'] 
+  logger.info("%s BEGIN. %s"%(ip,str(request.POST)))
+
   global is_first_load
   mutex_update_news.acquire()
   if is_first_load:
-    print "[LOG %s] init news."%(time.strftime("%Y-%m-%d %X", time.localtime()))
+    #print "[LOG %s] init news."%(time.strftime("%Y-%m-%d %X", time.localtime()))
+    logger.info("init news.")
     update_base()
     init_news2()
     thread.start_new_thread(thread_update_news, ("",))
@@ -307,6 +321,7 @@ def visit_offcanvas(request):
   t = Template(fp.read())  
   fp.close()  
   html = t.render(Context(jsondata))  
+  logger.info("%s END."%ip)
   return HttpResponse(html) 
   '''
   respdict = {}

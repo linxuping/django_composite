@@ -8,6 +8,8 @@ import sqlite3
 from lxml import etree
 import smtplib
 from email.mime.text import MIMEText
+import logging
+logger = logging.getLogger('news') # 这里用__name__通用,自动检测.
 
 def get_days_ago(days):
   import datetime
@@ -202,7 +204,7 @@ def get_news(topic, navbar_key, old_new_items):
             tmp_words_hit.append(w.word)
             navbar_infos[navbar_key]["words_stat"][w.word] = int(navbar_infos[navbar_key]["words_stat"][w.word])+10 #不同topic都提到，说明更热门，在一个topic内频率高不表示对外热门
     except:
-      print "[Error Msg(jieba)] ",sys.exc_info()
+      logger.error("[Error Msg(jieba)] %s"%str(sys.exc_info()) )
       pass
   #print topic, "all:%d"%len(nodes3), "get:%d"%len(news_list)
   return nodes3,news_list,tmpset2

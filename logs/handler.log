@@ -1,0 +1,29 @@
+2015-11-16 22:06:05,789 [Thread-1] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:07:54,516 [Thread-6] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:08:06,972 [Thread-16] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:12:51,012 [Thread-3] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:14:05,740 [Thread-1] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:25:19,582 [Thread-3] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:30:16,146 [Thread-1] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:31:26,187 [Thread-3] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:34:04,743 [Thread-1] [django.request:224] [ERROR]- Internal Server Error: /news/
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/site-packages/Django-1.6.8-py2.7.egg/django/core/handlers/base.py", line 112, in get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/usr/local/lib/python2.7/site-packages/Django-1.6.8-py2.7.egg/django/views/decorators/csrf.py", line 57, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "/home/linxp/git/django_composite/django_composite/view.py", line 323, in visit_offcanvas
+    jsondata = get_jsondata(request.POST)
+  File "/home/linxp/git/django_composite/django_composite/view.py", line 238, in get_jsondata
+    elif len(navbar_infos[helpkey]["hot_keys"])>0: #first key
+KeyError: u'\ufffd\ufffd\ufffd\ufffd\u0377\ufffd\ufffd'
+2015-11-16 22:34:05,773 [Thread-3] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:36:59,387 [Thread-4] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:37:06,574 [Thread-5] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:40:20,149 [Thread-3] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 22:47:20,458 [Thread-3] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 23:00:22,997 [Thread-3] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 23:08:35,768 [Thread-3] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 23:08:45,656 [Thread-5] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 23:08:51,150 [Thread-7] [django.request:143] [WARNING]- Not Found: /favicon.ico
+2015-11-16 23:08:58,645 [Thread-9] [django.request:143] [WARNING]- Not Found: /favicon.ico
