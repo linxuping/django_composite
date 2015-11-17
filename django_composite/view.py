@@ -210,7 +210,7 @@ def admin_update_configs(cont):
     try:
       f.write(line+"\n")
     except:
-      logger.error( "Exception: %s, %s"%(str(sys.exc_info()),str(traceback.format_exc()) ))
+      logger.error( "Exception(%s): %s, %s"%(str(sys._getframe().f_code.co_name), str(sys.exc_info()),str(traceback.format_exc()) ))
   f.close()
   return False
 

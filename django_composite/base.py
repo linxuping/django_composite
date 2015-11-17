@@ -4,6 +4,7 @@ import urllib2
 import time
 import datetime
 import sys
+import traceback
 import sqlite3
 from lxml import etree
 import smtplib
@@ -385,21 +386,27 @@ def save_hoykey_count2(key, count_new, topic):
   c.close()
 def update_base():
   #build when 00:00 and then save hotkey
-  cx = sqlite3.connect("test.db")
-  c = cx.cursor()
-  _sql = "select name,topic,count_avg from hotkeys2"
-  c.execute(_sql)
-  items = c.fetchall()
-  if None == items:
-    print "ERROR: %s"%_sql
-  else:
-    for i in range(len(items)):
-      key = items[i][0]
-      topic = items[i][1]
-      count_avg = int(items[i][2])
-      c.execute("update hotkeys2 set count=%d,weight=0 where name='%s' and topic='%s'"%(count_avg,key,topic))
-  cx.commit()
-  c.close()
+	try:
+	  cx = sqlite3.connect("test.db")
+	  c = cx.cursor()
+	  _sql = "select name,topic,count_avg from hotkeys2"
+	  c.execute(_sql)
+	  items = c.fetchall()
+	  if None == items:
+	    print "ERROR: %s"%_sql
+	  else:
+	    for i in range(len(items)):
+	      key = items[i][0]
+	      topic = items[i][1]
+	      count_avg = int(items[i][2])
+	      c.execute("update hotkeys2 set count=%d,weight=0 where name='%s' and topic='%s'"%(count_avg,key,topic))
+	  cx.commit()
+	  c.close()
+	except:
+		logger.error( "Exception(%s): %s, %s"%(str(sys._getframe().f_code.co_name), str(sys.exc_info()),str(traceback.format_exc()) ))
+		return
+	logger.info("%s OK."%(str(sys._getframe().f_code.co_name)))
+	
 
 def del_hotkeys_expired2():
   cx = sqlite3.connect("test.db")
