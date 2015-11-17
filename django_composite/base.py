@@ -43,6 +43,7 @@ class news:
 
 tag_tech = u"互联网"
 tag_soci = u"今日头条"
+tag_phys = u"体育"
 tag_cont = u"联系我"
 
 #-------------------- tech part ------------------#
@@ -53,7 +54,7 @@ url_infos_tech = {
   "36kr": ["http://www.36kr.com/", '//a[@target="_blank"]', "http://www.36kr.com/", "/p/"],#
   "cnbeta": ["http://m.cnbeta.com/", '//li/div/a', "http://m.cnbeta.com/", ""],#
   u"新浪"+tech_tag: ["http://tech.sina.com.cn/internet/", '//a', "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
-  u"腾讯QQ"+tech_tag: ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
+  u"腾讯"+tech_tag: ["http://tech.qq.com/", '//a', "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
   u"百度"+tech_tag: ["http://internet.baidu.com/", '//a', "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
   u"网易"+tech_tag: ["http://tech.163.com/", '//a', "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
   #"google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
@@ -73,8 +74,9 @@ url_infos_soci = {
   u"搜狐": ["http://m.sohu.com/", "//div/div/a", "http://m.sohu.com", "/?wscrid="],
   u"新浪": ["http://news.sina.cn/gn?vt=4&pos=3", '//a/dl/dd/h3', "http://www.sina.com.cn/", ""],
   u"网易": ["http://3g.163.com/touch/", '//a', "http://www.163.com/", "touch/article.html" ],
-  u"腾讯QQ": ["http://news.qq.com/society_index.shtml", '//a', "http://news.qq.com", time.strftime('%Y%m%d',time.localtime(time.time()))[:-2] ],#20140724 - 201407
+  u"腾讯": ["http://news.qq.com/society_index.shtml", '//a', "http://news.qq.com", time.strftime('%Y%m%d',time.localtime(time.time()))[:-2] ],#20140724 - 201407
   u"百度": ["http://shehui.news.baidu.com/", '//li/a', "http://www.baidu.com/", time.strftime('%d',time.localtime(time.time()))],#
+  u"CCTV": ["http://m.cctv.com/", '//a', "http://m.cctv.com/", "index.shtml"],#
 
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
@@ -85,6 +87,24 @@ hotkeys_soci_black_list = [u"男人", u"女人", u"男子", u"女子", u"男孩"
 words_stat_soci = {} #{"word":count}
 all_news_soci = [news( url_infos_soci.keys()[0] )]*len(url_infos_soci) #initial
 #-------------------------------------------------#
+#------------------- physical part -----------------#
+phys_tag=u"_"+tag_phys
+url_infos_phys = {
+  u"新浪"+phys_tag: ["http://sports.sina.cn/?from=wap", '//h3', "http://sports.sina.cn/?from=wap", "" ],#2014_07/24
+  u"搜狐"+phys_tag: ["http://m.sohu.com/c/27/", '//a', "http://m.sohu.com/", ""],#
+  u"腾讯"+phys_tag: ["http://xw.qq.com/m/sports/index.htm", '//h2', "http://xw.qq.com/m/sports/index.htm", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
+  u"21cn"+phys_tag: ["http://3g.21cn.com/zy/sports/cbs/", '//a', "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
+  #u"百度"+phys_tag: ["http://internet.baidu.com/", '//a', "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
+  u"网易"+phys_tag: ["http://3g.163.com/touch/sports/", '//p', "http://3g.163.com/touch/sports/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+} 
+hotkeys_phys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
+hotkeys_phys_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"恒大", u"淘宝", u"电影", u"双十一"]
+hotkeys_phys_black_list = [u"男人", u"女人", u"男子", u"女子", u"男孩", u"女孩", u"人", 
+							u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", 
+							u"图", u"中国", u"思客", u"网友", u"社会",u"官方",u"先生",u"企业",u"家庭",u"全部",u"",u"",u"",u""]
+words_stat_phys = {} #{"word":count}
+all_news_phys = [news( url_infos_phys.keys()[0] )]*len(url_infos_phys) #initial
+#-------------------------------------------------#
 
 
 navbar_infos = {
@@ -92,6 +112,8 @@ navbar_infos = {
            "hot_keys":hotkeys_tech, "words_stat":words_stat_tech, "all_news":all_news_tech},
   tag_soci: {"url_infos":url_infos_soci, "white_list":hotkeys_soci_white_list, "black_list":hotkeys_soci_black_list, \
            "hot_keys":hotkeys_soci, "words_stat":words_stat_soci, "all_news":all_news_soci},
+  tag_phys: {"url_infos":url_infos_phys, "white_list":hotkeys_phys_white_list, "black_list":hotkeys_phys_black_list, \
+           "hot_keys":hotkeys_phys, "words_stat":words_stat_phys, "all_news":all_news_phys},
 }
 is_first_load = True
 
@@ -143,7 +165,7 @@ def get_news(topic, navbar_key, old_new_items):
       node.text = node.text.strip("\r\n ")
     #print "[LOG nodeinfo] ",node.text,node.get("href")
     if ((None!=node.get("href") and node.get("href").find(url_infos[topic][3])!=-1)\
-        or topic=="google" or topic==u"新浪" or topic==u"凤凰网")\
+          or topic=="google" or topic==u"新浪" or topic==u"新浪"+phys_tag or topic==u"网易"+phys_tag or topic==u"腾讯"+phys_tag or topic==u"凤凰网")\
         and None!=node.text and len(node.text)>10 and len(node.text)<48  \
         and not node.text in new_keys:
       _href = node.get("href")
@@ -152,8 +174,12 @@ def get_news(topic, navbar_key, old_new_items):
       #special deal with    <a href=***><span>text</span></a>
       #if topic=="google.com" and None!=node.getparent().get("href"):
       #  _href = node.getparent().get("href")
-      if topic == u"新浪":
+      if topic==u"新浪" or topic==u"新浪"+phys_tag:
         _href = node.getparent().getparent().getparent().get("href")
+      elif topic==u"网易"+phys_tag:
+        _href = node.getparent().getparent().get("href")
+      elif topic==u"腾讯"+phys_tag:
+        _href = node.getparent().get("href")
       elif topic == "36kr":
         if node.text.find(u"氪")!=-1 and node.text.find("KrTV")!=-1:
           continue

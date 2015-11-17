@@ -128,10 +128,10 @@ def init_news2(_init=True):
     _hotkeys,max_topic_counts = get_hot_keys(words_stat, 1000, _k, uptime)
     #print "max_topic_counts::  ",max_topic_counts
     navbar_infos[_k]["words_stat"] = {} #old data
-    navbar_infos[_k]["hot_keys"] = _hotkeys[:150] 
+    navbar_infos[_k]["hot_keys"] = _hotkeys[:200] 
     #print_db_me()
     _hotkeys2 = sort_hot_keys2(_k)
-    navbar_infos[_k]["hot_keys_up"] = _hotkeys2[:80] 
+    navbar_infos[_k]["hot_keys_up"] = _hotkeys2[:120] 
 	#build cache.
     logger.info("building cache.")
     get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":u"全部"}, False)
@@ -215,6 +215,31 @@ def admin_update_configs(cont):
   return False
 
   
+class TempStatus: 
+	disp_content = "block"
+	disp_contact = "none"
+	navbar_tab = "" 
+	status_tech = ""
+	status_soci = ""
+	status_phys = ""
+	status_cont = ""
+	def __init__(self, helpkey):
+		if tag_soci == helpkey:
+			self.status_soci = "active"
+			self.navbar_tab = tag_soci
+		elif tag_phys == helpkey:
+			self.status_phys = "active"
+			self.navbar_tab = tag_phys
+		elif tag_tech == helpkey:
+			self.status_tech = "active"
+			self.navbar_tab = tag_tech
+		elif tag_cont == helpkey:
+			self.status_cont = "active"
+			self.navbar_tab = tag_soci
+			self.disp_content = "none"
+			self.disp_contact = "block"
+
+
 g_news_cache = {}    #helpkey_helpkey2_quickey: obj
 
 def get_jsondata(args, from_request=True):
@@ -240,25 +265,10 @@ def get_jsondata(args, from_request=True):
     #print g_news_cache[cache_key]
     return g_news_cache[cache_key]
   
-  disp_content = "block"
-  disp_contact = "none"
-  status_tech = "active"
-  status_soci = ""
-  status_contact = ""
-  navbar_tab = tag_tech
-  if tag_soci == helpkey:
-    #helpkey = tag_soci
-    status_tech = ""
-    status_soci = "active"
-    status_contact = ""	
-    navbar_tab = tag_soci
-  elif tag_cont == helpkey:
-    status_tech = ""
-    status_soci = ""
-    status_contact = "active"
-    disp_content = "none"
-    disp_contact = "block"
-    navbar_tab = tag_soci
+  ts = TempStatus(helpkey)
+
+  navbar_tab = ts.navbar_tab
+  if tag_cont == helpkey:
     contactdesc = args.get("helpkey2", '')
     if '' != contactdesc:
       admin_update_configs(contactdesc)
@@ -281,12 +291,10 @@ def get_jsondata(args, from_request=True):
       _count = _count+1
       all_news.insert(random.randint(0,_count),_new)
   jsondata = {
-                 "news":all_news, 
+                 "news":all_news,"helpkey":helpkey,"quickkey":quickkey,"ts":ts, 
                  "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
                  "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
-                 "disp_content":disp_content, "disp_contact":disp_contact,"helpkey":helpkey,\
-                 "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], "stat_tech":status_tech, \
-                 "stat_soci":status_soci, "stat_cont":status_contact, "quickkey":quickkey 
+                 "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], \
              }
   if tag_cont!=helpkey and len(g_news_cache)<1000:
     g_news_cache[cache_key] = deepcopy(jsondata)
