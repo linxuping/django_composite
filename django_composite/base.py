@@ -93,7 +93,7 @@ all_news_soci = [news( url_infos_soci.keys()[0] )]*len(url_infos_soci) #initial
 phys_tag=u"_"+tag_phys
 url_infos_phys = {
   u"新浪"+phys_tag: ["http://sports.sina.cn/?from=wap", '//h3', "http://sports.sina.cn/?from=wap", "" ],#2014_07/24
-  u"搜狐"+phys_tag: ["http://m.sohu.com/c/27/", '//a', "http://m.sohu.com/", ""],#
+  u"搜狐"+phys_tag: ["http://m.sohu.com/c/27/", '//a', "http://m.sohu.com", ""],#
   u"腾讯"+phys_tag: ["http://xw.qq.com/m/sports/index.htm", '//h2', "http://xw.qq.com/m/sports/index.htm", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
   u"21cn"+phys_tag: ["http://3g.21cn.com/zy/sports/cbs/", '//a', "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
   #u"百度"+phys_tag: ["http://internet.baidu.com/", '//a', "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
