@@ -46,6 +46,8 @@ tag_soci = u"今日头条"
 tag_phys = u"体育"
 tag_cont = u"联系我"
 
+#-------------------- common part ------------------#
+hotkeys_black_list = [u"问题",u"能力",u"图片",u"图",u"",u"",u"",u"",u"",u""]
 #-------------------- tech part ------------------#
 tech_tag=u"_"+tag_tech
 url_infos_tech = {
@@ -108,11 +110,11 @@ all_news_phys = [news( url_infos_phys.keys()[0] )]*len(url_infos_phys) #initial
 
 
 navbar_infos = {
-  tag_tech: {"url_infos":url_infos_tech, "white_list":hotkeys_tech_white_list, "black_list":hotkeys_tech_black_list, \
+  tag_tech: {"url_infos":url_infos_tech, "white_list":hotkeys_tech_white_list, "black_list":hotkeys_tech_black_lis+thotkeys_black_list, \
            "hot_keys":hotkeys_tech, "words_stat":words_stat_tech, "all_news":all_news_tech},
-  tag_soci: {"url_infos":url_infos_soci, "white_list":hotkeys_soci_white_list, "black_list":hotkeys_soci_black_list, \
+  tag_soci: {"url_infos":url_infos_soci, "white_list":hotkeys_soci_white_list, "black_list":hotkeys_soci_black_list+thotkeys_black_list, \
            "hot_keys":hotkeys_soci, "words_stat":words_stat_soci, "all_news":all_news_soci},
-  tag_phys: {"url_infos":url_infos_phys, "white_list":hotkeys_phys_white_list, "black_list":hotkeys_phys_black_list, \
+  tag_phys: {"url_infos":url_infos_phys, "white_list":hotkeys_phys_white_list, "black_list":hotkeys_phys_black_list+thotkeys_black_list, \
            "hot_keys":hotkeys_phys, "words_stat":words_stat_phys, "all_news":all_news_phys},
 }
 is_first_load = True
