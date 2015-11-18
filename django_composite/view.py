@@ -296,7 +296,8 @@ def get_jsondata(args, from_request=True):
                  "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
                  "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], \
              }
-  if tag_cont!=helpkey and len(g_news_cache)<1000:
+  #if tag_cont!=helpkey and len(g_news_cache)<1000:
+  if len(g_news_cache) < 5000:
     g_news_cache[cache_key] = deepcopy(jsondata)
     if from_request:
       logger.info("build cache: %s."%cache_key)
