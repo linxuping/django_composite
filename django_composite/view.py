@@ -256,8 +256,8 @@ def get_jsondata(args, from_request=True):
     if (quickkey=="" or None==quickkey) and not helpkey==tag_cont:
       if g_hotkeys.get(helpkey,"") != "":
         quickkey = g_hotkeys[helpkey]
-      elif len(navbar_infos[helpkey]["hot_keys"])>0: #first key
-        quickkey = navbar_infos[helpkey]["hot_keys"][0]
+      elif len(navbar_infos[helpkey]["hot_keys_up"])>0: #first key
+        quickkey = navbar_infos[helpkey]["hot_keys_up"][0]
   
   cache_key = u"%s_%s_%s"%(args.get("helpkey", ''),args.get("helpkey2", ''),quickkey)
   if from_request and cache_key in g_news_cache:
