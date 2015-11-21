@@ -125,7 +125,7 @@ def init_news2(_init=True):
       count += 1
     words_stat = navbar_infos[_k]["words_stat"]
 
-    _hotkeys,max_topic_counts = get_hot_keys(words_stat, 1000, _k, uptime)
+    _hotkeys,max_topic_counts = get_hot_keys(words_stat, 1000, _k)
     #print "max_topic_counts::  ",max_topic_counts
     navbar_infos[_k]["words_stat"] = {} #old data
     navbar_infos[_k]["hot_keys"] = _hotkeys[:200] 
@@ -139,10 +139,12 @@ def init_news2(_init=True):
       get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
     for _hotkey in navbar_infos[_k]["white_list"]:
       get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
+    #head page build.
+    get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":""}, False)
   
 def thread_update_news(searchcontent):
   #sleeptime = 15*60 #debug
-  sleeptime = 1*60*60 #release
+  sleeptime = 1*30*60 #release
   while True:
     _init = False
     time.sleep(sleeptime)
@@ -240,26 +242,101 @@ class TempStatus:
 			self.disp_contact = "block"
 
 
+class new_section:
+	def __init__(self, text, is_link):
+		self.text = text
+		self.is_link = is_link
+
+
+def build_head_page_data(topic):
+	global navbar_infos
+	hot_keys_up = navbar_infos[topic]["hot_keys_up"]
+	hksets = set(hot_keys_up)
+	rets = []
+	rets_keys = set()
+	
+	weights={}
+	for i in range(len(hot_keys_up)):
+		weight = 50-i/2
+		if weight < 5:
+			weight = 5
+		weights[ hot_keys_up[i] ] = weight
+	
+	for hk in hot_keys_up: #hot rate: high -> low
+		raw_news = filter_news(hk,navbar_infos[topic]["all_news"])
+
+		all_news = {}
+		for _newsobj in raw_news: 
+			for _new in _newsobj.news_items:
+				_new.topic = _newsobj.topic
+				all_news[_new.text] = _new
+		cont = '_'.join(all_news.keys())
+
+		ws = pseg.cut(cont)
+		#1.self words hit. 
+		tmpdic = {}
+		for w in ws:
+			if w.flag in word_types and len(w.word)>1 and w.word!=hk:
+				if w.word in tmpdic:
+					tmpdic[w.word] = tmpdic[w.word] + 1
+				else:
+					tmpdic[w.word] = 1
+		tmpset = set()
+		for k,v in tmpdic.items():
+			if v > 1: 
+				tmpset.add(k)
+		tmpdic = {}
+		for new,nobj in all_news.items():
+			tmpdic[new] = 0
+			ws = pseg.cut(new)
+			for w in ws:
+				if w.flag in word_types and len(w.word)>1:
+					if w.word in tmpset:
+						tmpdic[new] = tmpdic[new] + 2
+					if w.word in hksets:
+						tmpdic[new] = tmpdic[new] + weights[w.word] 
+		max_topic_list,max_topic_counts = get_hot_keys(tmpdic, 1, None, False)
+		if (len(max_topic_list) > 0):
+			_new = all_news[ max_topic_list[0] ]
+			ws = pseg.cut(_new.text)
+			_tmps = []
+			for w in ws:
+				if w.word in hksets:
+					_tmps.append( new_section(w.word,True) )
+				else:
+					_tmps.append( new_section(w.word,False) )
+			_new.nss = _tmps
+			if _new.text not in rets_keys:
+				print _new.text,  _new.topic
+				rets.append( _new )
+				rets_keys.add(_new.text)
+	return rets
+		
+
 g_news_cache = {}    #helpkey_helpkey2_quickey: obj
 
 def get_jsondata(args, from_request=True):
   global is_first_load, navbar_infos
   #print request.session.items()
-  searchcontent = args.get("searchcontent", None)
+  searchcontent = args.get("searchcontent", "")
   quickkey = args.get("quickkey", searchcontent)
   helpkey = args.get("helpkey", None)
 
+  is_head_page = (quickkey=="")
   if from_request:
     #print "[LOG %s] request.POST: "%(time.strftime("%Y-%m-%d %X", time.localtime())), args
-    if tag_soci==helpkey or None==helpkey:
+    if tag_soci==helpkey or ""==helpkey or None==helpkey:
       helpkey = tag_soci
     if (quickkey=="" or None==quickkey) and not helpkey==tag_cont:
-      if g_hotkeys.get(helpkey,"") != "":
-        quickkey = g_hotkeys[helpkey]
-      elif len(navbar_infos[helpkey]["hot_keys_up"])>0: #first key
-        quickkey = navbar_infos[helpkey]["hot_keys_up"][0]
+      #need global build with hotkeys.
+      quickkey = ""
+      pass
+      #if g_hotkeys.get(helpkey,"") != "":
+      #  quickkey = g_hotkeys[helpkey]
+      #elif len(navbar_infos[helpkey]["hot_keys_up"])>0: #first key
+      #  quickkey = navbar_infos[helpkey]["hot_keys_up"][0]
   
-  cache_key = u"%s_%s_%s"%(args.get("helpkey", ''),args.get("helpkey2", ''),quickkey)
+  cache_key = u"%s_%s_%s"%(helpkey,args.get("helpkey2", ''),quickkey)
   if from_request and cache_key in g_news_cache:
     logger.info("hit cache: %s."%cache_key)
     #print g_news_cache[cache_key]
@@ -280,16 +357,24 @@ def get_jsondata(args, from_request=True):
   if quickkey == u"全部":
     raw_news = navbar_infos[navbar_tab]["all_news"]
   else:
-    raw_news = filter_news(quickkey,navbar_infos[navbar_tab]["all_news"])
+    #if is_head_page, build head view data.:
+    if is_head_page:
+      print "begin .... ",navbar_tab
+      all_news = build_head_page_data(navbar_tab)
+      print "end .... "
+    else:
+      raw_news = filter_news(quickkey,navbar_infos[navbar_tab]["all_news"])
   #for k,v in raw_news.items(): 
   #  all_news += [ item.topic=k for item in v ]
   #make magic list.
-  _count = 0
-  for _newsobj in raw_news: 
-    for _new in _newsobj.news_items:
-      _new.topic = _newsobj.topic
-      _count = _count+1
-      all_news.insert(random.randint(0,_count),_new)
+  if not is_head_page:
+    _count = 0
+    for _newsobj in raw_news: 
+      for _new in _newsobj.news_items:
+        _new.topic = _newsobj.topic
+        _new.nss = [ new_section(_new.text,False) ]
+        _count = _count+1
+        all_news.insert(random.randint(0,_count),_new)
   jsondata = {
                  "news":all_news,"helpkey":helpkey,"quickkey":quickkey,"ts":ts, 
                  "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\

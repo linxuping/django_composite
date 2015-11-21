@@ -126,10 +126,7 @@ border-radius: 2px;
           </button>
         <div  class="navbar-brand">
         <span class="s_title" id="searchTips" style="display: inline;">热</span>
-        <a href="#" onclick="helpkey.value='今日头条';myform.submit();" style="padding-left:27px">
-		{% ifnotequal helpkey "今日头条" %}
-			&lt
-		{% endifnotequal %}
+        <a href="#" onclick="helpkey.value='今日头条';myform.submit();" style="padding-left:27px;color:white">
 		{{helpkey}}
 	</a>
         </div>
@@ -169,8 +166,8 @@ border-radius: 2px;
 		  </p>
 
 		  <div class="jumbotron" style="margin-bottom: 6px;padding-top:2%;padding-bottom:4%;margin-left:5px;margin-right:5px;background-color:#BBBBBB">
-		    <h2>新闻 360° </h2>
-		    <h6>不只看一家媒体的态度，多维视角→_→ </h6>
+		    <h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">只</h3><h2 style="display:inline-block;margin-bottom:0px;margin-right:2px">是</h2><h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">新闻</h3>
+		    <h6 style="margin-top:2px">多家媒体▪多维度▪大数据精选  </h6>
 		  </div>
 			<!--
 			<div class="panel panel-default" style="margin-top:8px">
@@ -187,11 +184,17 @@ border-radius: 2px;
 		    </div>
 			-->
 
+{% if quickkey %}
 		<div style="margin-top:4px;margin-bottom:6px;margin-right:10px;text-align:right">
-		<b><font color=#888888>&nbsp当前关键字: {{quickkey}}&nbsp&nbsp</font></b>
+		<b><font color=#888888>&nbsp
+当前关键字: {{quickkey}}
+&nbsp&nbsp</font></b>
 		</div>
+{% else %}
+<br/>
+{% endif %}
 
-		<div style="max-height:400%;overflow-y:auto">
+		<div style="max-height:1200%;overflow-y:auto">
 		<table class="table">
 		   <!--<caption>条纹表格布局</caption>
 		   <thead>
@@ -209,7 +212,15 @@ border-radius: 2px;
 			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
 			 	<font style="font-size:normal">▪</font></td>
 			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;width:80%">
+				<!--
+			 	<a href="{{item.href}}" style="color:#000088"><b>
+					<font style="font-size:normal;color:#000088">
+{% for ns in item.nss %}{% if ns.is_link %}<u><a href="#" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();" style="color:#000088">{{ns.text}}</a></u>{% else %}{{ns.text}}{% endif %}{% endfor %}</font></b>
+				</a>
+				-->
 			 	<a href="{{item.href}}" style="color:#0044FF"><b><font style="font-size:normal">{{item.text}}</font></b></a></td>
+
+				</td>
 			 <td style="padding-right:4px;padding-top:8px;padding-bottom:8px">
 				<font style="font-size:small;color:#AAAAAA">{{item.topic |cut:"_" |cut:helpkey }}</font></td>
 		        </tr>
@@ -229,6 +240,12 @@ border-radius: 2px;
 			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
 			 	<font style="font-size:normal">▪</font></td>
 			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;width:80%">
+				<!--
+			 	<a href="{{item.href}}" style="color:#000088"><b>
+					<font style="font-size:normal;color:#000088">
+{% for ns in item.nss %}{% if ns.is_link %}<u><a href="#" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();" style="color:#000088">{{ns.text}}</a></u>{% else %}{{ns.text}}{% endif %}{% endfor %}</font></b>
+				</a>
+				-->
 			 	<a href="{{item.href}}" style="color:#0044FF"><b><font style="font-size:normal">{{item.text}}</font></b></a></td>
 			 <td style="padding-right:4px;padding-top:8px;padding-bottom:8px">
 				<font style="font-size:small;color:#AAAAAA">{{item.topic |cut:"_" |cut:helpkey }}</font></td>

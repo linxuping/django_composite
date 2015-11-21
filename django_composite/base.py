@@ -9,6 +9,7 @@ import sqlite3
 from lxml import etree
 import smtplib
 from email.mime.text import MIMEText
+import jieba.posseg as pseg
 import logging
 logger = logging.getLogger('news') # 这里用__name__通用,自动检测.
 
@@ -47,7 +48,7 @@ tag_phys = u"体育"
 tag_cont = u"联系我"
 
 #-------------------- common part ------------------#
-hotkeys_black_list = [u"问题",u"能力",u"图片",u"图",u"",u"",u"",u"",u"",u""]
+hotkeys_black_list = [u"问题",u"能力",u"图片",u"图",u"内衣",u"内裤",u"模式",u"",u"",u""]
 #-------------------- tech part ------------------#
 tech_tag=u"_"+tag_tech
 url_infos_tech = {
@@ -103,7 +104,7 @@ hotkeys_phys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "
 hotkeys_phys_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"恒大", u"淘宝", u"电影", u"双十一"]
 hotkeys_phys_black_list = [u"男人", u"女人", u"男子", u"女子", u"男孩", u"女孩", u"人", 
 							u"公司", u"全国", u"头条", u"我", u"我们", u"直播", u"视频直播", 
-							u"图", u"中国", u"思客", u"网友", u"社会",u"官方",u"先生",u"企业",u"家庭",u"全部",u"",u"",u"",u""]
+							u"图", u"中国", u"思客", u"网友", u"社会",u"官方",u"先生",u"企业",u"家庭",u"全部",u"视频",u"",u"",u""]
 words_stat_phys = {} #{"word":count}
 all_news_phys = [news( url_infos_phys.keys()[0] )]*len(url_infos_phys) #initial
 #-------------------------------------------------#
@@ -147,7 +148,7 @@ def get_nodes(_url, _xpath):
       break
   return rets
 
-import jieba.posseg as pseg
+
 word_types = ["n", "ns", "nr", "eng"]
 tmpset=set()
 def get_news(topic, navbar_key, old_new_items):
@@ -238,45 +239,50 @@ def get_news(topic, navbar_key, old_new_items):
   #print topic, "all:%d"%len(nodes3), "get:%d"%len(news_list)
   return nodes3,news_list,tmpset2
 
-def get_hot_keys(dic, hot_topic_count=10, topic="None", uptime=""):
+
+def _tofloat(_count, _key):
+  #the last one '1' is used for num like 1000   3.1000 -> 3.10001 保持住后面的3个0
+  return float("%s.%s1"%(_count,_key))
+
+
+def get_hot_keys(dic, hot_topic_count=10, topic="None", savedb=True):
   #dic: {"aa":2, "bb":1999, "cc":88, "dd":45, "ee":10, "ff":13}
-  max_count = 1000 #如果统计表示已经超过1000次，这么高频，不用统计了，直接放到max_topic_list
+  #max_count = 1000 #如果统计表示已经超过1000次，这么高频，不用统计了，直接放到max_topic_list
  
   if hot_topic_count > len(dic):
     hot_topic_count = len(dic)
   max_topic_list = []
   tmp_dict = {} #{1:"aa", 2:"bb", 3:"cc", 4:"dd", 5:"ee", 6:"ff"}
   tmp_list = [] #[2.11, 88.31, 45.41, 10.51, 13.61]
-  def _tofloat(_count, _key):
-    #the last one '1' is used for num like 1000   3.1000 -> 3.10001 保持住后面的3个0
-    return float("%s.%s1"%(_count,_key))
   count = 1
   for _k,_v in dic.items():
-    if _v > max_count:
-      max_topic_list.append(_k)
-      continue
+    #if _v > max_count:
+    #  max_topic_list.append(_k)
+    #  continue
     tmp_dict[count] = _k
     tmp_list.append(_tofloat(_v,count))
     count += 1
-  left_count = hot_topic_count - len(max_topic_list)
-  if left_count < 0:#need optimze,if ["aa"->1111,"bb"->2222,"cc"->9999], maybe return [aa,bb] 
-    return max_topic_list[:hot_topic_count]
+  #left_count = hot_topic_count - len(max_topic_list)
+  #if left_count < 0:#need optimze,if ["aa"->1111,"bb"->2222,"cc"->9999], maybe return [aa,bb] 
+  #  return max_topic_list[:hot_topic_count]
   tmp_list = sorted(tmp_list, reverse=True)
   #print tmp_list
   max_topic_counts = []
-  for ii in range(left_count):
+  for ii in range(hot_topic_count):
     countstr = str(tmp_list[ii]).split(".")[0]
-    if "11" == countstr:  #1 + 10(title weight)
-      break
+    #if "11" == countstr:  #1 + 10(title weight)
+    #  break
     max_topic_counts.append(countstr)
     tmp_dict_k = int(str(tmp_list[ii]).split(".")[1][:-1])#'88.31' -> '31' -> '3' -> 3
     max_topic_list.append(tmp_dict[tmp_dict_k])
-    if ii < 3:
-      print tmp_dict[tmp_dict_k],countstr
+    #if ii < 3:
+    #  print tmp_dict[tmp_dict_k],countstr
     #save_hoykey_count(tmp_dict[tmp_dict_k], int(countstr), topic)
-    save_hoykey_count2(tmp_dict[tmp_dict_k], int(countstr), topic)
+    if savedb:
+      save_hoykey_count2(tmp_dict[tmp_dict_k], int(countstr), topic)
   #print "max_topic_counts: ",max_topic_counts
   return max_topic_list,max_topic_counts
+
 def sort_hot_keys(dic, topic, hot_keys):
   #compare with yesterday. if lager, have higher priority
   tmp_list1 = []
