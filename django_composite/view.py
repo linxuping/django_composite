@@ -141,10 +141,11 @@ def init_news2(_init=True):
       get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
     #head page build.
     get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":""}, False)
+  get_jsondata({"helpkey":"", "helpkey2":"", "quickkey":""}, False)
   
 def thread_update_news(searchcontent):
   #sleeptime = 15*60 #debug
-  sleeptime = 1*30*60 #release
+  sleeptime = 1*15*60 #release
   while True:
     _init = False
     time.sleep(sleeptime)
@@ -305,9 +306,9 @@ def build_head_page_data(topic):
 					_tmps.append( new_section(w.word,True) )
 				else:
 					_tmps.append( new_section(w.word,False) )
-			_new.nss = _tmps
+			#_new.nss = _tmps   #debug mode.
 			if _new.text not in rets_keys:
-				print _new.text,  _new.topic
+				#print _new.text,  _new.topic
 				rets.append( _new )
 				rets_keys.add(_new.text)
 	return rets
@@ -320,13 +321,13 @@ def get_jsondata(args, from_request=True):
   #print request.session.items()
   searchcontent = args.get("searchcontent", "")
   quickkey = args.get("quickkey", searchcontent)
-  helpkey = args.get("helpkey", None)
+  helpkey = args.get("helpkey", "")
 
   is_head_page = (quickkey=="")
   if from_request:
     #print "[LOG %s] request.POST: "%(time.strftime("%Y-%m-%d %X", time.localtime())), args
-    if tag_soci==helpkey or ""==helpkey or None==helpkey:
-      helpkey = tag_soci
+    #if tag_soci==helpkey or ""==helpkey or None==helpkey:
+    #  helpkey = tag_soci
     if (quickkey=="" or None==quickkey) and not helpkey==tag_cont:
       #need global build with hotkeys.
       quickkey = ""
@@ -352,6 +353,7 @@ def get_jsondata(args, from_request=True):
       send_mail("417306303@qq.com", "from 360 views.", str(contactdesc))
 
   jsondata = None
+  head_news = []
   raw_news = []
   all_news = []
   if quickkey == u"全部":
@@ -360,7 +362,13 @@ def get_jsondata(args, from_request=True):
     #if is_head_page, build head view data.:
     if is_head_page:
       print "begin .... ",navbar_tab
-      all_news = build_head_page_data(navbar_tab)
+      if navbar_tab == "":
+        head_news = [ attr(tag_soci,g_news_cache["%s__"%tag_soci]["news"][:10] ), 
+                      attr(tag_phys,g_news_cache["%s__"%tag_phys]["news"][:10] ),
+                      attr(tag_tech,g_news_cache["%s__"%tag_tech]["news"][:10] ) ]
+        print "build ___ ",head_news
+      else:
+        all_news = build_head_page_data(navbar_tab)
       print "end .... "
     else:
       raw_news = filter_news(quickkey,navbar_infos[navbar_tab]["all_news"])
@@ -372,15 +380,23 @@ def get_jsondata(args, from_request=True):
     for _newsobj in raw_news: 
       for _new in _newsobj.news_items:
         _new.topic = _newsobj.topic
-        _new.nss = [ new_section(_new.text,False) ]
+        #_new.nss = [ new_section(_new.text,False) ] #debug mode.
         _count = _count+1
         all_news.insert(random.randint(0,_count),_new)
-  jsondata = {
+  if navbar_tab == "":
+    jsondata = {
+                 "news":all_news,"helpkey":helpkey,"quickkey":quickkey,"ts":ts, 
+                 "hot_keys":set(navbar_infos[tag_soci]["hot_keys"][:10]+navbar_infos[tag_phys]["hot_keys"][:10]+navbar_infos[tag_tech]["hot_keys"][:10]),\
+                 "hot_keys_up":set(navbar_infos[tag_soci]["hot_keys_up"][:10]+navbar_infos[tag_phys]["hot_keys_up"][:10]+navbar_infos[tag_tech]["hot_keys_up"][:10]), \
+                 "head_news":head_news
+               }
+  else:
+    jsondata = {
                  "news":all_news,"helpkey":helpkey,"quickkey":quickkey,"ts":ts, 
                  "hot_keys":navbar_infos[navbar_tab]["hot_keys"],\
                  "hot_keys_up":navbar_infos[navbar_tab]["hot_keys_up"], \
                  "hot_keys_anual":navbar_infos[navbar_tab]["white_list"], \
-             }
+               }
   #if tag_cont!=helpkey and len(g_news_cache)<1000:
   if len(g_news_cache) < 5000:
     g_news_cache[cache_key] = deepcopy(jsondata)

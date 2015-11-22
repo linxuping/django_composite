@@ -21,6 +21,10 @@ def get_days_ago(days):
 def get_current_hour():
   return int(time.localtime()[3])
 
+class attr:
+  def __init__(self, key, value):
+    self.key = key
+    self.value = value
 
 class news_item:
   def __init__(self, text, href):
@@ -97,7 +101,7 @@ url_infos_phys = {
   u"搜狐"+phys_tag: ["http://m.sohu.com/c/27/", '//a', "http://m.sohu.com", ""],#
   u"腾讯"+phys_tag: ["http://xw.qq.com/m/sports/index.htm", '//h2', "http://xw.qq.com/m/sports/index.htm", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
   u"21cn"+phys_tag: ["http://3g.21cn.com/zy/sports/cbs/", '//a', "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
-  #u"百度"+phys_tag: ["http://internet.baidu.com/", '//a', "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
+  u"百度"+phys_tag: ["http://internet.baidu.com/", '//a', "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
   u"网易"+phys_tag: ["http://3g.163.com/touch/sports/", '//p', "http://3g.163.com/touch/sports/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
 } 
 hotkeys_phys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 

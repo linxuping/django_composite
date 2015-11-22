@@ -78,6 +78,20 @@ font-weight: 700;
 //right: 100px;
 //top: 11px;
 }
+.s_home{
+background: #666;
+background: rgba(0,0,0,.4);
+background-image: url(/static/home.png);
+background-repeat: no-repeat;
+-moz-border-radius: 9px;
+-webkit-border-radius: 9px;
+border-radius: 9px;
+width: 18px;
+height: 18px;
+position: absolute;
+top: 50%;
+margin-top: -9px;
+}
 .s_hotkey_ups:after {
 content: "热";
 background: #ff3d4a;
@@ -110,6 +124,51 @@ top: -5px;
 left: 2px;
 border-radius: 2px;
 }
+.icon_open:before {
+content: "\e60c";
+position: relative;
+left: 5px;
+top: 0;
+padding-left: 0;
+-webkit-transform: rotate(-90deg);
+display: inline-block;
+font-family: 'SinaHomeFont';
+}
+#back-top {
+position: fixed;
+bottom: 40px;
+margin-left: -6px;
+}
+#back-top a {
+width: 40px;
+display: block;
+text-align: center;
+line-height: 40px;
+color: #fff;
+font-weight: bold;
+-webkit-transition: 1s;
+-moz-transition: 1s;
+transition: 1s;
+}
+#back-top span {
+width: 40px;
+height: 40px;
+display: block;
+background: #77A92C;
+-webkit-border-radius: 50px;
+-moz-border-radius: 50px;
+border-radius: 50px;
+-webkit-transition: 1s;
+-moz-transition: 1s;
+transition: 1s;
+}
+.footer_content {
+background: #fff;
+margin: 10px;
+padding: 5px 10px;
+border: 1px solid #aeb2b9;
+border-radius: 6px;
+}
 	</style>
   </head>
 
@@ -125,8 +184,8 @@ border-radius: 2px;
             <span class="icon-bar"></span>
           </button>
         <div  class="navbar-brand">
-        <span class="s_title" id="searchTips" style="display: inline;">热</span>
-        <a href="#" onclick="helpkey.value='今日头条';myform.submit();" style="padding-left:27px;color:white">
+        <span class="s_home">&nbsp;</span>
+        <a href="#" onclick="myform.submit();" style="padding-left:27px;color:white">
 		{{helpkey}}
 	</a>
         </div>
@@ -157,18 +216,19 @@ border-radius: 2px;
 
 	<div name="content" style="display:{{ts.disp_content}}">
     <div class="container">
-
       <div class="row row-offcanvas row-offcanvas-right">
-
         <div class="col-xs-12 col-sm-9" style="padding-left:8px;padding-right:8px">
-		  <p class="pull-right visible-xs" style="margin-right:5px">
-		    <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">&nbspwaiting&nbsp</button>
-		  </p>
-
-		  <div class="jumbotron" style="margin-bottom: 6px;padding-top:2%;padding-bottom:4%;margin-left:5px;margin-right:5px;background-color:#BBBBBB">
-		    <h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">只</h3><h2 style="display:inline-block;margin-bottom:0px;margin-right:2px">是</h2><h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">新闻</h3>
-		    <h6 style="margin-top:2px">多家媒体▪多维度▪大数据精选  </h6>
-		  </div>
+{% if head_news %}
+				  <p class="pull-right visible-xs" style="margin-right:5px">
+				    <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">&nbspwaiting&nbsp</button>
+				  </p>
+        <span class="s_title" id="searchTips" style="display: inline;">热</span>
+				  <div class="jumbotron" style="margin-bottom: 12px;padding-top:2%;padding-bottom:4%;margin-left:5px;margin-right:5px;background-color:#BBBBBB">
+				    <h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">只</h3><h2 style="display:inline-block;margin-bottom:0px;margin-right:2px">是</h2><h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">新闻</h3>
+				    <h6 style="margin-top:2px">多家媒体▪多维度▪大数据精选  </h6>
+				  </div>
+{% endif %}
+				  <p class="pull-right visible-xs" style="margin-right:5px">
 			<!--
 			<div class="panel panel-default" style="margin-top:8px">
 		    <div class="panel-heading">
@@ -196,15 +256,40 @@ border-radius: 2px;
 
 		<div style="max-height:1200%;overflow-y:auto">
 		<table class="table">
-		   <!--<caption>条纹表格布局</caption>
-		   <thead>
-		      <tr>
-			 <th>名称</th>
-			 <th>城市</th>
-			 <th>密码</th>
-		      </tr>
-		   </thead>-->
 		   <tbody>
+				{% for new in head_news %}
+				{% for item in new.value %}
+				<tr>
+				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
+					<font style="font-size:normal">▪</font></td>
+				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px">
+					<!--
+					<a href="{{item.href}}" style="color:#000088"><b>
+						<font style="font-size:normal;color:#000088">
+	{% for ns in item.nss %}{% if ns.is_link %}<u><a href="#" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();" style="color:#000088">{{ns.text}}</a></u>{% else %}{{ns.text}}{% endif %}{% endfor %}</font></b>
+					</a>
+					-->
+					<a href="{{item.href}}" style="color:#000099"><b><font style="font-size:normal">{{item.text}}</font></b></a>
+					</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
+					</td>
+				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;text-align:center">
+					<!--
+					<a href="{{item.href}}" style="color:#000088"><b>
+						<font style="font-size:normal;color:#000088">
+	{% for ns in item.nss %}{% if ns.is_link %}<u><a href="#" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();" style="color:#000088">{{ns.text}}</a></u>{% else %}{{ns.text}}{% endif %}{% endfor %}</font></b>
+					</a>
+					-->
+					<a style="font-size: 1.8rem;color: #333;line-height: 40px;" href="#" onclick="helpkey.value='{{new.key}}';myform.submit();">进入{{new.key}} &gt<span class="icon_open"></span> </a>
+					</td>
+				</tr>
+				{% endfor %}
+
+
+
 			{% for item in news %}
 
 			{% if forloop.counter < 15 %}
@@ -218,7 +303,7 @@ border-radius: 2px;
 {% for ns in item.nss %}{% if ns.is_link %}<u><a href="#" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();" style="color:#000088">{{ns.text}}</a></u>{% else %}{{ns.text}}{% endif %}{% endfor %}</font></b>
 				</a>
 				-->
-			 	<a href="{{item.href}}" style="color:#0044FF"><b><font style="font-size:normal">{{item.text}}</font></b></a></td>
+			 	<a href="{{item.href}}" style="color:#000099"><b><font style="font-size:normal">{{item.text}}</font></b></a></td>
 
 				</td>
 			 <td style="padding-right:4px;padding-top:8px;padding-bottom:8px">
@@ -246,7 +331,7 @@ border-radius: 2px;
 {% for ns in item.nss %}{% if ns.is_link %}<u><a href="#" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();" style="color:#000088">{{ns.text}}</a></u>{% else %}{{ns.text}}{% endif %}{% endfor %}</font></b>
 				</a>
 				-->
-			 	<a href="{{item.href}}" style="color:#0044FF"><b><font style="font-size:normal">{{item.text}}</font></b></a></td>
+			 	<a href="{{item.href}}" style="color:#000099"><b><font style="font-size:normal">{{item.text}}</font></b></a></td>
 			 <td style="padding-right:4px;padding-top:8px;padding-bottom:8px">
 				<font style="font-size:small;color:#AAAAAA">{{item.topic |cut:"_" |cut:helpkey }}</font></td>
 		        </tr>
@@ -269,11 +354,11 @@ border-radius: 2px;
 			  {% endfor %}
 			  </form>
             </div>
-        </div>
+	</div>
 
 	<div class="panel panel-default" style="background-color:rgba(255,255,255,0.3)">
             <div class="panel-heading">
-              <h3 class="panel-title s_hotkey">当前热词排位</h3>
+              <h3 class="panel-title s_hotkey">当前热词</h3>
             </div>
             <div class="panel-body" style="padding:8px">
 			  <form role="form" name="quickform3" id="quickform3" method="post">
@@ -283,7 +368,7 @@ border-radius: 2px;
 			  <button type="button" class="btn btn-xs btn-success" style="margin:1px;padding:1px;margin-bottom:2px;" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
 			  {% endfor %}
 			  </form>
-            </div>
+	</div>
 
         </div>
 	
@@ -316,11 +401,11 @@ border-radius: 2px;
           <div class="list-group">
 		    <a class="list-group-item active" style="">最近流行热词 ↓</a>
 		    <!--<input type="hidden" id="quickkey" name="quickkey"></input>-->
-<div style="height:auto;overflow:auto">
-			{% for hotkey in hot_keys_anual %}
-            <a href="#" style="background-color:rgba(255,255,255,0.4)" class="list-group-item" onclick="quicksearch.value=this.text;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</a>
-			{% endfor %}         
-</div>
+						<div style="height:auto;overflow:auto">
+									{% for hotkey in hot_keys_anual %}
+							    <a href="#" style="background-color:rgba(255,255,255,0.4)" class="list-group-item" onclick="quicksearch.value=this.text;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</a>
+									{% endfor %}         
+						</div>
             <a class="list-group-item active" onclick="helpkey.value='今日头条';myform.submit();">&lt&lt&nbspHome</a>
           </div>
         </div><!--/span-->
@@ -331,12 +416,9 @@ border-radius: 2px;
       </div><!--/row-->	  
       <div class="container" style="margin-top:8px">
 			
-        <a class="list-group-item active" style="text-align:center;border-radius:4px" onclick="init_page()" href="#top">&lt&lt&nbsp&nbsp飞回顶部啦&nbsp&nbsp&gt&gt</a>
+        <a class="list-group-item active" style="text-align:center;border-radius:4px;display:none" onclick="init_page()" href="#top">&lt&lt&nbsp&nbsp飞回顶部啦&nbsp&nbsp&gt&gt</a>
         <a class="list-group-item active" style="text-align:center;display:none" onclick="helpkey.value=get_tabname();quicksearch.value='全部';myform.submit();">&lt&lt&nbsp&nbsp我想浏览全部(多着去了)&nbsp&nbsp&gt&gt</a>
-      <hr>  								
-      <footer>
-        <p>&copy; LXP 2014</p>
-      </footer>
+      
     </div><!--/.container-->
 	</div>
 	
@@ -345,18 +427,44 @@ border-radius: 2px;
       <textarea id="contactdesc" style="width:100%;min-height:200px;margin:5px" placeholder=""></textarea>
 	  &nbsp&nbsp&nbsp&nbsp<a id="contactbtn" class="btn btn-lg btn-success" style="text-align:right" role="button" onclick="helpkey.value=get_tabname();helpkey2.value=contactdesc.value;myform.submit();">发给我^~^</a>
       </div>
+    </div>
 
       <hr>  								
+    <div style="footer_content">
       <footer style="padding-top:0px">
+        <p id="back-top" style="display:block; width:100%"><a href="#top" style="margin-left:85%"><span>∧</span></a></p>
         <p>&nbsp&nbsp&copy; LXP 2014</p>
       </footer>
+	  </div>
 	</div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="/static/bootstrap/jquery.min.js"></script>
-    <script src="/static/bootstrap/bootstrap.min.js"></script>
-    <script src="/static/bootstrap/offcanvas.js"></script>
-  </body>
+<script src="/static/bootstrap/jquery.min.js"></script>
+<script src="/static/bootstrap/bootstrap.min.js"></script>
+<script src="/static/bootstrap/offcanvas.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#back-top").hide();
+	$(function () {
+		$(window).scroll(function () {
+			if ($(this).scrollTop() > 100) {
+				$('#back-top').fadeIn();
+			} else {
+				$('#back-top').fadeOut();
+			}
+		});
+		$('#back-top a').click(function () {
+			$('body,html').animate({
+				scrollTop: 0
+			}, 200);
+			return false;
+		});
+	});
+	
+	});
+</script>
+
+</body>
 </html>
