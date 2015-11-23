@@ -258,9 +258,9 @@ def build_head_page_data(topic):
 	
 	weights={}
 	for i in range(len(hot_keys_up)):
-		weight = 50-i/2
-		if weight < 5:
-			weight = 5
+		weight = 10-i/10
+		if weight < 2:
+			weight = 2
 		weights[ hot_keys_up[i] ] = weight
 	
 	for hk in hot_keys_up: #hot rate: high -> low
@@ -386,8 +386,8 @@ def get_jsondata(args, from_request=True):
   if navbar_tab == "":
     jsondata = {
                  "news":all_news,"helpkey":helpkey,"quickkey":quickkey,"ts":ts, 
-                 "hot_keys":set(navbar_infos[tag_soci]["hot_keys"][:10]+navbar_infos[tag_phys]["hot_keys"][:10]+navbar_infos[tag_tech]["hot_keys"][:10]),\
-                 "hot_keys_up":set(navbar_infos[tag_soci]["hot_keys_up"][:10]+navbar_infos[tag_phys]["hot_keys_up"][:10]+navbar_infos[tag_tech]["hot_keys_up"][:10]), \
+                 "hot_keys":navbar_infos[tag_soci]["hot_keys"][:20],\
+                 "hot_keys_up":navbar_infos[tag_soci]["hot_keys_up"][:20], \
                  "head_news":head_news
                }
   else:

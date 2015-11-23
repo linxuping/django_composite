@@ -260,8 +260,12 @@ border-radius: 6px;
 				{% for new in head_news %}
 				{% for item in new.value %}
 				<tr>
-				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
-					<font style="font-size:normal">▪</font></td>
+				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px">
+					{% if item.img %}
+					<img src="{{item.img}}" alt="" style="width:40px;height:40px;border-radius:20%;background:grey">
+					{% else %}
+					<img src="/static/news.png" alt="" style="width:40px;height:40px;border-radius:20%;background:grey">
+					{% endif %}
 				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px">
 					<!--
 					<a href="{{item.href}}" style="color:#000088"><b>

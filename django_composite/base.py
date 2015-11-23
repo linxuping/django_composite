@@ -21,15 +21,48 @@ def get_days_ago(days):
 def get_current_hour():
   return int(time.localtime()[3])
 
+
+def get_img_xpath(_url,xpath):
+	nodes = get_nodes(_url, xpath)
+	if len(nodes) > 0: 
+		try:
+			for _n in nodes:
+				_src = _n.get("src")
+				if _src == None:
+					continue
+				if (_src.find(".png")!=-1 or _src.find(".jpg")!=-1 or _src.find(".jpeg")!=-1) and _src.find("http")==0 and _src.find("default")==-1:
+					return _src
+		except:
+			print "exception. nodes empty. ",nodes
+			pass
+	return ""
+
+def get_img(_url):
+	xpath_list=["//div/p/img","//p/img","//div/img","//img"]
+	_src = ""
+	for xpath in xpath_list:
+		_src = get_img_xpath(_url, xpath)
+		if _src != "":
+			break
+	return _src
+
+
 class attr:
-  def __init__(self, key, value):
-    self.key = key
-    self.value = value
+	def __init__(self, key, value):
+		self.key = key
+		self.value = value
+		if isinstance(self.value, list):
+			for item in self.value:
+				if isinstance(item,news_item):
+					print "START. ", item.text,item.href
+					item.img = get_img(item.href)
+					print "END. ", self.key,item.img
 
 class news_item:
   def __init__(self, text, href):
     self.text = text
     self.href = href
+    self.img = ""
 class news:
   def __init__(self, topic="", news_items=None, navbar_key=None):
     self.topic = topic
@@ -143,13 +176,16 @@ def try_get_nodes(_url, _xpath):
   return tree.xpath(_xpath)
 def get_nodes(_url, _xpath):
   rets = []
-  for i in range(15):
+  for i in range(3):
     try:
+      print "try: ",i,_url
       rets = try_get_nodes(_url, _xpath)
-    except:
-      pass
-    if len(rets) != 0:
       break
+    except:
+      print "get_nodes exception. ",_url
+      continue
+    #if len(rets) != 0:
+    #  break
   return rets
 
 
@@ -176,8 +212,8 @@ def get_news(topic, navbar_key, old_new_items):
         and None!=node.text and len(node.text)>10 and len(node.text)<48  \
         and not node.text in new_keys:
       _href = node.get("href")
-      if None!=_href and _href.find("javascript:void")!=-1:
-        continue
+      #if None!=_href and _href.find("javascript:void")!=-1:
+      #  continue
       #special deal with    <a href=***><span>text</span></a>
       #if topic=="google.com" and None!=node.getparent().get("href"):
       #  _href = node.getparent().get("href")
@@ -194,7 +230,7 @@ def get_news(topic, navbar_key, old_new_items):
         _href = node.getparent().getparent().get("href")
         #_href = "http://www.36kr.com" + _href
 
-      if _href == None:
+      if _href==None or _href.find("javascript:void")!=-1:
         continue
       if _href.find("http://") == -1:
          _href = url_infos[topic][2] + _href
@@ -298,6 +334,7 @@ def sort_hot_keys(dic, topic, hot_keys):
     else:
       tmp_list2.append(_k)
   return tmp_list1 + tmp_list2
+
  
 #------------- for sqlite ---------------# 
 def create_table(create_str):
