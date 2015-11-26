@@ -14,9 +14,9 @@ def get_nodes(_url, _xpath):
   #if ret:
   #  ret = ret - 200
   #  print res[ret:ret+250]
-  f = open("test.html", "w")
-  f.write(res)
-  f.close()
+  #f = open("test.html", "w")
+  #f.write(res)
+  #f.close()
   tree = etree.HTML(res)
   return tree.xpath(_xpath)
 
@@ -38,15 +38,18 @@ def get_href(node):
 def analyze_new(url,xpaths):
 	count = 0
 	for xpath in xpaths:
+		_print = True
 		nodes = get_nodes(url,xpath)
 		for node in nodes:
 			try:
 				_text = node.text
 				_href = get_href(node)
-				print _href
+				#print _href
 				if not _text or not _href:
 					continue
-				print _text,_href
+				if True or _print:
+					print xpath,_text,_href
+					_print = False
 				count = count + 1
 			except:
 				print "exception.",node, sys.exc_info()
@@ -54,13 +57,17 @@ def analyze_new(url,xpaths):
 
 
 
-xpaths=["//li/a"]
-analyze_new("http://shehui.news.baidu.com/", xpaths)
+
+xpaths=["//h2"]
+analyze_new("http://xw.qq.com/m/news", xpaths)
 
 #img
 if False:
 	xpaths=["//div[@class='newlist']/ul/li/a"]
 	analyze_new("http://3g.news.cn/html/", xpaths)
+
+	xpaths=["//div[@class='list-item']/a"]
+	analyze_new("http://m.baidu.com/news", xpaths)
 
 	xpaths=["//p"]
 	analyze_new("http://inews.ifeng.com/", xpaths)
@@ -76,6 +83,10 @@ if False:
 
 	xpaths=["//h2"]
 	analyze_new("http://xw.qq.com/m/news", xpaths)
+
+	xpaths=["//div/div/h3/a","//div/div/p/a","//ul[@class='first-child-no-top last-child-no-bottom']/li/a","//ul[@class='first-child-no-top']/li/a"]
+	analyze_new("http://m.cctv.com/", xpaths)
+
 
 	print "test fin."
 

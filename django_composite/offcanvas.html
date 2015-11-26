@@ -70,7 +70,7 @@ height: 24px;
 background-position: -200px 0;
 color: #fff;
 text-align: center;
-line-height: 17px;
+line-height: 20px;
 position: absolute;
 z-index: 0;
 font-size: 12px;
@@ -222,7 +222,7 @@ border-radius: 6px;
 				  <p class="pull-right visible-xs" style="margin-right:5px">
 				    <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">&nbspwaiting&nbsp</button>
 				  </p>
-        <span class="s_title" id="searchTips" style="display: inline;">热</span>
+        <span class="s_title" id="searchTips" style="display: inline;margin-left:2px">热</span>
 				  <div class="jumbotron" style="margin-bottom: 12px;padding-top:2%;padding-bottom:4%;margin-left:5px;margin-right:5px;background-color:#BBBBBB">
 				    <h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">只</h3><h2 style="display:inline-block;margin-bottom:0px;margin-right:2px">是</h2><h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">新闻</h3>
 				    <h6 style="margin-top:2px">多家媒体▪多维度▪大数据精选  </h6>
@@ -262,9 +262,9 @@ border-radius: 6px;
 				<tr>
 				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px">
 					{% if item.img %}
-					<img src="{{item.img}}" alt="" style="width:40px;height:40px;border-radius:20%;background:grey">
+					<img src="{{item.img}}" alt="" style="width:50px;height:50px;border-radius:20%;background:grey">
 					{% else %}
-					<img src="/static/news.png" alt="" style="width:40px;height:40px;border-radius:20%;background:grey">
+					<img src="/static/news.png" alt="" style="width:50px;height:50px;border-radius:20%;background:grey">
 					{% endif %}
 				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px">
 					<!--
@@ -287,7 +287,7 @@ border-radius: 6px;
 	{% for ns in item.nss %}{% if ns.is_link %}<u><a href="#" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();" style="color:#000088">{{ns.text}}</a></u>{% else %}{{ns.text}}{% endif %}{% endfor %}</font></b>
 					</a>
 					-->
-					<a style="font-size: 1.8rem;color: #333;line-height: 40px;" href="#" onclick="helpkey.value='{{new.key}}';myform.submit();">进入{{new.key}} &gt<span class="icon_open"></span> </a>
+					<a style="font-size: 2.0rem;color: #333;line-height: 60px" href="#" onclick="helpkey.value='{{new.key}}';myform.submit();">进入{{new.key}} &gt<span class="icon_open"></span> </a>
 					</td>
 				</tr>
 				{% endfor %}

@@ -1,18 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import time
 import urllib2
 from lxml import etree
 def get_nodes(_url, _xpath):
   #headers = {'User-Agent':'Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30'}  
   #req = urllib2.Request(url=_url,headers=headers)
-  resp = urllib2.urlopen(_url)
-  import time
+  #resp = urllib2.urlopen(_url)
   #print resp
-  res = resp.read()
+  #res = resp.read()
   #ret = res.find("22c9.png")
   #if ret:
   #  ret = ret - 200
   #  print res[ret:ret+250]
+  import commands
+  ret,res = commands.getstatusoutput("wget -O - %s 2>/dev/null"%_url)
+  #print "wget %s -O -"%_url,ret,res[:100]
   f = open("test.html", "w")
   f.write(res)
   f.close()
@@ -38,11 +41,11 @@ def check_img(url,xpaths,expect):
 
 
 
-xpaths=[]
-#check_img("", xpaths, 2)
+#xpaths=["//div/img[@class='j_fullppt']","//div/img[@class='j_fullppt_cover']"]
+#check_img("http://news.sina.cn/sh/2015-11-25/detail-ifxkwuwv3597971.d.html?vt=4&pos=8&cid=56261", xpaths, 2)
 
 #img
-if False:
+if True:
 	# 3g.news.cn cases. 
 	xpaths=['//p/img']
 	check_img("http://3g.news.cn//html/947/201651.html", xpaths, 1)
@@ -68,6 +71,8 @@ if False:
 	check_img("http://news.sina.cn/sh/2015-11-25/detail-ifxkwuwv3601067.d.html?vt=4&pos=11&cid=56264", xpaths, 1)
 	check_img("http://news.sina.cn/sh/2015-11-25/detail-ifxkwuwy7117086.d.html?vt=4&pos=11&cid=56264", xpaths, 1)
 
+	xpaths=['//div/div/img']
+	check_img("http://xw.qq.com/news/20151126055197/NEW2015112605519702", xpaths, 3)
 
 	print "test fin."
 
