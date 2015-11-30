@@ -48,28 +48,69 @@ def get_nodes2(_url,_xpath):
   tree = etree.HTML(res)
   return tree.xpath(_xpath)
 
-def get_img(_url):
+def get_imgs(_url):
+	imgs = set()
+	postfixs = [".png",".jpg",".jpeg"]
 	host = _url.split("http://")[1].split("/")[0]
-
-	xpath_list=["//div/p/img","//div/i/img","//div/p/img","//p/img","//div/img","//i/img","//img"]
-
 	xpath_dic = {
 		"3g.news.cn": ["//p/img"],
-		"inews.ifeng.com": ["//p/img"],
-		"news.sina.cn": ["//div/img[@class='j_fullppt']","//div/img[@class='j_fullppt_cover']"],
+		".ifeng.com": ["//p/img"],
+		".sina.cn": ["//div/img[@class='j_fullppt']","//div/img[@class='j_fullppt_cover']","//img[@data-role='img-slide']","//div[@class='img_wrapper']/img"],
 		"xw.qq.com": ["//div/div/img"],
+		".163.com": ["//p[@class='f_center']/img","//li/a/img"],
+		".sohu.com": ["//div/div/p[@class='a3']/img"],
 	}
-	if host in xpath_dic:
-		for xpath in xpath_dic[host]:
+	for _k in xpath_dic.keys():
+		if host.find(_k) == -1:
+			continue
+		for xpath in xpath_dic[_k]:
 			nodes = get_nodes2(_url,xpath)
 			for node in nodes:
 				try:
-					if node.get("src") != None:
-						print "hit>>> ",node.get("src")
-						return node.get("src")
+					_src = node.get("src")
+					if _src == None:
+						continue
+					_latest = _src.rsplit("/")[1]
+					for postfix in postfixs:
+						if _latest.find(".")!=-1 and _latest.find(postfix)==-1:
+							continue
+						print "hit>>> ",_src
+						imgs.add(_src)
+						break
 				except:
 					print "exception."
 
+	#try get.
+	llen = 0
+	lsrc = ""
+	ymd = time.strftime("%d_%m_%Y").split("_")
+	nodes = get_nodes2(_url,"//img")
+	for node in nodes:
+		_src = node.get("src")
+		if _src==None or (_src.find(".")!=-1 and _src.rsplit(".")[1] not in postfixs):
+			continue
+		if _src.find(ymd[1])!=-1 and _src.find(ymd[2])!=-1:# and _src.find(ymd[0])!=-1:
+			imgs.add(_src)
+		_len = len(_src)
+		if _len > llen:
+			llen = _len
+			lsrc = _src
+	if lsrc != "":
+		imgs.add(lsrc)
+		#return lsrc
+
+	#3.default
+	icon = ""
+	logos = {"qq.com":"tx.png", "ifeng.com":"fenghuang.gif", "sohu.com":"sohu.png", "sina.":"sina.png", "3g.news.cn":"xinhua.png", "cctv.com":"cctv.png"}
+	for _k,_v in logos.items():
+		if host.find(_k) != -1:
+			icon = "/static/logo/%s"%_v
+	if icon == "":
+		icon = "/static/news.png"
+	return icon,imgs 
+
+	return ""
+	xpath_list=["//div/p/img","//div/i/img","//div/p/img","//p/img","//div/img","//i/img","//img"]
 	if host == "3g.news.cn": 
 		xpath = "//p/img"
 	_src = ""
@@ -91,14 +132,15 @@ class attr:
 			for item in self.value:
 				if isinstance(item,news_item):
 					print "START. ", item.text,item.href
-					item.img = get_img(item.href)
-					print "END. ", self.key,item.img
+					item.icon,item.imgs = get_imgs(item.href)
+					print "END. ", self.key,item.imgs
 
 class news_item:
   def __init__(self, text, href):
     self.text = text
     self.href = href
-    self.img = ""
+    self.icon = ""
+    self.imgs = []
 class news:
   def __init__(self, topic="", news_items=None, navbar_key=None):
     self.topic = topic
@@ -121,18 +163,18 @@ tag_phys = u"体育"
 tag_cont = u"联系我"
 
 #-------------------- common part ------------------#
-hotkeys_black_list = [u"问题",u"能力",u"图片",u"图",u"内衣",u"内裤",u"模式",u"",u"",u""]
+hotkeys_black_list = [u"问题",u"能力",u"图片",u"图",u"内衣",u"内裤",u"模式",u"手机",u"平台",u"全球",u"企业",u"CEO",u"科技",u"领域",u"全面",u"",u"",u""]
 #-------------------- tech part ------------------#
 tech_tag=u"_"+tag_tech
 url_infos_tech = {
   #topic: [tech link, xpath, offical link]
   u"凤凰网"+tech_tag: ["http://tech.ifeng.com/", ['//a'], "http://www.ifeng.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#2014_07/24
-  #"36kr": ["http://www.36kr.com/", ['//a[@target="_blank"]'], "http://www.36kr.com/", "/p/"],#
-  #"cnbeta": ["http://m.cnbeta.com/", ['//li/div/a'], "http://m.cnbeta.com/", ""],#
-  #u"新浪"+tech_tag: ["http://tech.sina.com.cn/internet/", ['//a'], "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
-  #u"腾讯"+tech_tag: ["http://tech.qq.com/", ['//a'], "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  #u"百度"+tech_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
-  #u"网易"+tech_tag: ["http://tech.163.com/", ['//a'], "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+  "36kr": ["http://www.36kr.com/", ['//a[@target="_blank"]'], "http://www.36kr.com/", "/p/"],#
+  "cnbeta": ["http://m.cnbeta.com/", ['//li/div/a'], "http://m.cnbeta.com/", ""],#
+  u"新浪"+tech_tag: ["http://tech.sina.com.cn/internet/", ['//a'], "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
+  u"腾讯"+tech_tag: ["http://tech.qq.com/", ['//a'], "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
+  u"百度"+tech_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
+  u"网易"+tech_tag: ["http://tech.163.com/", ['//a'], "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
   #"google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
 } 
 #go to config.py 
@@ -151,7 +193,7 @@ url_infos_soci = {
   u"新浪": ["http://news.sina.cn/", ["//h3[@class='carditems_list_h3']"], "http://news.sina.cn", ""],
   u"网易": ["http://news.163.com/mobile/", ['//li/h4/a'], "http://www.163.com/", "" ],
   u"腾讯": ["http://xw.qq.com/m/news", ['//h2'], "http://news.qq.com", "" ],#20140724 - 201407
-  u"百度": ["http://m.baidu.com/news", ["//div[@class='list-item']/a"], "http://m.baidu.com", "" ],#
+  #u"百度": ["http://m.baidu.com/news", ["//div[@class='list-item']/a"], "http://m.baidu.com", "" ],#
   u"CCTV": ["http://m.cctv.com/", ["//div/div/h3/a","//div/div/p/a","//ul[@class='first-child-no-top last-child-no-bottom']/li/a","//ul[@class='first-child-no-top']/li/a"], "http://m.cctv.com/", "index.shtml"],#
 
 } 
@@ -167,11 +209,11 @@ all_news_soci = [news( url_infos_soci.keys()[0] )]*len(url_infos_soci) #initial
 phys_tag=u"_"+tag_phys
 url_infos_phys = {
   u"新浪"+phys_tag: ["http://sports.sina.cn/?from=wap", ['//h3'], "http://sports.sina.cn/?from=wap", "" ],#2014_07/24
-  #u"搜狐"+phys_tag: ["http://m.sohu.com/c/27/", ['//a'], "http://m.sohu.com", ""],#
-  #u"腾讯"+phys_tag: ["http://xw.qq.com/m/sports/index.htm", ['//h2'], "http://xw.qq.com/m/sports/index.htm", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  #u"21cn"+phys_tag: ["http://3g.21cn.com/zy/sports/cbs/", ['//a'], "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
-  #u"百度"+phys_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
-  #u"网易"+phys_tag: ["http://3g.163.com/touch/sports/", ['//p'], "http://3g.163.com/touch/sports/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+  u"搜狐"+phys_tag: ["http://m.sohu.com/c/27/", ['//a'], "http://m.sohu.com", ""],#
+  u"腾讯"+phys_tag: ["http://xw.qq.com/m/sports/index.htm", ['//h2'], "http://xw.qq.com/m/sports/index.htm", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
+  u"21cn"+phys_tag: ["http://3g.21cn.com/zy/sports/cbs/", ['//a'], "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
+  u"百度"+phys_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
+  u"网易"+phys_tag: ["http://3g.163.com/touch/sports/", ['//p'], "http://3g.163.com/touch/sports/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
 } 
 hotkeys_phys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
 hotkeys_phys_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"恒大", u"淘宝", u"电影", u"双十一"]
@@ -207,7 +249,7 @@ def convert_unicode(s):
 def try_get_nodes(_url, _xpath):
   resp = urllib2.urlopen(_url, timeout=8)
   res = resp.read()
-  #res = convert_unicode(res)
+  res = convert_unicode(res)
   tree = etree.HTML(res)
   return tree.xpath(_xpath)
 def get_nodes(_url, _xpath):
@@ -282,7 +324,8 @@ def get_news(topic, navbar_key, old_new_items):
       _href = get_href(node)
       #print topic,node.text,_href
 
-      if _href==None or _href.find("javascript:void")!=-1 or _href.find(url_infos[topic][3])==-1:
+      if _href==None or _href.find("javascript:void")!=-1 or \
+          _href.find(url_infos[topic][3])==-1 or _href.find("http://yd.sina.cn/")!=-1:
         continue
       if _href.find("http://") == -1:
          _href = url_infos[topic][2] + _href
