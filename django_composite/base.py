@@ -9,9 +9,12 @@ import sqlite3
 from lxml import etree
 import smtplib
 from email.mime.text import MIMEText
-import jieba.posseg as pseg
 import logging
+import random
 logger = logging.getLogger('news') # 这里用__name__通用,自动检测.
+
+import jieba.posseg as pseg
+word_types = ["n", "ns", "nr", "eng"]
 
 def get_days_ago(days):
   import datetime
@@ -39,6 +42,7 @@ def get_img_xpath(_url,xpath):
 
 
 def get_nodes2(_url,_xpath):
+  return get_nodes(_url,_xpath)
   import commands
   ret,res = commands.getstatusoutput("wget -O - %s 2>/dev/null"%_url)
   #print "wget %s -O -"%_url,ret,res[:100]
@@ -48,7 +52,26 @@ def get_nodes2(_url,_xpath):
   tree = etree.HTML(res)
   return tree.xpath(_xpath)
 
-def get_imgs(_url):
+
+def add_imgs(imgs, url):
+	if url=="" or url==None:
+		return
+	ignores = ["d.ifengimg.com","rcode","default","blank","load"]
+	_tmp = url.split("/")[1]
+	if _tmp.find(".") != -1:
+		for img in imgs:
+			if img.find(_tmp) != -1:
+				return
+	hit = False
+	for ig in ignores:
+		if url.find(ig) != -1:
+			hit = True
+			break
+	if not hit:
+		imgs.add(url)
+
+
+def get_imgs(_title,_url):
 	imgs = set()
 	postfixs = [".png",".jpg",".jpeg"]
 	host = _url.split("http://")[1].split("/")[0]
@@ -56,9 +79,9 @@ def get_imgs(_url):
 		"3g.news.cn": ["//p/img"],
 		".ifeng.com": ["//p/img"],
 		".sina.cn": ["//div/img[@class='j_fullppt']","//div/img[@class='j_fullppt_cover']","//img[@data-role='img-slide']","//div[@class='img_wrapper']/img"],
-		"xw.qq.com": ["//div/div/img"],
+		"xw.qq.com": ["//div/div/img","//div[@class='image split']/img"],
 		".163.com": ["//p[@class='f_center']/img","//li/a/img"],
-		".sohu.com": ["//div/div/p[@class='a3']/img"],
+		".sohu.com": ["//div/div/p[@class='a3']/img","//div[@class='finPicImg']/i/img"],
 	}
 	for _k in xpath_dic.keys():
 		if host.find(_k) == -1:
@@ -75,14 +98,14 @@ def get_imgs(_url):
 						if _latest.find(".")!=-1 and _latest.find(postfix)==-1:
 							continue
 						print "hit>>> ",_src
-						imgs.add(_src)
+						add_imgs(imgs,_src)
 						break
 				except:
 					print "exception."
 
 	#try get.
-	llen = 0
-	lsrc = ""
+	words = pseg.cut(_title)
+	words = [ w.word for w in words ]
 	ymd = time.strftime("%d_%m_%Y").split("_")
 	nodes = get_nodes2(_url,"//img")
 	for node in nodes:
@@ -90,14 +113,19 @@ def get_imgs(_url):
 		if _src==None or (_src.find(".")!=-1 and _src.rsplit(".")[1] not in postfixs):
 			continue
 		if _src.find(ymd[1])!=-1 and _src.find(ymd[2])!=-1:# and _src.find(ymd[0])!=-1:
-			imgs.add(_src)
-		_len = len(_src)
-		if _len > llen:
-			llen = _len
-			lsrc = _src
-	if lsrc != "":
-		imgs.add(lsrc)
-		#return lsrc
+			add_imgs(imgs,_src)
+
+		_alt = node.get("alt")
+		if _alt == None:
+			continue
+		ws = pseg.cut(_alt)
+		_count2 = 0
+		for w in [ w.word for w in ws ]:
+			if w in words:
+				_count2 = _count2+1
+			if _count2 > 3:
+				add_imgs(imgs,_src)
+				break
 
 	#3.default
 	icon = ""
@@ -107,7 +135,7 @@ def get_imgs(_url):
 			icon = "/static/logo/%s"%_v
 	if icon == "":
 		icon = "/static/news.png"
-	return icon,imgs 
+	return icon,list(imgs)[:6]
 
 	return ""
 	xpath_list=["//div/p/img","//div/i/img","//div/p/img","//p/img","//div/img","//i/img","//img"]
@@ -132,7 +160,7 @@ class attr:
 			for item in self.value:
 				if isinstance(item,news_item):
 					print "START. ", item.text,item.href
-					item.icon,item.imgs = get_imgs(item.href)
+					item.icon,item.imgs = get_imgs(item.text,item.href)
 					print "END. ", self.key,item.imgs
 
 class news_item:
@@ -193,7 +221,7 @@ url_infos_soci = {
   u"新浪": ["http://news.sina.cn/", ["//h3[@class='carditems_list_h3']"], "http://news.sina.cn", ""],
   u"网易": ["http://news.163.com/mobile/", ['//li/h4/a'], "http://www.163.com/", "" ],
   u"腾讯": ["http://xw.qq.com/m/news", ['//h2'], "http://news.qq.com", "" ],#20140724 - 201407
-  #u"百度": ["http://m.baidu.com/news", ["//div[@class='list-item']/a"], "http://m.baidu.com", "" ],#
+  ##u"百度": ["http://m.baidu.com/news", ["//div[@class='list-item']/a"], "http://m.baidu.com", "" ],#
   u"CCTV": ["http://m.cctv.com/", ["//div/div/h3/a","//div/div/p/a","//ul[@class='first-child-no-top last-child-no-bottom']/li/a","//ul[@class='first-child-no-top']/li/a"], "http://m.cctv.com/", "index.shtml"],#
 
 } 
@@ -246,12 +274,26 @@ def convert_unicode(s):
     except:
       pass
   return unicode(s, "utf-8")
-def try_get_nodes(_url, _xpath):
-  resp = urllib2.urlopen(_url, timeout=8)
-  res = resp.read()
+
+def try_get_nodes2(_url, _xpath):
+  import commands
+  ret,res = commands.getstatusoutput("wget -O - %s 2>/dev/null"%_url)
   res = convert_unicode(res)
   tree = etree.HTML(res)
   return tree.xpath(_xpath)
+
+def try_get_nodes(_url, _xpath):
+  headers = {"User-Agent":"Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"}
+  req = urllib2.Request(url=_url,headers=headers)
+  resp = urllib2.urlopen(req, timeout=8)
+  #resp = urllib2.urlopen(_url, timeout=8)
+  res = resp.read()
+  res = convert_unicode(res)
+  tree = etree.HTML(res)
+  rets = tree.xpath(_xpath)
+  if rets == []:
+    return try_get_nodes2(_url,_xpath)
+  return rets
 def get_nodes(_url, _xpath):
   rets = []
   for i in range(3):
@@ -278,7 +320,6 @@ def get_href(node):
 			return None
  
 
-word_types = ["n", "ns", "nr", "eng"]
 tmpset=set()
 def get_news(topic, navbar_key, old_new_items):
   global word_types, navbar_infos, topic_hit, tmpset
@@ -318,7 +359,7 @@ def get_news(topic, navbar_key, old_new_items):
       #if None!=_href and _href.find("javascript:void")!=-1:
       #  continue
       if topic == "36kr":
-        if node.text.find(u"氪")!=-1 and node.text.find("KrTV")!=-1:
+        if node.text.find(u"氪")!=-1 or node.text.find("KrTV")!=-1:
           continue
 
       _href = get_href(node)
@@ -331,7 +372,8 @@ def get_news(topic, navbar_key, old_new_items):
          _href = url_infos[topic][2] + _href
       #end special.
       #print "[LOG add text.] ",navbar_key,topic,node.text
-      if (node.text.find("[")!=-1 and node.text.find("]")!=-1) or (node.text.find(u"【")!=-1 and node.text.find(u"】")):
+      if (node.text.find("[")!=-1 and node.text.find("]")!=-1) or\
+         (node.text.find(u"【")!=-1 and node.text.find(u"】")):# _href.find("default")!=-1 or _href.find("rcode")!=-1:
         continue
       if (_href not in tmpset and _href not in tmpset2) and (node.text[:10] not in tmpset and node.text[:10] not in tmpset2):
         tmpset2.add(node.text[:10])
@@ -528,7 +570,7 @@ up_hour:
 def gen_weight(c_old, c_new):
   #1\count  *  2\rate up
   if c_new >= c_old:
-    tmp = (c_new-c_old) * c_old 
+    tmp = (c_new-c_old)*c_old*random.randint(2,8)/8 #main page change.
     if tmp < c_old:
       tmp = c_old
     return tmp

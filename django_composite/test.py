@@ -3,25 +3,30 @@
 import time
 import urllib2
 from lxml import etree
+from base import *
+
+'''
 def get_nodes(_url, _xpath):
-  #headers = {'User-Agent':'Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30'}  
-  #req = urllib2.Request(url=_url,headers=headers)
-  #resp = urllib2.urlopen(_url)
+  headers = {'User-Agent':'Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30'}  
+  req = urllib2.Request(url=_url,headers=headers)
+  resp = urllib2.urlopen(req)
   #print resp
-  #res = resp.read()
+  res = resp.read()
+
   #ret = res.find("22c9.png")
   #if ret:
   #  ret = ret - 200
   #  print res[ret:ret+250]
-  import commands
-  ret,res = commands.getstatusoutput("wget -O - %s 2>/dev/null"%_url)
-  #print "wget %s -O -"%_url,ret,res[:100]
+
+  #import commands
+  #ret,res = commands.getstatusoutput("wget -O - %s 2>/dev/null"%_url)
   f = open("test.html", "w")
   f.write(res)
   f.close()
   tree = etree.HTML(res)
   rets = tree.xpath(_xpath)
   return rets
+'''
   
 #print len(get_nodes("http://tech.163.com/latest", '//*[@id="instantPanel"]/div[1]/ul/li[1]/a[2]'))
 #nodes = get_nodes("http://tech.163.com/", '//h2[@class="color-link"]/a')
@@ -42,11 +47,16 @@ def check_img(url,xpaths,expect):
 
 
 
-xpaths=["//li/a/img","//img"]
-#check_img("http://ent.163.com/15/1129/23/B9KH19UG00031H2L.html", xpaths, 1)
-check_img("http://fashion.163.com/photoview/25A20026/89975.html#p=B9E1UBPM25A20026", xpaths, 1)
-#check_img("", xpaths, 1)
+#xpaths=["//li/a/img","//img"]
+#check_img("http://fashion.163.com/photoview/25A20026/89975.html#p=B9E1UBPM25A20026", xpaths, 1)
 
+#check_img("http://ent.163.com/15/1129/23/B9KH19UG00031H2L.html", xpaths, 1)
+#check_img("", xpaths, 1)
+#xpaths=["//div[@class='finPicImg']/i/img"]
+#check_img("http://m.sohu.com/n/428445902/?wscrid=46653_7", xpaths, 4)
+
+xpaths=["//div[@class='image split']/img"]
+check_img("http://xw.qq.com/news/20151201062793/NEW2015120106279303", xpaths, 1)
 
 #xpaths=["//div[@class='text_area']/p/img"]
 #check_img("http://m.cctv.com/dc/n/index.shtml?articalID=ARTI1448001002177758&code=860010-1145020000", xpaths, 1)

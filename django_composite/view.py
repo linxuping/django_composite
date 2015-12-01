@@ -86,8 +86,14 @@ def build_list_config():
   f.close()
 
 
-
 def init_news2(_init=True):
+	try:
+		inner_init_news2(_init)
+	except:
+		logger.error( "Exception(%s): %s, %s"%(str(sys._getframe().f_code.co_name), str(sys.exc_info()),str(traceback.format_exc()) ))
+
+
+def inner_init_news2(_init):
   global url_infos_tech, navbar_infos, is_first_load, tmpset
   build_list_config()
   if is_first_load:

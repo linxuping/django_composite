@@ -224,7 +224,7 @@ border-radius: 6px;
 				  </p>
         <span class="s_title" id="searchTips" style="display: inline;margin-left:2px">热</span>
 				  <div class="jumbotron" style="margin-bottom: 12px;padding-top:2%;padding-bottom:4%;margin-left:5px;margin-right:5px;background-color:#BBBBBB">
-				    <h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">只</h3><h2 style="display:inline-block;margin-bottom:0px;margin-right:2px">是</h2><h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">新闻</h3>
+				    <h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">新闻</h3><h2 style="display:inline-block;margin-bottom:0px;margin-right:2px">聚</h2><h5 style="display:inline-block;margin-bottom:0px;margin-right:2px">焦</h5>
 				    <h6 style="margin-top:2px">多家媒体▪多维度▪大数据精选  </h6>
 				  </div>
 {% endif %}
@@ -254,17 +254,17 @@ border-radius: 6px;
 <br/>
 {% endif %}
 
-		<div style="max-height:1200%;overflow-y:auto">
+		<div style="height:auto;overflow-y:auto">
 		<table class="table">
 		   <tbody>
 				{% for new in head_news %}
 				{% for item in new.value %}
 				<tr>
 				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px">
-					{% if item.img %}
-					<img src="{{item.img}}" alt="" style="width:50px;height:50px;border-radius:20%;background:grey">
+					{% if item.icon %}
+					<img src="{{item.icon}}" alt="" style="width:30px;height:30px;border-radius:50%;background:grey">
 					{% else %}
-					<img src="/static/news.png" alt="" style="width:50px;height:50px;border-radius:20%;background:grey">
+					<img src="/static/news.png" alt="" style="width:30px;height:30px;border-radius:50%;background:grey">
 					{% endif %}
 				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px">
 					<!--
@@ -274,6 +274,11 @@ border-radius: 6px;
 					</a>
 					-->
 					<a href="{{item.href}}" style="color:#000099"><b><font style="font-size:normal">{{item.text}}</font></b></a>
+					<div>
+					{% for img in item.imgs %}
+						<img src="{{img}}" alt="" style="width:25%;border-radius:2%;margin:4px">
+					{% endfor %}
+					</div>
 					</td>
 				</tr>
 				{% endfor %}
