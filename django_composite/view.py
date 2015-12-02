@@ -151,11 +151,13 @@ def inner_init_news2(_init):
   
 def thread_update_news(searchcontent):
   #sleeptime = 15*60 #debug
-  sleeptime = 1*15*60 #release
+  global g_config
+  sleeptime = 1*5*60 #release
   while True:
     _init = False
     time.sleep(sleeptime)
     logger.info("update news.")
+    g_config = yaml.load(file("django_composite/conf.yaml"))
     try:
       if get_current_hour() < 1: #00: 00
         update_base()

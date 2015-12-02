@@ -12,6 +12,8 @@ from email.mime.text import MIMEText
 import logging
 import random
 logger = logging.getLogger('news') # 这里用__name__通用,自动检测.
+import yaml
+g_config = yaml.load(file("django_composite/conf.yaml"))
 
 import jieba.posseg as pseg
 word_types = ["n", "ns", "nr", "eng"]
@@ -56,7 +58,8 @@ def get_nodes2(_url,_xpath):
 def add_imgs(imgs, url):
 	if url=="" or url==None:
 		return
-	ignores = ["d.ifengimg.com","rcode","default","blank","load"]
+	#ignores = ["d.ifengimg.com","rcode","default","blank","load"]
+	ignores = g_config["ignoreurls"]
 	_tmp = url.split("/")[1]
 	if _tmp.find(".") != -1:
 		for img in imgs:
@@ -83,6 +86,7 @@ def get_imgs(_title,_url):
 		".163.com": ["//p[@class='f_center']/img","//li/a/img"],
 		".sohu.com": ["//div/div/p[@class='a3']/img","//div[@class='finPicImg']/i/img"],
 	}
+	xpath_dic = g_config["xp_imgs"]
 	for _k in xpath_dic.keys():
 		if host.find(_k) == -1:
 			continue
@@ -129,7 +133,7 @@ def get_imgs(_title,_url):
 
 	#3.default
 	icon = ""
-	logos = {"qq.com":"tx.png", "ifeng.com":"fenghuang.gif", "sohu.com":"sohu.png", "sina.":"sina.png", "3g.news.cn":"xinhua.png", "cctv.com":"cctv.png"}
+	logos = {"qq.com":"tx.png", "ifeng.com":"fenghuang.gif", "sohu.com":"sohu.png", "sina.":"sina.png", "3g.news.cn":"xinhua.png", "cctv.com":"cctv.png", "163.com":"netease.png"}
 	for _k,_v in logos.items():
 		if host.find(_k) != -1:
 			icon = "/static/logo/%s"%_v

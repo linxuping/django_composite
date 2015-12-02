@@ -1,0 +1,37 @@
+xp_imgs:
+    3g.news.cn:
+        ["//p/img"]
+    .ifeng.com:
+        ["//p/img"]
+    .sina.cn:
+        ["//div/img[@class='j_fullppt']","//div/img[@class='j_fullppt_cover']","//img[@data-role='img-slide']","//div[@class='img_wrapper']/img"]
+    xw.qq.com:
+        ["//div/div/img","//div[@class='image split']/img", "//div[@class='mbArticleSharePic']/img"]
+    .163.com:
+        ["//p[@class='f_center']/img","//li/a/img"]
+    .sohu.com:
+        ["//div/div/p[@class='a3']/img","//div[@class='finPicImg']/i/img"]
+    .cnbeta.com:
+        ["//div[@class='articleCont']/p/a/img"]
+    .36kr.com:
+        ["//img[@class='image']"]
+    .21cn.com:
+        ["//div[@class='article_content']/p/img"]
+
+
+ignoreurls: 
+    ["d.ifengimg.com","rcode","default","blank","load"]
+
+
+logos: 
+    qq.com:"tx.png"
+    ifeng.com:"fenghuang.gif"
+    sohu.com:"sohu.png"
+    sina.com:"sina.png"
+    3g.news.cn:"xinhua.png"
+    cctv.com:"cctv.png"
+    163.com:"netease.png"
+
+soft:
+    apache: 2.2
+    mysql: 5.2

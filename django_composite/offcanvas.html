@@ -154,7 +154,7 @@ transition: 1s;
 width: 40px;
 height: 40px;
 display: block;
-background: #77A92C;
+background: #888888;
 -webkit-border-radius: 50px;
 -moz-border-radius: 50px;
 border-radius: 50px;
@@ -220,9 +220,9 @@ border-radius: 6px;
         <div class="col-xs-12 col-sm-9" style="padding-left:8px;padding-right:8px">
 {% if head_news %}
 				  <p class="pull-right visible-xs" style="margin-right:5px">
-				    <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">&nbspwaiting&nbsp</button>
+				    <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">&nbsp焦点&nbsp</button>
 				  </p>
-        <span class="s_title" id="searchTips" style="display: inline;margin-left:2px">热</span>
+        				<span class="s_title" id="searchTips" style="display: inline;margin-left:2px">热</span>
 				  <div class="jumbotron" style="margin-bottom: 12px;padding-top:2%;padding-bottom:4%;margin-left:5px;margin-right:5px;background-color:#BBBBBB">
 				    <h3 style="display:inline-block;margin-bottom:0px;margin-right:2px">新闻</h3><h2 style="display:inline-block;margin-bottom:0px;margin-right:2px">聚</h2><h5 style="display:inline-block;margin-bottom:0px;margin-right:2px">焦</h5>
 				    <h6 style="margin-top:2px">多家媒体▪多维度▪大数据精选  </h6>
@@ -246,7 +246,7 @@ border-radius: 6px;
 
 {% if quickkey %}
 		<div style="margin-top:4px;margin-bottom:6px;margin-right:10px;text-align:right">
-		<b><font color=#888888>&nbsp
+		<b><font color=#444444>&nbsp
 当前关键字: {{quickkey}}
 &nbsp&nbsp</font></b>
 		</div>
@@ -351,6 +351,7 @@ border-radius: 6px;
 		</table>
 		</div>
 	
+<!--
 	<div class="panel panel-default" style="margin-top:8px;background-color:rgba(255,255,255,0.3)">
             <div class="panel-heading">
               <h3 class="panel-title s_hotkey_ups">上升热词快搜</h3>
@@ -364,22 +365,23 @@ border-radius: 6px;
 			  </form>
             </div>
 	</div>
+-->
 
 	<div class="panel panel-default" style="background-color:rgba(255,255,255,0.3)">
             <div class="panel-heading">
-              <h3 class="panel-title s_hotkey">当前热词</h3>
+              <h3 class="panel-title s_hotkey_ups">当前热词</h3>
             </div>
             <div class="panel-body" style="padding:8px">
 			  <form role="form" name="quickform3" id="quickform3" method="post">
 			  <input type="hidden" id="quickkey3" name="quickkey" ></input>
 			  {% for hotkey in hot_keys %}
 			  <!--<span class="label label-danger" onclick="quickkey2.value=this.text;quickform2.submit();">{{hotkey}}</span>-->
-			  <button type="button" class="btn btn-xs btn-success" style="margin:1px;padding:1px;margin-bottom:2px;" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
+			  <button type="button" class="btn btn-xs" style="margin:2px;padding:2px;margin-bottom:2px;background-color:#DBF0FF;color:black" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</button>
 			  {% endfor %}
 			  </form>
-	</div>
+						</div>
 
-        </div>
+	</div>
 	
 
         </div>	 		
@@ -408,10 +410,10 @@ border-radius: 6px;
 		<!--<form action="../news/" role="form" name="quickform" id="quickform" method="post">-->
         <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation" style="height:100%">
           <div class="list-group">
-		    <a class="list-group-item active" style="">最近流行热词 ↓</a>
+		    <a class="list-group-item active" style="">新闻热词 ↓</a>
 		    <!--<input type="hidden" id="quickkey" name="quickkey"></input>-->
-						<div style="height:auto;overflow:auto">
-									{% for hotkey in hot_keys_anual %}
+						<div style="max-height:90%;overflow:auto">
+									{% for hotkey in hot_keys_up %}
 							    <a href="#" style="background-color:rgba(255,255,255,0.4)" class="list-group-item" onclick="quicksearch.value=this.text;helpkey.value=get_tabname();myform.submit();">{{hotkey}}</a>
 									{% endfor %}         
 						</div>
