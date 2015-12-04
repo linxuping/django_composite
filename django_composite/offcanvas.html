@@ -60,6 +60,7 @@
 			}
 			document.getElementsByName("news_more_hint")[0].style.display="";
 		}
+
     </script>
 	<style>
 .s_title{
@@ -274,11 +275,15 @@ border-radius: 6px;
 					</a>
 					-->
 					<a href="{{item.href}}" style="color:#000099"><b><font style="font-size:normal">{{item.text}}</font></b></a>
-					<div>
+					{% if item.imgs %}
+					<div name="new_div" style="overflow:hidden">
 					{% for img in item.imgs %}
-						<img src="{{img}}" alt="" style="width:25%;border-radius:2%;margin:4px">
+						<img name="new_img" src="{{img}}" alt="" style="width:30%;border-radius:2%;margin-top:4px;margin-bottom:4px;vertical-align:top">
 					{% endfor %}
 					</div>
+					{% else %}
+					<div name="new_div_none" />
+					{% endif %}
 					</td>
 				</tr>
 				{% endfor %}
@@ -473,6 +478,17 @@ $(document).ready(function(){
 			return false;
 		});
 	});
+
+	var nw = document.getElementsByName("new_img")[0].width;
+	var divs = document.getElementsByName("new_div");
+	for (var i=0; i<divs.length; ++i){
+		divs[i].style.height = nw;
+	}
+	divs = document.getElementsByName("new_div_none");
+	for (var i=0; i<divs.length; ++i){
+		divs[i].style.height = nw/4;
+	}
+
 	
 	});
 </script>

@@ -44,19 +44,24 @@ def get_img_xpath(_url,xpath):
 
 
 def get_nodes2(_url,_xpath):
-  return get_nodes(_url,_xpath)
-  import commands
-  ret,res = commands.getstatusoutput("wget -O - %s 2>/dev/null"%_url)
-  #print "wget %s -O -"%_url,ret,res[:100]
-  #f = open("test.html", "w")
-  #f.write(res)
-  #f.close()
-  tree = etree.HTML(res)
-  return tree.xpath(_xpath)
+	rets = get_nodes(_url,_xpath)
+	if len(rets) ==0:
+		try:
+			import commands
+			ret,res = commands.getstatusoutput("wget -O - %s 2>/dev/null"%_url)
+			#print "wget %s -O -"%_url,ret,res[:100]
+			#f = open("test.html", "w")
+			#f.write(res)
+			#f.close()
+			tree = etree.HTML(res)
+			rets = tree.xpath(_xpath)
+		except:
+			rets = []
+	return rets
 
 
 def add_imgs(imgs, url):
-	if url=="" or url==None:
+	if url=="" or url==None or len(imgs)>=3:
 		return
 	#ignores = ["d.ifengimg.com","rcode","default","blank","load"]
 	ignores = g_config["ignoreurls"]
@@ -73,6 +78,19 @@ def add_imgs(imgs, url):
 	if not hit:
 		imgs.add(url)
 
+
+def get_net_img_size(url):
+		#!/usr/bin/env python
+	#encoding=utf-8
+	try:
+		import cStringIO, urllib2, Image
+		file = urllib2.urlopen(url)
+		tmpIm = cStringIO.StringIO(file.read())
+		im = Image.open(tmpIm)
+		#print im.format, im.size, im.mode
+		return im.size
+	except:
+		return (0,0)
 
 def get_imgs(_title,_url):
 	imgs = set()
@@ -101,35 +119,42 @@ def get_imgs(_title,_url):
 					for postfix in postfixs:
 						if _latest.find(".")!=-1 and _latest.find(postfix)==-1:
 							continue
-						print "hit>>> ",_src
+						#print "hit>>> ",_src
 						add_imgs(imgs,_src)
 						break
 				except:
 					print "exception."
 
-	#try get.
-	words = pseg.cut(_title)
-	words = [ w.word for w in words ]
-	ymd = time.strftime("%d_%m_%Y").split("_")
-	nodes = get_nodes2(_url,"//img")
-	for node in nodes:
-		_src = node.get("src")
-		if _src==None or (_src.find(".")!=-1 and _src.rsplit(".")[1] not in postfixs):
-			continue
-		if _src.find(ymd[1])!=-1 and _src.find(ymd[2])!=-1:# and _src.find(ymd[0])!=-1:
-			add_imgs(imgs,_src)
-
-		_alt = node.get("alt")
-		if _alt == None:
-			continue
-		ws = pseg.cut(_alt)
-		_count2 = 0
-		for w in [ w.word for w in ws ]:
-			if w in words:
-				_count2 = _count2+1
-			if _count2 > 3:
+	if len(imgs) == 0:
+		#try get.
+		words = pseg.cut(_title)
+		words = [ w.word for w in words ]
+		ymd = time.strftime("%d_%m_%Y").split("_")
+		nodes = get_nodes2(_url,"//img")
+		for node in nodes:
+			_src = node.get("src")
+			_h,_w = get_net_img_size(_src)
+			if (_h>int(g_config["nimg_size_limit"][0]) and _w>int(g_config["nimg_size_limit"][1])) or \
+					(_h>int(g_config["nimg_size_limit"][2]) and _w>int(g_config["nimg_size_limit"][3])):
 				add_imgs(imgs,_src)
-				break
+				continue
+
+			if _src==None or (_src.find(".")!=-1 and _src.rsplit(".")[1] not in postfixs):
+				continue
+			if _src.find(ymd[1])!=-1 and _src.find(ymd[2])!=-1:# and _src.find(ymd[0])!=-1:
+				add_imgs(imgs,_src)
+
+			_alt = node.get("alt")
+			if _alt == None:
+				continue
+			ws = pseg.cut(_alt)
+			_count2 = 0
+			for w in [ w.word for w in ws ]:
+				if w in words:
+					_count2 = _count2+1
+				if _count2 > 3:
+					add_imgs(imgs,_src)
+					break
 
 	#3.default
 	icon = ""
@@ -139,21 +164,7 @@ def get_imgs(_title,_url):
 			icon = "/static/logo/%s"%_v
 	if icon == "":
 		icon = "/static/news.png"
-	return icon,list(imgs)[:6]
-
-	return ""
-	xpath_list=["//div/p/img","//div/i/img","//div/p/img","//p/img","//div/img","//i/img","//img"]
-	if host == "3g.news.cn": 
-		xpath = "//p/img"
-	_src = ""
-	for xpath in xpath_list:
-		tmps = get_nodes2(_url, xpath)
-		if len(tmps) == 0:
-			continue
-		_src = tmps[0]
-		if _src != "":
-			break
-	return _src
+	return icon,imgs
 
 
 class attr:
@@ -163,9 +174,10 @@ class attr:
 		if isinstance(self.value, list):
 			for item in self.value:
 				if isinstance(item,news_item):
-					print "START. ", item.text,item.href
+					#print "START. ", item.text,item.href
 					item.icon,item.imgs = get_imgs(item.text,item.href)
-					print "END. ", self.key,item.imgs
+					#print "END. ", self.key,item.imgs
+					logger.info("Imgs: %s:%s:%s."%(self.key,item.href,str(item.imgs)) )
 
 class news_item:
   def __init__(self, text, href):
@@ -302,14 +314,14 @@ def get_nodes(_url, _xpath):
   rets = []
   for i in range(3):
     try:
-      print "try: ",i,_url
+      #print "try: ",i,_url
       rets = try_get_nodes(_url, _xpath)
       break
     except:
-      print "get_nodes exception. ",_url
+      #print "get_nodes exception. ",_url
       continue
-    #if len(rets) != 0:
-    #  break
+  if len(rets) == 0:
+    logger.error("get_nodes fail. %s:%s"%(_url,_xpath) )
   return rets
 
 

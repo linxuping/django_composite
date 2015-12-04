@@ -371,9 +371,9 @@ def get_jsondata(args, from_request=True):
     if is_head_page:
       print "begin .... ",navbar_tab
       if navbar_tab == "":
-        head_news = [ attr(tag_soci,g_news_cache["%s__"%tag_soci]["news"][:10] ), 
-                      attr(tag_phys,g_news_cache["%s__"%tag_phys]["news"][:10] ),
-                      attr(tag_tech,g_news_cache["%s__"%tag_tech]["news"][:10] ) ]
+        head_news = [ attr(tag_soci,g_news_cache["%s__"%tag_soci]["news"][:20] ), 
+                      attr(tag_phys,g_news_cache["%s__"%tag_phys]["news"][:20] ),
+                      attr(tag_tech,g_news_cache["%s__"%tag_tech]["news"][:20] ) ]
         print "build ___ ",head_news
       else:
         all_news = build_head_page_data(navbar_tab)

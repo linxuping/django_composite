@@ -6,9 +6,9 @@ xp_imgs:
     .sina.cn:
         ["//div/img[@class='j_fullppt']","//div/img[@class='j_fullppt_cover']","//img[@data-role='img-slide']","//div[@class='img_wrapper']/img"]
     xw.qq.com:
-        ["//div/div/img","//div[@class='image split']/img", "//div[@class='mbArticleSharePic']/img"]
+        ["//div[@class='image split']/img", "//div[@class='mbArticleSharePic']/img"]
     .163.com:
-        ["//p[@class='f_center']/img","//li/a/img"]
+        ["//p[@class='f_center']/img"]
     .sohu.com:
         ["//div/div/p[@class='a3']/img","//div[@class='finPicImg']/i/img"]
     .cnbeta.com:
@@ -21,6 +21,8 @@ xp_imgs:
 
 ignoreurls: 
     ["d.ifengimg.com","rcode","default","blank","load"]
+nimg_size_limit:
+    [400,250,250,400]
 
 
 logos: 
