@@ -5,7 +5,7 @@ xp_imgs:
         ["//p/img"]
     .sina.cn:
         ["//div/img[@class='j_fullppt']","//div/img[@class='j_fullppt_cover']","//img[@data-role='img-slide']","//div[@class='img_wrapper']/img"]
-    xw.qq.com:
+    .qq.com:
         ["//div[@class='image split']/img", "//div[@class='mbArticleSharePic']/img"]
     .163.com:
         ["//p[@class='f_center']/img"]

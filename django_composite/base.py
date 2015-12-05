@@ -65,7 +65,7 @@ def add_imgs(imgs, url):
 		return
 	#ignores = ["d.ifengimg.com","rcode","default","blank","load"]
 	ignores = g_config["ignoreurls"]
-	_tmp = url.split("/")[1]
+	_tmp = url.split("/")[-1]
 	if _tmp.find(".") != -1:
 		for img in imgs:
 			if img.find(_tmp) != -1:
@@ -586,7 +586,7 @@ up_hour:
 def gen_weight(c_old, c_new):
   #1\count  *  2\rate up
   if c_new >= c_old:
-    tmp = (c_new-c_old)*c_old*random.randint(2,8)/8 #main page change.
+    tmp = (c_new-c_old)*(c_new-c_old)*(c_new-c_old)*(c_new-c_old)+c_old #main page change.
     if tmp < c_old:
       tmp = c_old
     return tmp
