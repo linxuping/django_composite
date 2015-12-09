@@ -14,6 +14,8 @@ import random
 logger = logging.getLogger('news') # 这里用__name__通用,自动检测.
 import yaml
 g_config = yaml.load(file("django_composite/conf.yaml"))
+import threading
+g_db_lock = threading.Lock()
 
 import jieba.posseg as pseg
 word_types = ["n", "ns", "nr", "eng"]
@@ -45,7 +47,7 @@ def get_img_xpath(_url,xpath):
 
 def get_nodes2(_url,_xpath):
 	rets = get_nodes(_url,_xpath)
-	if len(rets) ==0:
+	if False and len(rets) ==0:
 		try:
 			import commands
 			ret,res = commands.getstatusoutput("wget -O - %s 2>/dev/null"%_url)
@@ -164,6 +166,8 @@ def get_imgs(_title,_url):
 			icon = "/static/logo/%s"%_v
 	if icon == "":
 		icon = "/static/news.png"
+	#print "fin. "
+	logger.info("get_imgs: %s %s %d"%(_title,icon,len(imgs)))
 	return icon,imgs
 
 
@@ -171,7 +175,7 @@ class attr:
 	def __init__(self, key, value):
 		self.key = key
 		self.value = value
-		if isinstance(self.value, list):
+		if False and isinstance(self.value, list):
 			for item in self.value:
 				if isinstance(item,news_item):
 					#print "START. ", item.text,item.href
@@ -183,8 +187,7 @@ class news_item:
   def __init__(self, text, href):
     self.text = text
     self.href = href
-    self.icon = ""
-    self.imgs = []
+    self.icon,self.imgs = get_imgs(text,href)
 class news:
   def __init__(self, topic="", news_items=None, navbar_key=None):
     self.topic = topic
@@ -215,10 +218,10 @@ url_infos_tech = {
   u"凤凰网"+tech_tag: ["http://tech.ifeng.com/", ['//a'], "http://www.ifeng.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#2014_07/24
   "36kr": ["http://www.36kr.com/", ['//a[@target="_blank"]'], "http://www.36kr.com/", "/p/"],#
   "cnbeta": ["http://m.cnbeta.com/", ['//li/div/a'], "http://m.cnbeta.com/", ""],#
-  u"新浪"+tech_tag: ["http://tech.sina.com.cn/internet/", ['//a'], "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
-  u"腾讯"+tech_tag: ["http://tech.qq.com/", ['//a'], "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  u"百度"+tech_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
-  u"网易"+tech_tag: ["http://tech.163.com/", ['//a'], "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+  #u"新浪"+tech_tag: ["http://tech.sina.com.cn/internet/", ['//a'], "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
+  #u"腾讯"+tech_tag: ["http://tech.qq.com/", ['//a'], "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
+  #u"百度"+tech_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
+  #u"网易"+tech_tag: ["http://tech.163.com/", ['//a'], "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
   #"google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
 } 
 #go to config.py 
@@ -231,14 +234,14 @@ all_news_tech = [news( url_infos_tech.keys()[0] )]*len(url_infos_tech) #initial
 #------------------- social part -----------------#
 url_infos_soci = {
   #topic: [tech link, xpath, offical link]
-  u"新华社": ["http://3g.news.cn/html/", ["//div[@class='newlist']/ul/li/a"], "http://3g.news.cn", ""],#
+  #u"新华社": ["http://3g.news.cn/html/", ["//div[@class='newlist']/ul/li/a"], "http://3g.news.cn", ""],#
   u"凤凰网": ["http://inews.ifeng.com/", ['//p'], "http://inews.ifeng.com/", "news"],#
   u"搜狐": ["http://m.sohu.com/", ["//section/p/a","//h4/a/strong","//div/div/a"], "http://m.sohu.com", "/?wscrid="],
   u"新浪": ["http://news.sina.cn/", ["//h3[@class='carditems_list_h3']"], "http://news.sina.cn", ""],
-  u"网易": ["http://news.163.com/mobile/", ['//li/h4/a'], "http://www.163.com/", "" ],
-  u"腾讯": ["http://xw.qq.com/m/news", ['//h2'], "http://news.qq.com", "" ],#20140724 - 201407
-  ##u"百度": ["http://m.baidu.com/news", ["//div[@class='list-item']/a"], "http://m.baidu.com", "" ],#
-  u"CCTV": ["http://m.cctv.com/", ["//div/div/h3/a","//div/div/p/a","//ul[@class='first-child-no-top last-child-no-bottom']/li/a","//ul[@class='first-child-no-top']/li/a"], "http://m.cctv.com/", "index.shtml"],#
+  #u"网易": ["http://news.163.com/mobile/", ['//li/h4/a'], "http://www.163.com/", "" ],
+  #u"腾讯": ["http://xw.qq.com/m/news", ['//h2'], "http://news.qq.com", "" ],#20140724 - 201407
+  ###u"百度": ["http://m.baidu.com/news", ["//div[@class='list-item']/a"], "http://m.baidu.com", "" ],#
+  #u"CCTV": ["http://m.cctv.com/", ["//div/div/h3/a","//div/div/p/a","//ul[@class='first-child-no-top last-child-no-bottom']/li/a","//ul[@class='first-child-no-top']/li/a"], "http://m.cctv.com/", "index.shtml"],#
 
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
@@ -255,9 +258,9 @@ url_infos_phys = {
   u"新浪"+phys_tag: ["http://sports.sina.cn/?from=wap", ['//h3'], "http://sports.sina.cn/?from=wap", "" ],#2014_07/24
   u"搜狐"+phys_tag: ["http://m.sohu.com/c/27/", ['//a'], "http://m.sohu.com", ""],#
   u"腾讯"+phys_tag: ["http://xw.qq.com/m/sports/index.htm", ['//h2'], "http://xw.qq.com/m/sports/index.htm", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  u"21cn"+phys_tag: ["http://3g.21cn.com/zy/sports/cbs/", ['//a'], "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
-  u"百度"+phys_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
-  u"网易"+phys_tag: ["http://3g.163.com/touch/sports/", ['//p'], "http://3g.163.com/touch/sports/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+  #u"21cn"+phys_tag: ["http://3g.21cn.com/zy/sports/cbs/", ['//a'], "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
+  #u"百度"+phys_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
+  #u"网易"+phys_tag: ["http://3g.163.com/touch/sports/", ['//p'], "http://3g.163.com/touch/sports/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
 } 
 hotkeys_phys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
 hotkeys_phys_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"恒大", u"淘宝", u"电影", u"双十一"]
@@ -301,14 +304,14 @@ def try_get_nodes2(_url, _xpath):
 def try_get_nodes(_url, _xpath):
   headers = {"User-Agent":"Mozilla/5.0 (Linux; U; Android 4.0.2; en-us; Galaxy Nexus Build/ICL53F) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30"}
   req = urllib2.Request(url=_url,headers=headers)
-  resp = urllib2.urlopen(req, timeout=8)
+  resp = urllib2.urlopen(req, timeout=3)
   #resp = urllib2.urlopen(_url, timeout=8)
   res = resp.read()
   res = convert_unicode(res)
   tree = etree.HTML(res)
   rets = tree.xpath(_xpath)
-  if rets == []:
-    return try_get_nodes2(_url,_xpath)
+  #if rets == []:
+  #  return try_get_nodes2(_url,_xpath)
   return rets
 def get_nodes(_url, _xpath):
   rets = []
@@ -321,7 +324,7 @@ def get_nodes(_url, _xpath):
       #print "get_nodes exception. ",_url
       continue
   if len(rets) == 0:
-    logger.error("get_nodes fail. %s:%s"%(_url,_xpath) )
+    pass#logger.error("get_nodes fail. %s:%s"%(_url,_xpath) )
   return rets
 
 
@@ -599,21 +602,27 @@ def save_hoykey_count2(key, count_new, topic):
   #和上一次对比，如果更热门了，增加weight，如果冷门些了，降低weight
   #key = str(key)
   #topic = str(topic)
-  cx = sqlite3.connect("test.db")
-  c = cx.cursor()
-  #print "save to db ",key,count,topic
-  c.execute("select count,count_avg from hotkeys2 where name='%s' and topic='%s'"%(key,topic))
-  oldcount = c.fetchone()
-  if None == oldcount:
-    c.execute("insert into hotkeys2 values('%s', %d, %d, %d, %d, '%s', datetime('now','localtime'))"%(key,count_new,count_new,count_new,count_new,topic))
-  else:
-    count_avg = (int(oldcount[1]) + count_new)/2
-    weight= gen_weight(int(oldcount[0]), count_new)
-    c.execute("update hotkeys2 set count_avg=%d,count_new=%d,weight=%d where name='%s' and topic='%s'"%(count_avg,count_new,weight,key,topic))
-  cx.commit()
-  c.close()
+  g_db_lock.acquire()
+  try:
+    cx = sqlite3.connect("test.db")
+    c = cx.cursor()
+    #print "save to db ",key,count,topic
+    c.execute("select count,count_avg from hotkeys2 where name='%s' and topic='%s'"%(key,topic))
+    oldcount = c.fetchone()
+    if None == oldcount:
+      c.execute("insert into hotkeys2 values('%s', %d, %d, %d, %d, '%s', datetime('now','localtime'))"%(key,count_new,count_new,count_new,count_new,topic))
+    else:
+      count_avg = (int(oldcount[1]) + count_new)/2
+      weight= gen_weight(int(oldcount[0]), count_new)
+      c.execute("update hotkeys2 set count_avg=%d,count_new=%d,weight=%d where name='%s' and topic='%s'"%(count_avg,count_new,weight,key,topic))
+    cx.commit()
+    c.close()
+  except:
+    logger.error( "Exception(%s): %s, %s"%(str(sys._getframe().f_code.co_name), str(sys.exc_info()),str(traceback.format_exc()) ))
+  g_db_lock.release()
 def update_base():
   #build when 00:00 and then save hotkey
+	g_db_lock.acquire()
 	try:
 	  cx = sqlite3.connect("test.db")
 	  c = cx.cursor()
@@ -634,16 +643,22 @@ def update_base():
 		logger.error( "Exception(%s): %s, %s"%(str(sys._getframe().f_code.co_name), str(sys.exc_info()),str(traceback.format_exc()) ))
 		return
 	logger.info("%s OK."%(str(sys._getframe().f_code.co_name)))
+	g_db_lock.release()
 	
 
 def del_hotkeys_expired2():
-  cx = sqlite3.connect("test.db")
-  c = cx.cursor()
-  #delete day < datetime-n
-  #c.execute("delete from hotkeys2 where createdate < date_sub(now(),interval 2 day)")
-  c.execute("delete from hotkeys2 where createdate < '%s'"%get_days_ago(2))
-  cx.commit()
-  c.close()
+	g_db_lock.acquire()
+	try:
+		cx = sqlite3.connect("test.db")
+		c = cx.cursor()
+		#delete day < datetime-n
+		#c.execute("delete from hotkeys2 where createdate < date_sub(now(),interval 2 day)")
+		c.execute("delete from hotkeys2 where createdate < '%s'"%get_days_ago(2))
+		cx.commit()
+		c.close()
+	except:
+		logger.error( "Exception(%s): %s, %s"%(str(sys._getframe().f_code.co_name), str(sys.exc_info()),str(traceback.format_exc()) ))
+	g_db_lock.release()
 def sort_hot_keys2(topic):
   #topic = str(topic)
   cx = sqlite3.connect("test.db")

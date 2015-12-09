@@ -308,21 +308,26 @@ border-radius: 6px;
 
 			{% if forloop.counter < 15 %}
 			<tr>
-			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
-			 	<font style="font-size:normal">▪</font></td>
-			 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;width:80%">
-				<!--
-			 	<a href="{{item.href}}" style="color:#000088"><b>
-					<font style="font-size:normal;color:#000088">
-{% for ns in item.nss %}{% if ns.is_link %}<u><a href="#" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();" style="color:#000088">{{ns.text}}</a></u>{% else %}{{ns.text}}{% endif %}{% endfor %}</font></b>
-				</a>
-				-->
-			 	<a href="{{item.href}}" style="color:#000099"><b><font style="font-size:normal">{{item.text}}</font></b></a></td>
-
-				</td>
-			 <td style="padding-right:4px;padding-top:8px;padding-bottom:8px">
-				<font style="font-size:small;color:#AAAAAA">{{item.topic |cut:"_" |cut:helpkey }}</font></td>
-		        </tr>
+				<td style="padding-left:0px;padding-top:8px;padding-bottom:8px">
+			 	{% if item.icon %}
+					<img src="{{item.icon}}" alt="" style="width:30px;height:30px;border-radius:50%;background:grey">
+					{% else %}
+					<img src="/static/news.png" alt="" style="width:30px;height:30px;border-radius:50%;background:grey">
+					{% endif %}
+					</td>
+				<td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px">
+					<a href="{{item.href}}" style="color:#000099"><b><font style="font-size:normal">{{item.text}}</font></b></a>
+					{% if item.imgs %}
+					<div name="new_div" style="overflow:hidden">
+					{% for img in item.imgs %}
+						<img name="new_img" src="{{img}}" alt="" style="width:30%;border-radius:2%;margin-top:4px;margin-bottom:4px;vertical-align:top">
+					{% endfor %}
+					</div>
+					{% else %}
+					<div name="new_div_none" />
+					{% endif %}
+					</td>
+			</tr>
 			{% elif forloop.counter == 15 %}
 		        <tr name="news_more_hint">
                          <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">

@@ -87,28 +87,27 @@ def build_list_config():
 
 
 def init_news2(_init=True):
-	try:
-		inner_init_news2(_init)
-	except:
-		logger.error( "Exception(%s): %s, %s"%(str(sys._getframe().f_code.co_name), str(sys.exc_info()),str(traceback.format_exc()) ))
-
-
-def inner_init_news2(_init):
-  global url_infos_tech, navbar_infos, is_first_load, tmpset
+  global is_first_load, tmpset
   build_list_config()
   if is_first_load:
     create_tables2()
-  import time
-  uptime = time.strftime("%m%d%H%M", time.localtime())
+  tmpset.clear() #avoid repeated
   for _k, _v in navbar_infos.items():
+    thread.start_new_thread(inner_init_news2, (_init,_k,_v))
+
+
+def inner_init_news2(_init,_k,_v):
+  global url_infos_tech, navbar_infos, is_first_load, tmpset
+  try:
+    uptime = time.strftime("%m%d%H%M", time.localtime())
+    #for _k, _v in navbar_infos.items():
     count = 0
-    tmpset.clear() #avoid repeated
     for topic,infos in _v["url_infos"].items():
       #global all_news_tech
       _all_news = []
       _get_news = []
       _tmpset2 = set()
-      for i in range(15):    #retries
+      for i in range(3):    #retries
         #if navbar_infos[_k]["all_news"][count].news_items != None:
         #  print _init,"old len: ",len(navbar_infos[_k]["all_news"][count].news_items)
         if _init:
@@ -147,12 +146,14 @@ def inner_init_news2(_init):
       get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)
     #head page build.
     get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":""}, False)
-  get_jsondata({"helpkey":"", "helpkey2":"", "quickkey":""}, False)
+  except:
+    logger.error( "Exception(%s): %s, %s"%(str(sys._getframe().f_code.co_name), str(sys.exc_info()),str(traceback.format_exc()) ))
+  #get_jsondata({"helpkey":"", "helpkey2":"", "quickkey":""}, False)
   
 def thread_update_news(searchcontent):
   #sleeptime = 15*60 #debug
   global g_config
-  sleeptime = 1*5*60 #release
+  sleeptime = 1*30*60 #release
   while True:
     _init = False
     time.sleep(sleeptime)
