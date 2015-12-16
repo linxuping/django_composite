@@ -107,6 +107,7 @@ def inner_init_news2(_init,_k,_v):
       _all_news = []
       _get_news = []
       _tmpset2 = set()
+      logger.info( "fetch %s:%s. "%(_k,topic) )
       for i in range(3):    #retries
         #if navbar_infos[_k]["all_news"][count].news_items != None:
         #  print _init,"old len: ",len(navbar_infos[_k]["all_news"][count].news_items)
@@ -119,7 +120,7 @@ def inner_init_news2(_init,_k,_v):
       for setitem in _tmpset2:
         tmpset.add(setitem)
       #print "[LOG %s] fetch %s. all:%d, get:%d"%(time.strftime("%Y-%m-%d %X",time.localtime()),topic,len(_all_news),len(_get_news))
-      logger.info( "fetch %s. all:%d, get:%d"%(topic,len(_all_news),len(_get_news)) )
+      logger.info( "fetch %s:%s.  all:%d, get:%d"%(_k,topic,len(_all_news),len(_get_news)) )
       #if not _init:
       #  _tmplists = [ _new.href for _new in _get_news]
       #  for _item in navbar_infos[_k]["all_news"][count].news_items:
@@ -138,7 +139,7 @@ def inner_init_news2(_init,_k,_v):
     _hotkeys2 = sort_hot_keys2(_k)
     navbar_infos[_k]["hot_keys_up"] = _hotkeys2[:120] 
 	#build cache.
-    logger.info("building cache.")
+    logger.info("building cache: %s."%_k)
     get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":u"全部"}, False)
     for _hotkey in set(_hotkeys+_hotkeys2):
       get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":_hotkey}, False)

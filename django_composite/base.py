@@ -167,7 +167,7 @@ def get_imgs(_title,_url):
 	if icon == "":
 		icon = "/static/news.png"
 	#print "fin. "
-	logger.info("get_imgs: %s %s %d"%(_title,icon,len(imgs)))
+	#logger.info("get_imgs: %s %s %d"%(_title,icon,len(imgs)))
 	return icon,imgs
 
 
@@ -181,7 +181,7 @@ class attr:
 					#print "START. ", item.text,item.href
 					item.icon,item.imgs = get_imgs(item.text,item.href)
 					#print "END. ", self.key,item.imgs
-					logger.info("Imgs: %s:%s:%s."%(self.key,item.href,str(item.imgs)) )
+					#logger.info("Imgs: %s:%s:%s."%(self.key,item.href,str(item.imgs)) )
 
 class news_item:
   def __init__(self, text, href):
@@ -218,10 +218,10 @@ url_infos_tech = {
   u"凤凰网"+tech_tag: ["http://tech.ifeng.com/", ['//a'], "http://www.ifeng.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#2014_07/24
   "36kr": ["http://www.36kr.com/", ['//a[@target="_blank"]'], "http://www.36kr.com/", "/p/"],#
   "cnbeta": ["http://m.cnbeta.com/", ['//li/div/a'], "http://m.cnbeta.com/", ""],#
-  #u"新浪"+tech_tag: ["http://tech.sina.com.cn/internet/", ['//a'], "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
+  u"新浪"+tech_tag: ["http://tech.sina.com.cn/internet/", ['//a'], "http://www.sina.com.cn/", time.strftime('%Y-%m-%d',time.localtime(time.time())) ],#2014-07-24
   #u"腾讯"+tech_tag: ["http://tech.qq.com/", ['//a'], "http://www.qq.com/", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  #u"百度"+tech_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
-  #u"网易"+tech_tag: ["http://tech.163.com/", ['//a'], "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+  u"百度"+tech_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
+  u"网易"+tech_tag: ["http://tech.163.com/", ['//a'], "http://www.163.com/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
   #"google.com": ["https://news.google.com.hk/news/section?pz=1&cf=all&ned=cn&topic=t", '//span[@class="titletext"]', "https://news.google.com.hk/news/", "http"],#
 } 
 #go to config.py 
@@ -238,10 +238,10 @@ url_infos_soci = {
   u"凤凰网": ["http://inews.ifeng.com/", ['//p'], "http://inews.ifeng.com/", "news"],#
   u"搜狐": ["http://m.sohu.com/", ["//section/p/a","//h4/a/strong","//div/div/a"], "http://m.sohu.com", "/?wscrid="],
   u"新浪": ["http://news.sina.cn/", ["//h3[@class='carditems_list_h3']"], "http://news.sina.cn", ""],
-  #u"网易": ["http://news.163.com/mobile/", ['//li/h4/a'], "http://www.163.com/", "" ],
-  #u"腾讯": ["http://xw.qq.com/m/news", ['//h2'], "http://news.qq.com", "" ],#20140724 - 201407
-  ###u"百度": ["http://m.baidu.com/news", ["//div[@class='list-item']/a"], "http://m.baidu.com", "" ],#
-  #u"CCTV": ["http://m.cctv.com/", ["//div/div/h3/a","//div/div/p/a","//ul[@class='first-child-no-top last-child-no-bottom']/li/a","//ul[@class='first-child-no-top']/li/a"], "http://m.cctv.com/", "index.shtml"],#
+  u"网易": ["http://news.163.com/mobile/", ['//li/h4/a'], "http://www.163.com/", "" ],
+  u"腾讯": ["http://xw.qq.com/m/news", ['//h2'], "http://news.qq.com", "" ],#20140724 - 201407
+  ##u"百度": ["http://m.baidu.com/news", ["//div[@class='list-item']/a"], "http://m.baidu.com", "" ],#
+  u"CCTV": ["http://m.cctv.com/", ["//div/div/h3/a","//div/div/p/a","//ul[@class='first-child-no-top last-child-no-bottom']/li/a","//ul[@class='first-child-no-top']/li/a"], "http://m.cctv.com/", "index.shtml"],#
 
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
@@ -258,9 +258,9 @@ url_infos_phys = {
   u"新浪"+phys_tag: ["http://sports.sina.cn/?from=wap", ['//h3'], "http://sports.sina.cn/?from=wap", "" ],#2014_07/24
   u"搜狐"+phys_tag: ["http://m.sohu.com/c/27/", ['//a'], "http://m.sohu.com", ""],#
   u"腾讯"+phys_tag: ["http://xw.qq.com/m/sports/index.htm", ['//h2'], "http://xw.qq.com/m/sports/index.htm", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
-  #u"21cn"+phys_tag: ["http://3g.21cn.com/zy/sports/cbs/", ['//a'], "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
-  #u"百度"+phys_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
-  #u"网易"+phys_tag: ["http://3g.163.com/touch/sports/", ['//p'], "http://3g.163.com/touch/sports/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
+  u"21cn"+phys_tag: ["http://3g.21cn.com/zy/sports/cbs/", ['//a'], "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
+  u"百度"+phys_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", "http"],#'//div[@class="feeds-item"]/h3/a'
+  u"网易"+phys_tag: ["http://3g.163.com/touch/sports/", ['//p'], "http://3g.163.com/touch/sports/", time.strftime('%Y/%m%d',time.localtime(time.time()))[2:] ],#"14/0724"
 } 
 hotkeys_phys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
 hotkeys_phys_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"恒大", u"淘宝", u"电影", u"双十一"]
