@@ -12,6 +12,7 @@ import time
 import sys
 import traceback
 import random
+import jieba
 
 mutex_update_news = threading.Lock()
 
@@ -251,6 +252,8 @@ class TempStatus:
 			self.navbar_tab = tag_soci
 			self.disp_content = "none"
 			self.disp_contact = "block"
+		else:
+			print ">>> >>> error helpkey: ",helpkey
 
 
 class new_section:
@@ -373,6 +376,7 @@ def get_jsondata(args, from_request=True):
     if is_head_page:
       print "begin .... ",navbar_tab
       if navbar_tab == "":
+        #if g_news_cache.has_key("%s__"%tag_soci) and g_news_cache.has_key("%s__"%tag_phys) and g_news_cache.has_key("%s__"%tag_tech):
         head_news = [ attr(tag_soci,g_news_cache["%s__"%tag_soci]["news"][:20] ), 
                       attr(tag_phys,g_news_cache["%s__"%tag_phys]["news"][:20] ),
                       attr(tag_tech,g_news_cache["%s__"%tag_tech]["news"][:20] ) ]
@@ -397,7 +401,7 @@ def get_jsondata(args, from_request=True):
     jsondata = {
                  "news":all_news,"helpkey":helpkey,"quickkey":quickkey,"ts":ts, 
                  "hot_keys":navbar_infos[tag_soci]["hot_keys"][:20],\
-                 "hot_keys_up":navbar_infos[tag_soci]["hot_keys_up"][:20], \
+                 "hot_keys_up":navbar_infos[tag_soci].get("hot_keys_up",[])[:20], \
                  "head_news":head_news
                }
   else:
@@ -423,20 +427,26 @@ def visit_offcanvas(request):
     ip =  request.META['HTTP_X_FORWARDED_FOR']  
   else:  
     ip = request.META['REMOTE_ADDR'] 
-  logger.info("%s BEGIN. %s"%(ip,str(request.POST)))
+  logger.info("%s BEGIN. POST:%s, GET:%s"%(ip,str(request.POST),str(request.GET)))
 
   global is_first_load
   mutex_update_news.acquire()
   if is_first_load:
     #print "[LOG %s] init news."%(time.strftime("%Y-%m-%d %X", time.localtime()))
     logger.info("init news.")
+    jieba.initialize()
     update_base()
     init_news2()
     thread.start_new_thread(thread_update_news, ("",))
     is_first_load = False
   mutex_update_news.release()
 
-  jsondata = get_jsondata(request.POST)
+  queryDict=None
+  if request.method == 'GET':
+    queryDict = request.GET
+  elif request.method == 'POST':
+    queryDict = request.POST
+  jsondata = get_jsondata(queryDict)
   fp = open('django_composite/offcanvas.html')  
   t = Template(fp.read())  
   fp.close()  
