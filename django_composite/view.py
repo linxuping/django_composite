@@ -88,17 +88,20 @@ def build_list_config():
 
 
 def init_news2(_init=True):
-  global is_first_load, tmpset
+  global is_first_load, tmpset, navbar_infos
   build_list_config()
   if is_first_load:
     create_tables2()
   tmpset.clear() #avoid repeated
   for _k, _v in navbar_infos.items():
-    thread.start_new_thread(inner_init_news2, (_init,_k,_v))
+    if not navbar_infos[_k].get("running",False):
+      logger.info("Load news: %s.",_k)
+      thread.start_new_thread(inner_init_news2, (_init,_k,_v))
 
 
 def inner_init_news2(_init,_k,_v):
   global url_infos_tech, navbar_infos, is_first_load, tmpset
+  navbar_infos[_k]["running"] = True
   try:
     uptime = time.strftime("%m%d%H%M", time.localtime())
     #for _k, _v in navbar_infos.items():
@@ -150,19 +153,20 @@ def inner_init_news2(_init,_k,_v):
     get_jsondata({"helpkey":_k, "helpkey2":"", "quickkey":""}, False)
   except:
     logger.error( "Exception(%s): %s, %s"%(str(sys._getframe().f_code.co_name), str(sys.exc_info()),str(traceback.format_exc()) ))
+  navbar_infos[_k]["running"] = False
   #get_jsondata({"helpkey":"", "helpkey2":"", "quickkey":""}, False)
   
 def thread_update_news(searchcontent):
   #sleeptime = 15*60 #debug
   global g_config
-  sleeptime = 1*30*60 #release
+  sleeptime = 1*3*60 #release
   while True:
     _init = False
     time.sleep(sleeptime)
-    logger.info("update news.")
     g_config = yaml.load(file("django_composite/conf.yaml"))
     try:
-      if get_current_hour() < 1: #00: 00
+      _min = get_current_min()
+      if True: #00: 00
         update_base()
         _init = True
       init_news2(_init)
