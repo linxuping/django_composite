@@ -290,14 +290,14 @@ border-radius: 6px;
 				<tr>
 					<td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:0px">
 					</td>
-				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;text-align:center">
+				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px;text-align:right">
 					<!--
 					<a href="{{item.href}}" style="color:#000088"><b>
 						<font style="font-size:normal;color:#000088">
 	{% for ns in item.nss %}{% if ns.is_link %}<u><a href="#" onclick="quicksearch.value=this.innerHTML;helpkey.value=get_tabname();myform.submit();" style="color:#000088">{{ns.text}}</a></u>{% else %}{{ns.text}}{% endif %}{% endfor %}</font></b>
 					</a>
 					-->
-					<a style="font-size: 2.0rem;color: #333;line-height: 60px" href="#" onclick="helpkey.value='{{new.key}}';myform.submit();">进入{{new.key}} &gt<span class="icon_open"></span> </a>
+					<a style="font-size: 2.0rem;color: #333;line-height: 60px" href="#" onclick="helpkey.value='{{new.key}}';myform.submit();">进入{{new.key}} &gt &gt &gt<span class="icon_open"></span> </a>
 					</td>
 				</tr>
 				{% endfor %}
@@ -471,6 +471,7 @@ border-radius: 6px;
     <div style="footer_content">
       <footer style="padding-top:0px">
         <p id="back-top" style="display:block; width:100%"><a href="#top" style="margin-left:85%"><span>∧</span></a></p>
+        <img src="/static/download.jpg" onclick="location.reload()" width="100%" /><br/><br/>
         <p>&nbsp&nbsp&copy; LXP 2014</p>
       </footer>
 	  </div>
