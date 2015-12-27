@@ -396,7 +396,6 @@ def get_news(topic, navbar_key, old_new_items):
       if (_href not in tmpset and _href not in tmpset2) and (node.text[:10] not in tmpset and node.text[:10] not in tmpset2):
         tmpset2.add(node.text[:10])
         tmpset2.add(_href)
-        print topic,node.text
         news_list.append(news_item(node.text, _href))
         #print "10 words ahead check existed! ",node.text[:10]  for log
       else:
