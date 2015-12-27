@@ -438,7 +438,9 @@ def visit_offcanvas(request):
   if is_first_load:
     #print "[LOG %s] init news."%(time.strftime("%Y-%m-%d %X", time.localtime()))
     logger.info("init news.")
+    jieba.enable_parallel(8)
     jieba.initialize()
+    #jieba.set_dictionary('data/dict.txt.big')
     update_base()
     init_news2()
     thread.start_new_thread(thread_update_news, ("",))

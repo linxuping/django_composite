@@ -69,7 +69,7 @@ background-size: 240px auto;
 width: 24px;
 height: 24px;
 background-position: -200px 0;
-color: #fff;
+color: rgb(255,255,0);
 text-align: center;
 line-height: 20px;
 position: absolute;
@@ -170,6 +170,10 @@ padding: 5px 10px;
 border: 1px solid #aeb2b9;
 border-radius: 6px;
 }
+.icon_style {
+width:1px;
+padding:4px;
+}
 	</style>
   </head>
 
@@ -185,15 +189,20 @@ border-radius: 6px;
             <span class="icon-bar"></span>
           </button>
         <div  class="navbar-brand">
-        <span class="s_home">&nbsp;</span>
+        <span class="s_title"><font style="color:rgb(255,255,0)">H</font><font style="color:rgb(0,255,0)">O</font><font style="color:rgb(255,0,0)">T</font></span>
         <a href="#" onclick="myform.submit();" style="padding-left:27px;color:white">
-		{{helpkey}}
+{% if helpkey %}
+{{helpkey}}
+{% else %}
+新闻聚焦
+{% endif %}
 	</a>
         </div>
 
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
+            <li id="tab_0"><a href="#" onclick="helpkey.value='';btnToggle.click();myform.submit();">Home</a></li>
             <li id="tab_2" class="{{ts.status_soci}}"><a href="#" onclick="helpkey.value=this.text;btnToggle.click();myform.submit();">今日头条</a></li>
             <li id="tab_1" class="{{ts.status_tech}}"><a href="#" onclick="helpkey.value=this.text;btnToggle.click();myform.submit();">互联网</a></li>
             <li id="tab_3" class="{{ts.status_phys}}"><a href="#" onclick="helpkey.value=this.text;btnToggle.click();myform.submit();">体育</a></li>
@@ -219,6 +228,7 @@ border-radius: 6px;
     <div class="container">
       <div class="row row-offcanvas row-offcanvas-right">
         <div class="col-xs-12 col-sm-9" style="padding-left:8px;padding-right:8px">
+<!--
 {% if head_news %}
 				  <p class="pull-right visible-xs" style="margin-right:5px">
 				    <button id="btnHotKeys" type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">&nbsp焦点&nbsp</button>
@@ -229,6 +239,7 @@ border-radius: 6px;
 				    <h6 style="margin-top:2px">多家媒体▪多维度▪大数据精选  </h6>
 				  </div>
 {% endif %}
+-->
 				  <p class="pull-right visible-xs" style="margin-right:5px">
 			<!--
 			<div class="panel panel-default" style="margin-top:8px">
@@ -261,12 +272,12 @@ border-radius: 6px;
 				{% for new in head_news %}
 				{% for item in new.value %}
 				<tr>
-				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px">
+				 <td class="icon_style">
 					{% if item.icon %}
-					<img src="{{item.icon}}" alt="" style="width:25px;height:25px;border-radius:50%;background:grey">
+					<img src="{{item.icon}}" alt="" style="width:20px;height:20px;border-radius:50%;background:grey">
 					{% else %}
 					<img src="/static/news.png" alt="" style="width:30px;height:30px;border-radius:50%;background:grey">
-					{% endif %}
+					{% endif %} </td>
 				 <td style="padding-left:0px;padding-top:8px;padding-bottom:8px;padding-right:1px">
 					<!--
 					<a href="{{item.href}}" style="color:#000088"><b>
@@ -308,9 +319,9 @@ border-radius: 6px;
 
 			{% if forloop.counter < 15 %}
 				<tr>
-					<td style="padding-left:0px;padding-top:8px;padding-bottom:8px">
+					<td class="icon_style">
 						{% if item.icon %}
-						<img src="{{item.icon}}" alt="" style="width:25px;height:25px;border-radius:50%;background:grey">
+						<img src="{{item.icon}}" alt="" style="width:20px;height:20px;border-radius:50%;background:grey">
 						{% else %}
 						<img src="/static/news.png" alt="" style="width:30px;height:30px;border-radius:50%;background:grey">
 						{% endif %}
@@ -351,9 +362,9 @@ border-radius: 6px;
 					<font style="font-size:small;color:#AAAAAA">{{item.topic |cut:"_" |cut:helpkey }}</font></td>
 				</tr>-->
 				<tr name="news_more" style="display:none">
-					<td style="padding-left:0px;padding-top:8px;padding-bottom:8px">
+					<td class="icon_style">
 						{% if item.icon %}
-						<img src="{{item.icon}}" alt="" style="width:25px;height:25px;border-radius:50%;background:grey">
+						<img src="{{item.icon}}" alt="" style="width:20px;height:20px;border-radius:50%;background:grey">
 						{% else %}
 						<img src="/static/news.png" alt="" style="width:30px;height:30px;border-radius:50%;background:grey">
 						{% endif %}
