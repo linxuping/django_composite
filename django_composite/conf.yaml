@@ -26,13 +26,15 @@ nimg_size_limit:
 
 
 logos: 
-    qq.com:"tx.png"
-    ifeng.com:"fenghuang.gif"
-    sohu.com:"sohu.png"
-    sina.com:"sina.png"
-    3g.news.cn:"xinhua.png"
-    cctv.com:"cctv.png"
-    163.com:"netease.png"
+    qq.com: "tx.png"
+    ifeng.com: "fenghuang.gif"
+    fenghuang: "fenghuang.gif"
+    sohu.com: "sohu.png"
+    sina: "sina.png"
+    3g.news.cn: "xinhua.png"
+    cctv.com: "cctv.png"
+    163.com: "netease.png"
+    21cn: "21cn.jpg"
 
 soft:
     apache: 2.2
