@@ -205,6 +205,7 @@ class news:
 tag_tech = u"互联网"
 tag_soci = u"今日头条"
 tag_phys = u"体育"
+tag_amus = u"娱乐"
 tag_cont = u"联系我"
 
 #-------------------- common part ------------------#
@@ -233,14 +234,14 @@ all_news_tech = [news( url_infos_tech.keys()[0] )]*len(url_infos_tech) #initial
 url_infos_soci = {
   #topic: [tech link, xpath, offical link]
   ##u"新华社": ["http://3g.news.cn/html/", ["//div[@class='newlist']/ul/li/a"], "http://3g.news.cn", ""],#
-  #u"凤凰网": ["http://inews.ifeng.com/", ['//p'], "http://inews.ifeng.com/", "news"],#
+  u"凤凰网": ["http://inews.ifeng.com/", ['//p'], "http://inews.ifeng.com/", "news"],#
   #u"搜狐": ["http://m.sohu.com/", ["//section/p/a","//h4/a/strong","//div/div/a"], "http://m.sohu.com", "/?wscrid="],
   #u"新浪": ["http://news.sina.cn/", ["//h3[@class='carditems_list_h3']"], "http://news.sina.cn", ""],
   #u"网易": ["http://news.163.com/mobile/", ['//li/h4/a'], "http://www.163.com/", "" ],
   #u"腾讯": ["http://xw.qq.com/m/news", ['//h2'], "http://news.qq.com", "" ],#20140724 - 201407
   ##u"百度": ["http://m.baidu.com/news", ["//div[@class='list-item']/a"], "http://m.baidu.com", "" ],#
   #u"CCTV": ["http://m.cctv.com/", ["//div/div/h3/a","//div/div/p/a","//ul[@class='first-child-no-top last-child-no-bottom']/li/a","//ul[@class='first-child-no-top']/li/a"], "http://m.cctv.com/", "index.shtml"],#
-  u"people": ["http://m.people.cn", ["//ul/li/a"], "http://m.people.cn", ""],#
+  #u"people": ["http://m.people.cn", ["//ul/li/a"], "http://m.people.cn", ""],#
 
 } 
 hotkeys_soci = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
@@ -254,12 +255,12 @@ all_news_soci = [news( url_infos_soci.keys()[0] )]*len(url_infos_soci) #initial
 #------------------- physical part -----------------#
 phys_tag=u"_"+tag_phys
 url_infos_phys = {
-  u"新浪"+phys_tag: ["http://sports.sina.cn/?from=wap", ['//h3'], "http://sports.sina.cn/?from=wap", "" ],#2014_07/24
+  #u"新浪"+phys_tag: ["http://sports.sina.cn/?from=wap", ['//h3'], "http://sports.sina.cn/?from=wap", "" ],#2014_07/24
   #u"搜狐"+phys_tag: ["http://m.sohu.com/c/27/", ['//a'], "http://m.sohu.com", ""],#
   #u"腾讯"+phys_tag: ["http://xw.qq.com/m/sports/index.htm", ['//h2'], "http://xw.qq.com/m/sports/index.htm", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
   #u"21cn"+phys_tag: ["http://3g.21cn.com/zy/sports/cbs/", ['//a'], "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
   #u"百度"+phys_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", ""],#'//div[@class="feeds-item"]/h3/a'
-  #u"网易"+phys_tag: ["http://3g.163.com/touch/sports/", ['//p'], "http://3g.163.com/touch/sports/", "" ],#"14/0724"
+  u"网易"+phys_tag: ["http://3g.163.com/touch/sports/", ['//p'], "http://3g.163.com/touch/sports/", "" ],#"14/0724"
 } 
 hotkeys_phys = ["车", "4G", "小米", "手机", "平板", "谷歌", "阿里", "百度", "腾讯"] 
 hotkeys_phys_white_list = [u"车", u"房", u"球", u"涨", u"跌", u"天气", u"足球", u"移动", u"手机", u"大妈", u"游戏", u"恒大", u"淘宝", u"电影", u"双十一"]
@@ -269,7 +270,22 @@ hotkeys_phys_black_list = [u"男人", u"女人", u"男子", u"女子", u"男孩"
 words_stat_phys = {} #{"word":count}
 all_news_phys = [news( url_infos_phys.keys()[0] )]*len(url_infos_phys) #initial
 #-------------------------------------------------#
-
+#------------------- amuse part -----------------#
+_tag=u"_"+tag_amus
+url_infos_amus = {
+  #u"新浪"+_tag: ["http://sports.sina.cn/?from=wap", ['//h3'], "http://sports.sina.cn/?from=wap", "" ],#2014_07/24
+  #u"搜狐"+_tag: ["http://m.sohu.com/c/27/", ['//a'], "http://m.sohu.com", ""],#
+  #u"腾讯"+_tag: ["http://xw.qq.com/m/sports/index.htm", ['//h2'], "http://xw.qq.com/m/sports/index.htm", time.strftime('%Y%m%d',time.localtime(time.time())) ],#20140724
+  #u"21cn"+_tag: ["http://3g.21cn.com/zy/sports/cbs/", ['//a'], "http://3g.21cn.com/zy/sports/cbs/", time.strftime('%Y/%m%d',time.localtime(time.time())) ],#20140724
+  #u"百度"+_tag: ["http://internet.baidu.com/", ['//a'], "http://www.baidu.com/", ""],#'//div[@class="feeds-item"]/h3/a'
+  u"网易"+_tag: ["http://3g.163.com/touch/sports/", ['//p'], "http://3g.163.com/touch/sports/", "" ],#"14/0724"
+} 
+hotkeys_amus = ["", "", "", "", "", "", "", "", ""] 
+hotkeys_amus_white_list = []
+hotkeys_amus_black_list = [u"",u"",u""]
+words_stat_amus = {} #{"word":count}
+all_news_amus = [news( url_infos_amus.keys()[0] )]*len(url_infos_amus) #initial
+#-------------------------------------------------#
 
 navbar_infos = {
   tag_tech: {"url_infos":url_infos_tech, "white_list":hotkeys_tech_white_list, "black_list":hotkeys_tech_black_list+hotkeys_black_list, \
@@ -278,6 +294,8 @@ navbar_infos = {
            "hot_keys":hotkeys_soci, "words_stat":words_stat_soci, "all_news":all_news_soci},
   tag_phys: {"url_infos":url_infos_phys, "white_list":hotkeys_phys_white_list, "black_list":hotkeys_phys_black_list+hotkeys_black_list, \
            "hot_keys":hotkeys_phys, "words_stat":words_stat_phys, "all_news":all_news_phys},
+  tag_amus: {"url_infos":url_infos_amus, "white_list":hotkeys_amus_white_list, "black_list":hotkeys_amus_black_list+hotkeys_black_list, \
+           "hot_keys":hotkeys_amus, "words_stat":words_stat_amus, "all_news":all_news_amus},
 }
 is_first_load = True
 
@@ -637,7 +655,8 @@ def update_base():
 	      key = items[i][0]
 	      topic = items[i][1]
 	      count_avg = int(items[i][2])
-	      c.execute("update hotkeys2 set count=%d,weight=0 where name='%s' and topic='%s'"%(count_avg,key,topic))
+	      #c.execute("update hotkeys2 set count=%d,weight=0 where name='%s' and topic='%s'"%(count_avg,key,topic))
+	      c.execute("update hotkeys2 set count=%d,weight=%d where name='%s' and topic='%s'"%(count_avg,count_avg,key,topic))
 	  cx.commit()
 	  c.close()
 	except:

@@ -240,6 +240,7 @@ class TempStatus:
 	status_tech = ""
 	status_soci = ""
 	status_phys = ""
+	status_amus = ""
 	status_cont = ""
 	def __init__(self, helpkey):
 		if tag_soci == helpkey:
@@ -248,6 +249,9 @@ class TempStatus:
 		elif tag_phys == helpkey:
 			self.status_phys = "active"
 			self.navbar_tab = tag_phys
+		elif tag_amus == helpkey:
+			self.status_amus = "active"
+			self.navbar_tab = tag_amus
 		elif tag_tech == helpkey:
 			self.status_tech = "active"
 			self.navbar_tab = tag_tech
@@ -381,9 +385,10 @@ def get_jsondata(args, from_request=True):
       print "begin .... ",navbar_tab
       if navbar_tab == "":
         #if g_news_cache.has_key("%s__"%tag_soci) and g_news_cache.has_key("%s__"%tag_phys) and g_news_cache.has_key("%s__"%tag_tech):
-        head_news = [ attr(tag_soci,g_news_cache["%s__"%tag_soci]["news"][:20] ), 
-                      attr(tag_phys,g_news_cache["%s__"%tag_phys]["news"][:20] ),
-                      attr(tag_tech,g_news_cache["%s__"%tag_tech]["news"][:20] ) ]
+        head_news = [ attr(tag_soci,g_news_cache["%s__"%tag_soci]["news"][:12] ), 
+                      attr(tag_phys,g_news_cache["%s__"%tag_phys]["news"][:12] ),
+                      attr(tag_amus,g_news_cache["%s__"%tag_amus]["news"][:12] ),
+                      attr(tag_tech,g_news_cache["%s__"%tag_tech]["news"][:12] ) ]
         print "build ___ ",head_news
       else:
         all_news = build_head_page_data(navbar_tab)
