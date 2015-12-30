@@ -166,7 +166,7 @@ def thread_update_news(searchcontent):
     g_config = yaml.load(file("django_composite/conf.yaml"))
     try:
       _min = get_current_min()
-      if True: #00: 00
+      if _min<5: #00: 00
         update_base()
         _init = True
       init_news2(_init)
@@ -271,18 +271,22 @@ class new_section:
 
 
 def build_head_page_data(topic):
-	global navbar_infos
+	global navbar_infos,g_key_weights
 	hot_keys_up = navbar_infos[topic]["hot_keys_up"]
 	hksets = set(hot_keys_up)
 	rets = []
 	rets_keys = set()
 	
+	#should get the weights from gen_weight.
+	'''
 	weights={}
 	for i in range(len(hot_keys_up)):
 		weight = 10-i/10
 		if weight < 2:
 			weight = 2
 		weights[ hot_keys_up[i] ] = weight
+	'''
+	weights = g_key_weights
 	
 	for hk in hot_keys_up: #hot rate: high -> low
 		raw_news = filter_news(hk,navbar_infos[topic]["all_news"])
