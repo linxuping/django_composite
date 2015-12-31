@@ -20,6 +20,10 @@ g_db_lock = threading.Lock()
 import jieba.posseg as pseg
 word_types = ["n", "ns", "nr", "eng"]
 
+g_key_weights = {}
+#debug.
+is_debug = True
+
 def get_days_ago(days):
   import datetime
   nowt = datetime.datetime.now()
@@ -459,6 +463,7 @@ def _tofloat(_count, _key):
 
 
 def get_hot_keys(dic, hot_topic_count=10, topic="None", savedb=True):
+  global g_key_weights
   #dic: {"aa":2, "bb":1999, "cc":88, "dd":45, "ee":10, "ff":13}
   #max_count = 1000 #如果统计表示已经超过1000次，这么高频，不用统计了，直接放到max_topic_list
  
@@ -488,6 +493,9 @@ def get_hot_keys(dic, hot_topic_count=10, topic="None", savedb=True):
     max_topic_counts.append(countstr)
     tmp_dict_k = int(str(tmp_list[ii]).split(".")[1][:-1])#'88.31' -> '31' -> '3' -> 3
     max_topic_list.append(tmp_dict[tmp_dict_k])
+    #debug
+    g_key_weights[ tmp_dict[tmp_dict_k] ] = int(countstr)
+     
     #if ii < 3:
     #  print tmp_dict[tmp_dict_k],countstr
     #save_hoykey_count(tmp_dict[tmp_dict_k], int(countstr), topic)
@@ -602,7 +610,6 @@ up_hour:
 	  gen_weight
 '''
      
-g_key_weights = {}
 def gen_weight(c_old, c_new):
   #1\count  *  2\rate up
   if c_new >= c_old:

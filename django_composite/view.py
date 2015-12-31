@@ -13,6 +13,7 @@ import sys
 import traceback
 import random
 import jieba
+import platform
 
 mutex_update_news = threading.Lock()
 
@@ -324,6 +325,7 @@ def build_head_page_data(topic):
 		max_topic_list,max_topic_counts = get_hot_keys(tmpdic, 1, None, False)
 		if (len(max_topic_list) > 0):
 			_new = all_news[ max_topic_list[0] ]
+			'''
 			ws = pseg.cut(_new.text)
 			_tmps = []
 			for w in ws:
@@ -332,6 +334,7 @@ def build_head_page_data(topic):
 				else:
 					_tmps.append( new_section(w.word,False) )
 			#_new.nss = _tmps   #debug mode.
+			'''
 			if _new.text not in rets_keys:
 				#print _new.text,  _new.topic
 				rets.append( _new )
@@ -427,6 +430,21 @@ def get_jsondata(args, from_request=True):
   #if tag_cont!=helpkey and len(g_news_cache)<1000:
   if len(g_news_cache) < 5000:
     g_news_cache[cache_key] = deepcopy(jsondata)
+    global is_debug,g_key_weights
+    if is_debug:
+      jsdata = g_news_cache[cache_key]
+      count = 0
+      for _new in jsdata["news"]:
+        jsdata["news"][count].text = "%s.%d"%(_new.text,g_key_weights.get(_new.text,0) )
+        count = count + 1
+      hot_keys_d = []
+      for k in jsdata["hot_keys"]:
+        hot_keys_d.append( "%s.%d"%(k,g_key_weights.get(k,0) ) )
+      jsdata["hot_keys"] = hot_keys_d
+      hot_keys_up_d = []
+      for k in jsdata["hot_keys_up"]:
+        hot_keys_up_d.append( "%s.%d"%(k,g_key_weights.get(k,0) ) )
+      jsdata["hot_keys_up"] = hot_keys_up_d
     if from_request:
       logger.info("build cache: %s."%cache_key)
   return jsondata 
@@ -447,7 +465,8 @@ def visit_offcanvas(request):
   if is_first_load:
     #print "[LOG %s] init news."%(time.strftime("%Y-%m-%d %X", time.localtime()))
     logger.info("init news.")
-    jieba.enable_parallel(8)
+    if platform.system() == "Linux":
+      jieba.enable_parallel(8)
     jieba.initialize()
     #jieba.set_dictionary('data/dict.txt.big')
     update_base()
