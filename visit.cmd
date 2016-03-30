@@ -1,1 +1,0 @@
-explorer.exe "http://localhost:9900/news"
